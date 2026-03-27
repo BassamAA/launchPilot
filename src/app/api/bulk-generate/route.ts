@@ -36,8 +36,8 @@ export async function POST(req: NextRequest) {
 
     const contentLimits: Record<string, number> = {
       free_trial: 10,
-      starter: 10,
-      growth: 50,
+      starter: 30,
+      growth: Infinity,
       agency: Infinity,
     };
 

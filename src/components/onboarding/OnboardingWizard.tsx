@@ -254,12 +254,12 @@ export function OnboardingWizard({
       {step === 0 && (
         <div className="mt-6 space-y-4">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Step 1</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Step 1 of 3</p>
             <h3 className="mt-1 text-lg font-semibold text-gray-900">
-              We’ve identified you as a {persona.replace(/_/g, " ")}
+              Choose where you want to show up
             </h3>
             <p className="mt-2 text-sm text-gray-600">
-              LaunchPilot pre-activated the most relevant growth surfaces for this persona. Adjust anything before the first plan is generated.
+              LaunchPilot pre-selected the channels that work best for your type of product. Turn off any you don&apos;t want — you can always change this later.
             </p>
           </div>
 
@@ -306,26 +306,27 @@ export function OnboardingWizard({
       {step === 1 && (
         <div className="mt-6 space-y-4">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Step 2</p>
-            <h3 className="mt-1 text-lg font-semibold text-gray-900">Quick setup</h3>
+            <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Step 2 of 3</p>
+            <h3 className="mt-1 text-lg font-semibold text-gray-900">Optional — connect & track</h3>
             <p className="mt-2 text-sm text-gray-600">
-              LaunchPilot only needs a few setup steps before it can start shipping and learning.
+              These make LaunchPilot more powerful, but you can skip them and do it after your first content goes live.
             </p>
           </div>
 
           <div className="grid gap-3 md:grid-cols-3">
             {setupActions.map((action) => (
-              <Link key={action.title} href={action.href} className="block">
+              <Link key={action.title} href={action.href} className="block" target="_blank" rel="noopener">
                 <div className="h-full rounded-2xl border border-gray-200 bg-white p-4 transition-colors hover:border-brand-300 hover:bg-brand-50/40">
                   <p className="text-sm font-semibold text-gray-900">{action.title}</p>
                   <p className="mt-2 text-sm text-gray-600">{action.description}</p>
+                  <p className="mt-3 text-xs text-brand-600 font-medium">Opens in settings →</p>
                 </div>
               </Link>
             ))}
           </div>
 
           <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3">
-            <p className="text-sm font-semibold text-emerald-900">Quick wins for this persona</p>
+            <p className="text-sm font-semibold text-emerald-900">What works best for products like yours</p>
             <ul className="mt-2 space-y-1 text-sm text-emerald-800">
               {config.quickWins.map((win) => (
                 <li key={win}>• {win}</li>
@@ -333,9 +334,10 @@ export function OnboardingWizard({
             </ul>
           </div>
 
-          <div className="flex justify-end">
+          <div className="flex items-center justify-between gap-4">
+            <p className="text-xs text-gray-400">You can set these up any time from Settings.</p>
             <Button onClick={handleContinue} disabled={loading}>
-              Show my first wins <RocketLaunchIcon className="h-4 w-4" />
+              Generate my first content <RocketLaunchIcon className="h-4 w-4" />
             </Button>
           </div>
         </div>
@@ -345,10 +347,10 @@ export function OnboardingWizard({
         <div className="mt-6 space-y-4">
           <div className="flex items-start justify-between gap-4 flex-wrap">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Step 3</p>
-              <h3 className="mt-1 text-lg font-semibold text-gray-900">Your first wins</h3>
+              <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Step 3 of 3</p>
+              <h3 className="mt-1 text-lg font-semibold text-gray-900">Review your first content</h3>
               <p className="mt-2 text-sm text-gray-600">
-                Approve these and LaunchPilot starts working for you today.
+                Read each piece, make any edits, then approve. Approved content goes live automatically or lands in your scheduled queue.
               </p>
             </div>
             {queueItems.length === 0 && (

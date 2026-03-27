@@ -13,6 +13,7 @@ import {
   FunnelIcon,
   BoltIcon,
   ArrowPathIcon,
+  SparklesIcon,
 } from "@heroicons/react/24/outline";
 
 const CHANNELS: Array<{ value: ContentChannel | "all"; label: string; emoji: string }> = [
@@ -38,6 +39,7 @@ export default function QueuePage() {
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [persona, setPersona] = useState<OnboardingPersona | null>(null);
+  const [generatingBatch, setGeneratingBatch] = useState(false);
 
   useEffect(() => {
     fetch(`/api/sites/${siteId}`)
@@ -156,6 +158,45 @@ export default function QueuePage() {
     }
   }
 
+  async function handleGenerateBatch() {
+    setGeneratingBatch(true);
+    try {
+      // Fetch or create the plan, then bulk-generate
+      const planRes = await fetch(`/api/sites/${siteId}/plan`);
+      const planPayload = await planRes.json();
+      let planId = planPayload?.plan?.id as string | undefined;
+
+      if (!planId) {
+        const genRes = await fetch("/api/generate-plan", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ site_id: siteId }),
+        });
+        const genPayload = await genRes.json().catch(() => ({}));
+        if (!genRes.ok) {
+          toast(genPayload.error || "Failed to generate plan.", "error");
+          return;
+        }
+        planId = genPayload.plan_id;
+      }
+
+      if (planId) {
+        await fetch("/api/bulk-generate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ plan_id: planId }),
+        });
+      }
+
+      toast("Content generated — review it below.", "success");
+      await fetchQueue();
+    } catch {
+      toast("Something went wrong. Try again.", "error");
+    } finally {
+      setGeneratingBatch(false);
+    }
+  }
+
   async function handleBulkApprove() {
     setBulkApproving(true);
     const autoItems = items.filter((i) => i.auto_executable && i.body);
@@ -196,9 +237,9 @@ export default function QueuePage() {
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Approval Queue</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Review & Publish</h1>
           <p className="text-gray-500 text-sm mt-1">
-            {total} piece{total !== 1 && "s"} waiting for review
+            {total > 0 ? `${total} piece${total !== 1 ? "s" : ""} ready for your review` : "Nothing waiting — you're all caught up"}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -257,13 +298,19 @@ export default function QueuePage() {
           <Spinner />
         </div>
       ) : items.length === 0 ? (
-        <EmptyState
-          icon={<QueueListIcon className="w-16 h-16" />}
-          title="Queue is clear"
-          description={
-            emptyDescription
-          }
-        />
+        <div className="flex flex-col items-center justify-center py-20 text-center">
+          <div className="w-14 h-14 rounded-2xl bg-gray-100 flex items-center justify-center mb-4">
+            <QueueListIcon className="w-7 h-7 text-gray-400" />
+          </div>
+          <h3 className="text-base font-semibold text-gray-900 mb-1">Queue is clear</h3>
+          <p className="text-sm text-gray-500 max-w-sm mb-6">{emptyDescription}</p>
+          {total === 0 && (
+            <Button onClick={handleGenerateBatch} loading={generatingBatch}>
+              <SparklesIcon className="w-4 h-4" />
+              Generate content
+            </Button>
+          )}
+        </div>
       ) : (
         <>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
