@@ -246,12 +246,16 @@ async function ensureSystemCompany(supabase: SupabaseAdmin) {
   // so the owner can see and manage it directly from their dashboard.
   const ownerEmail = process.env.SELF_MARKETING_OWNER_EMAIL?.trim();
   if (ownerEmail) {
-    const { data: ownerProfile } = await supabase
-      .from("user_profiles")
-      .select("company_id")
-      .eq("email", ownerEmail)
-      .maybeSingle();
-    if (ownerProfile?.company_id) return ownerProfile.company_id;
+    const { data: authData } = await supabase.auth.admin.listUsers({ perPage: 1000 });
+    const ownerUser = authData?.users?.find((u) => u.email === ownerEmail);
+    if (ownerUser?.id) {
+      const { data: ownerProfile } = await supabase
+        .from("user_profiles")
+        .select("company_id")
+        .eq("id", ownerUser.id)
+        .maybeSingle();
+      if (ownerProfile?.company_id) return ownerProfile.company_id;
+    }
   }
 
   const { data: existing } = await supabase

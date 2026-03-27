@@ -6,25 +6,24 @@ import { BRAND_APP_HOST, BRAND_NAME, BRAND_SUPPORT_EMAIL } from "@/lib/brand";
 import {
   RocketLaunchIcon,
   DocumentTextIcon,
-  CalendarIcon,
   CheckIcon,
-  StarIcon,
 } from "@heroicons/react/24/solid";
 import {
   GlobeAltIcon,
   ChatBubbleLeftRightIcon,
   EnvelopeIcon,
-  VideoCameraIcon,
   MagnifyingGlassIcon,
   BuildingStorefrontIcon,
+  BoltIcon,
+  BriefcaseIcon,
 } from "@heroicons/react/24/outline";
 
 const CHANNELS = [
   { icon: MagnifyingGlassIcon, label: "SEO Blog Posts", color: "text-emerald-600 bg-emerald-50" },
   { icon: ChatBubbleLeftRightIcon, label: "Twitter / X", color: "text-sky-600 bg-sky-50" },
   { icon: GlobeAltIcon, label: "Reddit", color: "text-orange-600 bg-orange-50" },
-  { icon: EnvelopeIcon, label: "Cold Email", color: "text-violet-600 bg-violet-50" },
-  { icon: VideoCameraIcon, label: "TikTok / Reels", color: "text-pink-600 bg-pink-50" },
+  { icon: BriefcaseIcon, label: "LinkedIn", color: "text-blue-600 bg-blue-50" },
+  { icon: EnvelopeIcon, label: "Email", color: "text-violet-600 bg-violet-50" },
   { icon: BuildingStorefrontIcon, label: "Directories", color: "text-indigo-600 bg-indigo-50" },
 ];
 
@@ -41,14 +40,14 @@ const STEPS = [
     icon: DocumentTextIcon,
     title: "Review Your Plan",
     description:
-      "Get a complete marketing brief, a 30-day action plan, and all the content pre-written — blog posts, tweets, Reddit drafts, cold emails, TikTok scripts, directory submissions.",
+      "Get a complete marketing brief, a 30-day action plan, and all the content pre-written — blog posts, tweets, LinkedIn posts, Reddit drafts, cold emails, and directory submissions.",
   },
   {
     number: "03",
-    icon: RocketLaunchIcon,
-    title: "Approve & Launch",
+    icon: BoltIcon,
+    title: "Turn On Autopilot",
     description:
-      `Review content in your queue, edit anything you want, and approve. ${BRAND_NAME} handles the rest — tracking what goes live, what's pending, and what's working.`,
+      `Connect your accounts, flip the Autopilot switch, and walk away. ${BRAND_NAME} generates, schedules, and publishes content every day — without you touching it again.`,
   },
 ];
 
@@ -58,8 +57,8 @@ const FAQS = [
     a: `None. ${BRAND_NAME} is built for developers and founders who know how to build but have never done marketing. It handles the strategy, the writing, and the execution planning.`,
   },
   {
-    q: "Will it spam people or post without my permission?",
-    a: "Never. You approve every piece of content before it goes anywhere. The only exceptions are low-risk items you explicitly mark as auto-publishable (like directory submissions). Reddit drafts are always human-reviewed.",
+    q: "Will it post without my permission?",
+    a: `By default, you review everything in the approval queue before it goes live. If you want full automation, turn on Autopilot — ${BRAND_NAME} will generate and publish blog posts, tweets, and LinkedIn posts daily on its own. Reddit drafts always require manual review regardless.`,
   },
   {
     q: "What if I don't like the generated content?",
@@ -122,9 +121,7 @@ export default function LandingPage() {
           </h1>
 
           <p className="text-xl text-gray-500 max-w-2xl mx-auto mb-8 leading-relaxed">
-            {BRAND_NAME} analyzes your website, builds a complete marketing strategy,
-            generates all the content, and executes across SEO, social, Reddit, email,
-            and directories — all on autopilot.
+            Paste your URL. Get a complete marketing strategy, all content written, and publishing on autopilot across blog, Twitter, LinkedIn, Reddit, and directories — every single day, without touching it again.
           </p>
 
           {/* Interactive hero input */}
@@ -240,36 +237,22 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Social Proof Placeholder */}
+      {/* Built in public proof */}
       <section className="py-16 px-6 bg-brand-500">
-        <div className="max-w-6xl mx-auto text-center">
-          <p className="text-brand-100 text-lg mb-4">Trusted by indie hackers shipping products</p>
-          <div className="flex items-center justify-center gap-1 mb-6">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <StarIcon key={i} className="w-5 h-5 text-yellow-300" />
-            ))}
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-            {[
-              {
-                quote: `I shipped 3 products in the last year and none of them had more than 50 users. ${BRAND_NAME} changed that — my last launch hit 400 signups in week 1.`,
-                author: "Founder, SaaS indie hacker",
-              },
-              {
-                quote: `I'm a developer, not a marketer. ${BRAND_NAME} wrote content that genuinely sounds like me. Approved 80% of it without edits.`,
-                author: "Solo founder",
-              },
-              {
-                quote: "The marketing brief alone was worth it. It told me things about my own product I hadn't articulated in 6 months of building.",
-                author: "Bootstrapped founder",
-              },
-            ].map((t, i) => (
-              <div key={i} className="bg-white/10 rounded-xl p-6 text-left">
-                <p className="text-white/90 text-sm leading-relaxed mb-4">"{t.quote}"</p>
-                <p className="text-brand-200 text-xs font-medium">— {t.author}</p>
-              </div>
-            ))}
-          </div>
+        <div className="max-w-4xl mx-auto text-center">
+          <p className="text-brand-100 text-sm font-semibold uppercase tracking-widest mb-4">Built in public</p>
+          <h2 className="text-3xl font-bold text-white mb-4">
+            {BRAND_NAME} markets itself using {BRAND_NAME}.
+          </h2>
+          <p className="text-brand-100 text-lg leading-relaxed max-w-2xl mx-auto mb-8">
+            This blog post, the tweet that brought you here, the LinkedIn post — all generated and published automatically by the same system you're about to use. Every day, with no human intervention.
+          </p>
+          <a
+            href={`/blog/breakthroughpilot`}
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-brand-700 font-semibold rounded-lg text-sm hover:bg-brand-50 transition-colors"
+          >
+            Read the live blog →
+          </a>
         </div>
       </section>
 
