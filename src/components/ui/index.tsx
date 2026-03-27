@@ -25,9 +25,9 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     const variants: Record<ButtonVariant, string> = {
       primary: "bg-brand-500 text-white hover:bg-brand-600 focus:ring-brand-500 shadow-brand hover:shadow-none",
       secondary: "bg-brand-50 text-brand-700 hover:bg-brand-100 focus:ring-brand-400",
-      ghost: "text-gray-600 hover:bg-gray-100 hover:text-gray-900 focus:ring-gray-300",
+      ghost: "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white focus:ring-gray-300",
       danger: "bg-red-500 text-white hover:bg-red-600 focus:ring-red-400",
-      outline: "border border-gray-200 text-gray-700 hover:bg-gray-50 focus:ring-gray-300",
+      outline: "border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:ring-gray-300",
     };
 
     const sizes: Record<ButtonSize, string> = {
@@ -69,7 +69,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     return (
       <div className="space-y-1">
         {label && (
-          <label htmlFor={inputId} className="block text-sm font-medium text-gray-700">
+          <label htmlFor={inputId} className="block text-sm font-medium text-gray-700 dark:text-gray-300">
             {label}
           </label>
         )}
@@ -77,9 +77,9 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           ref={ref}
           id={inputId}
           className={cn(
-            "block w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 placeholder:text-gray-400",
-            "focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100",
-            "disabled:bg-gray-50 disabled:text-gray-400",
+            "block w-full rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2.5 text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500",
+            "focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100 dark:focus:ring-brand-900",
+            "disabled:bg-gray-50 dark:disabled:bg-gray-800 disabled:text-gray-400",
             error && "border-red-300 focus:border-red-400 focus:ring-red-100",
             className
           )}
@@ -105,7 +105,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
     return (
       <div className="space-y-1">
         {label && (
-          <label htmlFor={inputId} className="block text-sm font-medium text-gray-700">
+          <label htmlFor={inputId} className="block text-sm font-medium text-gray-700 dark:text-gray-300">
             {label}
           </label>
         )}
@@ -113,7 +113,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           ref={ref}
           id={inputId}
           className={cn(
-            "block w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 resize-y min-h-[100px]",
+            "block w-full rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2.5 text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 resize-y min-h-[100px]",
             "focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100",
             error && "border-red-300",
             className
@@ -140,7 +140,7 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
       <div
         ref={ref}
         className={cn(
-          "bg-white rounded-xl border border-gray-100 shadow-card",
+          "bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-card",
           hover && "cursor-pointer hover:shadow-card-hover hover:-translate-y-0.5 transition-all duration-200",
           paddings[padding],
           className
@@ -201,7 +201,7 @@ export const Spinner = ({ className }: { className?: string }) => (
 export const Skeleton = ({ className }: { className?: string }) => (
   <div
     className={cn(
-      "animate-pulse rounded-lg bg-gray-100",
+      "animate-pulse rounded-lg bg-gray-100 dark:bg-gray-700",
       className
     )}
   />
@@ -222,9 +222,9 @@ interface EmptyStateProps {
 
 export const EmptyState = ({ icon, title, description, action }: EmptyStateProps) => (
   <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
-    {icon && <div className="mb-4 text-gray-300">{icon}</div>}
-    <h3 className="text-lg font-semibold text-gray-900 mb-2">{title}</h3>
-    {description && <p className="text-sm text-gray-500 max-w-xs mb-6">{description}</p>}
+    {icon && <div className="mb-4 text-gray-300 dark:text-gray-600">{icon}</div>}
+    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">{title}</h3>
+    {description && <p className="text-sm text-gray-500 dark:text-gray-400 max-w-xs mb-6">{description}</p>}
     {action}
   </div>
 );

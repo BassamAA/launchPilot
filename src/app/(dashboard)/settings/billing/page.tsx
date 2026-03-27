@@ -78,8 +78,8 @@ export default function BillingPage() {
   return (
     <div className="max-w-3xl space-y-8">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Billing</h1>
-        <p className="text-gray-500 text-sm mt-1">Manage your subscription</p>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Billing</h1>
+        <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Manage your subscription</p>
       </div>
 
       {success && (
@@ -90,18 +90,18 @@ export default function BillingPage() {
         </div>
       )}
       {canceled && (
-        <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 text-gray-600">
+        <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 text-gray-600 dark:text-gray-300">
           Checkout canceled. Your plan was not changed.
         </div>
       )}
 
       {/* Current plan status */}
-      <div className="bg-white rounded-2xl border border-gray-100 p-6 space-y-4">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-6 space-y-4">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-1">Current plan</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500 mb-1">Current plan</p>
             <div className="flex items-center gap-2">
-              <h2 className="text-xl font-bold text-gray-900">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">
                 {isTrial ? "Free Trial" : (currentPlan?.name ?? "Free Trial")}
               </h2>
               {isTrial && <Badge variant="warning">Trial</Badge>}
@@ -112,7 +112,7 @@ export default function BillingPage() {
               </p>
             )}
             {!isTrial && currentPlan && (
-              <p className="text-sm text-gray-500 mt-1">${currentPlan.price}/month</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">${currentPlan.price}/month</p>
             )}
           {isTrial && (
             <button
@@ -126,15 +126,15 @@ export default function BillingPage() {
           </div>
           {!isUnlimited && (
             <div className="text-right text-sm">
-              <p className="font-semibold text-gray-900">{usedThisMonth} / {monthlyLimit}</p>
-              <p className="text-gray-400 text-xs">content pieces this month</p>
+              <p className="font-semibold text-gray-900 dark:text-white">{usedThisMonth} / {monthlyLimit}</p>
+              <p className="text-gray-400 dark:text-gray-500 text-xs">content pieces this month</p>
             </div>
           )}
         </div>
 
         {!isUnlimited && (
           <div>
-            <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+            <div className="h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
               <div
                 className={`h-full rounded-full transition-all ${usagePercent >= 90 ? "bg-red-400" : usagePercent >= 70 ? "bg-amber-400" : "bg-emerald-400"}`}
                 style={{ width: `${usagePercent}%` }}
@@ -151,7 +151,7 @@ export default function BillingPage() {
 
       {/* Plans */}
       <div>
-        <h2 className="text-base font-semibold text-gray-900 mb-4">
+        <h2 className="text-base font-semibold text-gray-900 dark:text-white mb-4">
           {isTrial ? "Choose a plan to get started" : "Change plan"}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -160,17 +160,17 @@ export default function BillingPage() {
             return (
               <div
                 key={plan.id}
-                className={`bg-white rounded-2xl border p-6 flex flex-col ${
+                className={`bg-white dark:bg-gray-800 rounded-2xl border p-6 flex flex-col ${
                   plan.highlighted && !isCurrent
-                    ? "border-brand-400 ring-2 ring-brand-100"
+                    ? "border-brand-400 ring-2 ring-brand-100 dark:ring-brand-900"
                     : isCurrent
-                    ? "border-emerald-300 bg-emerald-50/30"
-                    : "border-gray-100"
+                    ? "border-emerald-300 bg-emerald-50/30 dark:bg-emerald-900/10"
+                    : "border-gray-100 dark:border-gray-700"
                 }`}
               >
                 <div className="mb-4">
                   {isCurrent ? (
-                    <div className="inline-block px-2 py-0.5 bg-emerald-100 text-emerald-700 text-xs font-bold rounded-full mb-2">
+                    <div className="inline-block px-2 py-0.5 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-xs font-bold rounded-full mb-2">
                       YOUR PLAN
                     </div>
                   ) : plan.highlighted ? (
@@ -178,16 +178,16 @@ export default function BillingPage() {
                       MOST POPULAR
                     </div>
                   ) : null}
-                  <h3 className="text-lg font-bold text-gray-900">{plan.name}</h3>
-                  <p className="text-xs text-gray-500 mt-0.5">{plan.description}</p>
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white">{plan.name}</h3>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{plan.description}</p>
                   <div className="flex items-baseline gap-1 mt-3">
-                    <span className="text-3xl font-black text-gray-900">${plan.price}</span>
-                    <span className="text-gray-400 text-sm">/mo</span>
+                    <span className="text-3xl font-black text-gray-900 dark:text-white">${plan.price}</span>
+                    <span className="text-gray-400 dark:text-gray-500 text-sm">/mo</span>
                   </div>
                 </div>
                 <ul className="space-y-2 mb-6 flex-1">
                   {plan.features.map((f) => (
-                    <li key={f} className="flex items-start gap-2 text-sm text-gray-600">
+                    <li key={f} className="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-300">
                       <CheckIcon className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" />
                       {f}
                     </li>

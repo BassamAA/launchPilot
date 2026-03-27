@@ -88,10 +88,10 @@ export default async function DashboardPage() {
     <div className="space-y-8">
       {/* Heading */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
           Welcome back, {firstName}
         </h1>
-        <p className="text-gray-500 text-sm mt-1">
+        <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
           Here's your marketing operation overview.
         </p>
       </div>
@@ -104,8 +104,8 @@ export default async function DashboardPage() {
           { label: "Approved", value: stats.approved, color: "text-emerald-600" },
           { label: "Published", value: stats.published, color: "text-sky-600" },
         ].map((stat) => (
-          <div key={stat.label} className="bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
-            <p className="text-xs text-gray-400 mb-1">{stat.label}</p>
+          <div key={stat.label} className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-5 shadow-sm">
+            <p className="text-xs text-gray-400 dark:text-gray-500 mb-1">{stat.label}</p>
             <p className={`text-3xl font-bold ${stat.color}`}>{stat.value}</p>
           </div>
         ))}
@@ -114,7 +114,7 @@ export default async function DashboardPage() {
       {/* Sites */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-base font-semibold text-gray-900">Your sites</h2>
+          <h2 className="text-base font-semibold text-gray-900 dark:text-white">Your sites</h2>
           <Link
             href="/sites/new"
             className="inline-flex items-center gap-1.5 text-sm font-medium text-brand-600 hover:text-brand-700"
@@ -126,7 +126,7 @@ export default async function DashboardPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {allSites.map((site) => (
             <Link key={site.id} href={`/sites/${site.id}`}>
-              <div className="bg-white rounded-xl border border-gray-100 p-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer h-full">
+              <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer h-full">
                 <div className="flex items-start justify-between mb-3">
                   <div className="w-9 h-9 rounded-xl bg-brand-50 flex items-center justify-center">
                     <GlobeAltIcon className="w-5 h-5 text-brand-600" />
@@ -141,10 +141,10 @@ export default async function DashboardPage() {
                     {site.status}
                   </Badge>
                 </div>
-                <h3 className="font-semibold text-gray-900 truncate mb-1">
+                <h3 className="font-semibold text-gray-900 dark:text-white truncate mb-1">
                   {site.name || getSiteHostname(site)}
                 </h3>
-                <p className="text-xs text-gray-400 truncate">{site.url}</p>
+                <p className="text-xs text-gray-400 dark:text-gray-500 truncate">{site.url}</p>
                 {!site.brief_confirmed && site.brief_json && (
                   <div className="mt-3 px-3 py-1.5 bg-amber-50 rounded-lg text-xs text-amber-700 font-medium">
                     Action needed: confirm your brief →

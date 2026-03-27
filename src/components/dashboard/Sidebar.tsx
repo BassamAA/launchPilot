@@ -107,14 +107,14 @@ export function Sidebar({ sites, pendingCountBySite = {} }: SidebarProps) {
   }
 
   return (
-    <aside className="w-60 flex-shrink-0 h-screen sticky top-0 bg-white border-r border-gray-100 flex flex-col">
+    <aside className="w-60 flex-shrink-0 h-screen sticky top-0 bg-white dark:bg-gray-800 border-r border-gray-100 dark:border-gray-700 flex flex-col">
       {/* Logo */}
-      <div className="h-16 flex items-center px-5 border-b border-gray-100">
+      <div className="h-16 flex items-center px-5 border-b border-gray-100 dark:border-gray-700">
         <Link href="/dashboard" className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-lg bg-brand-500 flex items-center justify-center">
             <RocketLaunchIcon className="w-4 h-4 text-white" />
           </div>
-          <span className="font-bold text-gray-900 text-lg">{BRAND_NAME}</span>
+          <span className="font-bold text-gray-900 dark:text-white text-lg">{BRAND_NAME}</span>
         </Link>
       </div>
 
@@ -124,7 +124,7 @@ export function Sidebar({ sites, pendingCountBySite = {} }: SidebarProps) {
         <div>
           <button
             onClick={() => setSitesOpen(!sitesOpen)}
-            className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wide hover:text-gray-600 transition-colors"
+            className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
           >
             <span>Sites</span>
             <ChevronDownIcon
@@ -146,8 +146,8 @@ export function Sidebar({ sites, pendingCountBySite = {} }: SidebarProps) {
                     className={cn(
                       "flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors",
                       site.id === activeSiteId
-                        ? "bg-brand-50 text-brand-700 font-medium"
-                        : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                        ? "bg-brand-50 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300 font-medium"
+                        : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white"
                     )}
                   >
                     <div
@@ -176,8 +176,8 @@ export function Sidebar({ sites, pendingCountBySite = {} }: SidebarProps) {
                 className={cn(
                   "flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors",
                   pathname === "/sites/new"
-                    ? "bg-brand-50 text-brand-700"
-                    : "text-gray-400 hover:text-brand-600 hover:bg-brand-50"
+                    ? "bg-brand-50 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300"
+                    : "text-gray-400 dark:text-gray-500 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-900/20"
                 )}
               >
                 <PlusCircleIcon className="w-4 h-4" />
@@ -190,7 +190,7 @@ export function Sidebar({ sites, pendingCountBySite = {} }: SidebarProps) {
         {/* Site-specific nav */}
         {currentSite && siteNav.length > 0 && (
           <div className="mt-4">
-            <p className="px-3 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wide truncate">
+            <p className="px-3 py-2 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide truncate">
               {currentSite.name || getSiteHostname(currentSite)}
             </p>
             <div className="mt-1 space-y-0.5">
@@ -204,8 +204,8 @@ export function Sidebar({ sites, pendingCountBySite = {} }: SidebarProps) {
                     className={cn(
                       "flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors",
                       isActive(item.href, item.exact)
-                        ? "bg-brand-50 text-brand-700 font-medium"
-                        : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                        ? "bg-brand-50 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300 font-medium"
+                        : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white"
                     )}
                   >
                     {item.icon}
@@ -224,14 +224,14 @@ export function Sidebar({ sites, pendingCountBySite = {} }: SidebarProps) {
       </nav>
 
       {/* Bottom */}
-      <div className="p-3 border-t border-gray-100">
+      <div className="p-3 border-t border-gray-100 dark:border-gray-700">
         <Link
           href="/settings"
           className={cn(
             "flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors",
             pathname.startsWith("/settings")
-              ? "bg-brand-50 text-brand-700"
-              : "text-gray-600 hover:bg-gray-50"
+              ? "bg-brand-50 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300"
+              : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700"
           )}
         >
           <Cog6ToothIcon className="w-4 h-4" />

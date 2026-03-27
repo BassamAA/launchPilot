@@ -39,10 +39,10 @@ export function EditProfileName({ currentName }: EditProfileNameProps) {
 
   if (!editing) {
     return (
-      <div className="flex items-center justify-between py-2 border-b border-gray-50">
-        <span className="text-sm text-gray-500">Name</span>
+      <div className="flex items-center justify-between py-2 border-b border-gray-50 dark:border-gray-700">
+        <span className="text-sm text-gray-500 dark:text-gray-400">Name</span>
         <div className="flex items-center gap-2">
-          <span className="text-sm font-medium text-gray-900">{currentName || "—"}</span>
+          <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{currentName || "—"}</span>
           <button
             onClick={() => setEditing(true)}
             className="p-1 text-gray-400 hover:text-brand-600 transition-colors"
@@ -56,8 +56,8 @@ export function EditProfileName({ currentName }: EditProfileNameProps) {
   }
 
   return (
-    <div className="flex items-center gap-2 py-2 border-b border-gray-50">
-      <span className="text-sm text-gray-500 flex-shrink-0">Name</span>
+    <div className="flex items-center gap-2 py-2 border-b border-gray-50 dark:border-gray-700">
+      <span className="text-sm text-gray-500 dark:text-gray-400 flex-shrink-0">Name</span>
       <Input
         value={name}
         onChange={(e) => setName(e.target.value)}

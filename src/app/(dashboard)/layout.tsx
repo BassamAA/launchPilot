@@ -57,14 +57,14 @@ export default async function DashboardLayout({
 
   return (
     <ToastProvider>
-      <div className="flex h-screen bg-[#f8fafc] overflow-hidden">
+      <div className="flex h-screen bg-[#f8fafc] dark:bg-gray-900 overflow-hidden">
         {/* Desktop sidebar */}
         <div className="hidden md:block">
           <Sidebar sites={sites} pendingCountBySite={pendingCountBySite} />
         </div>
         <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
           {/* Mobile top bar — hamburger + user controls in one row */}
-          <div className="flex items-center h-14 border-b border-gray-100 bg-white px-4 flex-shrink-0 md:hidden">
+          <div className="flex items-center h-14 border-b border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 flex-shrink-0 md:hidden">
             <MobileNav sites={sites} pendingCountBySite={pendingCountBySite} />
             <div className="flex-1" />
             <TopBar user={userInfo} compact />
