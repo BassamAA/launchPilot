@@ -36,10 +36,12 @@ export default async function SettingsPage() {
             <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{user.email}</span>
           </div>
           <EditProfileName currentName={profile?.name || ""} />
-          <div className="flex items-center justify-between py-2">
-            <span className="text-sm text-gray-500 dark:text-gray-400">Role</span>
-            <Badge variant="purple" className="capitalize">{profile?.role}</Badge>
-          </div>
+          {profile?.role && (
+            <div className="flex items-center justify-between py-2">
+              <span className="text-sm text-gray-500 dark:text-gray-400">Role</span>
+              <Badge variant="purple" className="capitalize">{profile.role}</Badge>
+            </div>
+          )}
         </div>
       </Card>
 
@@ -50,7 +52,7 @@ export default async function SettingsPage() {
           <div>
             <p className="font-semibold text-gray-900 dark:text-white text-lg">{currentPlan.name}</p>
             <p className="text-gray-500 dark:text-gray-400 text-sm">{currentPlan.description}</p>
-            {profile?.trial_ends_at && (
+            {profile?.trial_ends_at && profile?.subscription_tier === "free_trial" && (
               <p className="text-amber-600 text-sm font-medium mt-1">
                 Free trial ends {new Date(profile.trial_ends_at).toLocaleDateString("en-US", { month: "long", day: "numeric" })}
               </p>

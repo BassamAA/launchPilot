@@ -4,6 +4,7 @@ import { Sidebar } from "@/components/dashboard/Sidebar";
 import { TopBar } from "@/components/dashboard/TopBar";
 import { MobileNav } from "@/components/dashboard/MobileNav";
 import { ToastProvider } from "@/components/ui/Toast";
+import { SubscriptionAutoSync } from "@/components/dashboard/SubscriptionAutoSync";
 import { Site } from "@/types";
 
 export default async function DashboardLayout({
@@ -57,6 +58,7 @@ export default async function DashboardLayout({
 
   return (
     <ToastProvider>
+      <SubscriptionAutoSync tier={profile.subscription_tier} />
       <div className="flex h-screen bg-[#f8fafc] dark:bg-gray-900 overflow-hidden">
         {/* Desktop sidebar */}
         <div className="hidden md:block">

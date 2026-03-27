@@ -20,9 +20,9 @@ const CHANNELS: Array<{ value: ContentChannel | "all"; label: string; emoji: str
   { value: "all", label: "All", emoji: "" },
   { value: "blog", label: "Blog", emoji: "✍️" },
   { value: "twitter", label: "Twitter", emoji: "𝕏" },
+  { value: "linkedin", label: "LinkedIn", emoji: "💼" },
   { value: "reddit", label: "Reddit", emoji: "🔴" },
   { value: "email", label: "Email", emoji: "📧" },
-  { value: "tiktok", label: "TikTok", emoji: "🎵" },
   { value: "directory", label: "Directories", emoji: "📋" },
 ];
 
@@ -79,7 +79,7 @@ export default function QueuePage() {
     if (res.ok) {
       setItems((prev) => prev.filter((i) => i.id !== id));
       setTotal((prev) => prev - 1);
-      if (payload.redirect_url) {
+      if (payload.redirect_url && payload.redirect_url.startsWith("/")) {
         toast(payload.message || "Content approved. Opening next step.", "success");
         window.location.href = payload.redirect_url;
         return;
@@ -95,7 +95,7 @@ export default function QueuePage() {
         toast(payload.message || "Content approved!", "success");
       }
     } else {
-      if (payload.redirect_url) {
+      if (payload.redirect_url && payload.redirect_url.startsWith("/")) {
         toast(payload.error || "Connect the required integration first.", "error");
         window.location.href = payload.redirect_url;
         return;
@@ -201,18 +201,28 @@ export default function QueuePage() {
     setBulkApproving(true);
     const autoItems = items.filter((i) => i.auto_executable && i.body);
     let approved = 0;
+    let failed = 0;
     await Promise.all(
       autoItems.map(async (i) => {
-        const res = await fetch("/api/approve", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ content_item_id: i.id }),
-        });
-        if (res.ok) approved++;
+        try {
+          const res = await fetch("/api/approve", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ content_item_id: i.id }),
+          });
+          if (res.ok) approved++;
+          else failed++;
+        } catch {
+          failed++;
+        }
       })
     );
     await fetchQueue();
-    toast(`Bulk approved ${approved} item${approved !== 1 ? "s" : ""}`, "success");
+    if (failed > 0) {
+      toast(`Approved ${approved}, ${failed} failed — try those individually`, "error");
+    } else {
+      toast(`Bulk approved ${approved} item${approved !== 1 ? "s" : ""}`, "success");
+    }
     setBulkApproving(false);
   }
 
@@ -237,8 +247,8 @@ export default function QueuePage() {
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Review & Publish</h1>
-          <p className="text-gray-500 text-sm mt-1">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Review & Publish</h1>
+          <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
             {total > 0 ? `${total} piece${total !== 1 ? "s" : ""} ready for your review` : "Nothing waiting — you're all caught up"}
           </p>
         </div>

@@ -32,26 +32,26 @@ export default async function ActivityPage({ params }: { params: { id: string } 
   return (
     <div className="max-w-2xl space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Activity Feed</h1>
-        <p className="text-gray-500 text-sm mt-1">Everything {BRAND_NAME} has done for this site</p>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Activity Feed</h1>
+        <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Everything {BRAND_NAME} has done for this site</p>
       </div>
 
       {activities.length === 0 ? (
-        <div className="text-center py-20 text-gray-400">
+        <div className="text-center py-20 text-gray-400 dark:text-gray-500">
           <p>No activity yet</p>
         </div>
       ) : (
         <Card padding="none">
-          <ul className="divide-y divide-gray-50">
+          <ul className="divide-y divide-gray-50 dark:divide-gray-700">
             {activities.map((entry) => (
               <li key={entry.id} className="flex items-start gap-4 p-4">
-                <div className="w-9 h-9 rounded-xl bg-gray-50 flex items-center justify-center text-lg flex-shrink-0">
+                <div className="w-9 h-9 rounded-xl bg-gray-50 dark:bg-gray-700 flex items-center justify-center text-lg flex-shrink-0">
                   {ACTION_ICONS[entry.action] || "📌"}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-gray-900 font-medium">{entry.description}</p>
-                  <p className="text-xs text-gray-400 mt-1">
-                    {new Date(entry.created_at).toLocaleDateString("en-US", {
+                  <p className="text-sm text-gray-900 dark:text-white font-medium">{entry.description}</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                    {new Date(entry.created_at).toLocaleString("en-US", {
                       month: "long",
                       day: "numeric",
                       hour: "2-digit",
@@ -59,7 +59,7 @@ export default async function ActivityPage({ params }: { params: { id: string } 
                     })}
                   </p>
                   {entry.metadata_json && Object.keys(entry.metadata_json).length > 0 && (
-                    <div className="mt-2 bg-gray-50 rounded-lg px-3 py-2 text-xs font-mono text-gray-500">
+                    <div className="mt-2 bg-gray-50 dark:bg-gray-700 rounded-lg px-3 py-2 text-xs font-mono text-gray-500 dark:text-gray-400">
                       {JSON.stringify(entry.metadata_json, null, 0)
                         .replace(/[{}"]/g, "")
                         .replace(/,/g, " · ")

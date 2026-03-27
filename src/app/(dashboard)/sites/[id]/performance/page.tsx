@@ -142,30 +142,31 @@ export default function PerformancePage() {
 
   const [data, setData] = useState<PerformanceResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(false);
 
   useEffect(() => {
     let active = true;
 
     async function load() {
       setLoading(true);
+      setFetchError(false);
       try {
         const res = await fetch(`/api/sites/${siteId}/performance`);
-        if (!res.ok) return;
+        if (!res.ok) {
+          if (active) setFetchError(true);
+          return;
+        }
         const payload = await res.json();
-        if (active) {
-          setData(payload);
-        }
+        if (active) setData(payload);
+      } catch {
+        if (active) setFetchError(true);
       } finally {
-        if (active) {
-          setLoading(false);
-        }
+        if (active) setLoading(false);
       }
     }
 
     load();
-    return () => {
-      active = false;
-    };
+    return () => { active = false; };
   }, [siteId]);
 
   if (loading) {
@@ -176,25 +177,34 @@ export default function PerformancePage() {
     );
   }
 
+  if (fetchError) {
+    return (
+      <EmptyState
+        title="Could not load performance data"
+        description="There was an error fetching your performance data. Try refreshing the page."
+      />
+    );
+  }
+
   if (!data) {
     return (
       <EmptyState
-        title="Performance data unavailable"
-        description={`${BRAND_NAME} could not load performance data for this site yet.`}
+        title="No performance data yet"
+        description={`${BRAND_NAME} will show results here once content starts publishing. Check back after your first posts go live.`}
       />
     );
   }
 
   const bestPiece = data.overview.bestPerformingPiece;
-  const hookData = data.contentIntelligence?.tag_summaries.hook_type?.metrics || [];
-  const ctaData = data.contentIntelligence?.tag_summaries.cta_type?.metrics || [];
-  const toneData = data.contentIntelligence?.tag_summaries.tone?.metrics || [];
+  const hookData = data.contentIntelligence?.tag_summaries?.hook_type?.metrics || [];
+  const ctaData = data.contentIntelligence?.tag_summaries?.cta_type?.metrics || [];
+  const toneData = data.contentIntelligence?.tag_summaries?.tone?.metrics || [];
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Performance</h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Performance</h1>
+        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
           Real outcome data from Twitter, hosted blog traffic, and email engagement.
         </p>
       </div>
