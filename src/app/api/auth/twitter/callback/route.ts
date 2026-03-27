@@ -2,11 +2,17 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAuthorizedSite, getUser, getSupabaseAdminClient } from "@/lib/supabase";
 import { encryptSecret } from "@/lib/crypto";
 import { getTwitterCallbackUrl } from "@/lib/publishing";
+import { hasTwitterOAuthEnv } from "@/lib/twitter-auth";
 
 // Twitter OAuth 2.0 PKCE — step 2: exchange code for tokens
 export async function GET(req: NextRequest) {
   const user = await getUser();
-  if (!user) return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/login`);
+  const appOrigin = process.env.NEXT_PUBLIC_APP_URL || req.nextUrl.origin;
+  if (!user) return NextResponse.redirect(`${appOrigin}/login`);
+
+  if (!hasTwitterOAuthEnv()) {
+    return NextResponse.redirect(`${appOrigin}/dashboard?error=twitter_not_configured`);
+  }
 
   const { searchParams } = new URL(req.url);
   const code = searchParams.get("code");
@@ -15,7 +21,7 @@ export async function GET(req: NextRequest) {
 
   if (error) {
     return NextResponse.redirect(
-      `${process.env.NEXT_PUBLIC_APP_URL}/dashboard?error=twitter_denied`
+      `${appOrigin}/dashboard?error=twitter_denied`
     );
   }
 
@@ -24,7 +30,7 @@ export async function GET(req: NextRequest) {
 
   if (!state || state !== storedState || !codeVerifier || !code) {
     return NextResponse.redirect(
-      `${process.env.NEXT_PUBLIC_APP_URL}/dashboard?error=twitter_invalid_state`
+      `${appOrigin}/dashboard?error=twitter_invalid_state`
     );
   }
 
@@ -34,7 +40,7 @@ export async function GET(req: NextRequest) {
 
   if (!site) {
     return NextResponse.redirect(
-      `${process.env.NEXT_PUBLIC_APP_URL}/dashboard?error=twitter_invalid_site`
+      `${appOrigin}/dashboard?error=twitter_invalid_site`
     );
   }
 
@@ -59,7 +65,7 @@ export async function GET(req: NextRequest) {
   if (!tokenRes.ok) {
     console.error("[twitter/callback] token exchange failed", await tokenRes.text());
     return NextResponse.redirect(
-      `${process.env.NEXT_PUBLIC_APP_URL}/sites/${siteId}/settings?tab=connections&error=twitter_token`
+      `${appOrigin}/sites/${siteId}/settings?tab=connections&error=twitter_token`
     );
   }
 
@@ -96,7 +102,7 @@ export async function GET(req: NextRequest) {
   );
 
   const redirect = NextResponse.redirect(
-    `${process.env.NEXT_PUBLIC_APP_URL}/sites/${site.id}/settings?tab=connections&connected=twitter`
+    `${appOrigin}/sites/${site.id}/settings?tab=connections&connected=twitter`
   );
   // Clear cookies
   redirect.cookies.delete("tw_code_verifier");

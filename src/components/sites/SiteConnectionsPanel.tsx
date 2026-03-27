@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Badge, Button, Card, Input } from "@/components/ui";
 import { ContentChannel, PlatformConnection, Site, SiteOnboardingState } from "@/types";
 import { useToast } from "@/components/ui/Toast";
+import { getTwitterConnectionErrorMessage } from "@/lib/twitter-auth";
 
 interface SiteConnectionsPanelProps {
   site: Pick<Site, "id" | "name" | "slug" | "public_tracking_key">;
@@ -98,6 +99,7 @@ export function SiteConnectionsPanel({
   const activationSnippet = pixelUrl
     ? `<script async src="${pixelUrl}"></script>\n<script>\n  window.launchpilot?.trackEvent({ event: "activated" });\n  window.launchpilot?.trackEvent({ event: "subscribed", value: 99, currency: "USD" });\n</script>`
     : null;
+  const twitterErrorMessage = getTwitterConnectionErrorMessage(error);
 
   async function saveConnection(platform: string, metadataJson: Record<string, unknown>) {
     const res = await fetch("/api/connections", {
@@ -211,7 +213,7 @@ export function SiteConnectionsPanel({
           className={connected ? "border-emerald-200 bg-emerald-50" : "border-red-200 bg-red-50"}
         >
           <p className={`text-sm font-medium ${connected ? "text-emerald-800" : "text-red-800"}`}>
-            {connected ? `${connected} connected successfully.` : `Twitter error: ${error}`}
+            {connected ? `${connected} connected successfully.` : twitterErrorMessage}
           </p>
         </Card>
       )}
@@ -237,9 +239,9 @@ export function SiteConnectionsPanel({
               Disconnect
             </Button>
           ) : (
-            <a href={`/api/auth/twitter?site_id=${site.id}`}>
-              <Button size="sm">Connect Twitter</Button>
-            </a>
+            <Button size="sm" type="button" onClick={() => (window.location.href = `/api/auth/twitter?site_id=${site.id}`)}>
+              Connect Twitter
+            </Button>
           )}
         </div>
 

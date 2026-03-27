@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthorizedSite, getUser } from "@/lib/supabase";
 import { getTwitterCallbackUrl } from "@/lib/publishing";
+import { hasTwitterOAuthEnv } from "@/lib/twitter-auth";
 import crypto from "crypto";
 
 // Twitter OAuth 2.0 PKCE — step 1: redirect to Twitter
@@ -14,6 +15,13 @@ export async function GET(req: NextRequest) {
 
   const site = await getAuthorizedSite(siteId);
   if (!site) return NextResponse.json({ error: "Site not found" }, { status: 404 });
+
+  if (!hasTwitterOAuthEnv()) {
+    const settingsUrl = new URL(`/sites/${site.id}/settings`, req.url);
+    settingsUrl.searchParams.set("tab", "connections");
+    settingsUrl.searchParams.set("error", "twitter_not_configured");
+    return NextResponse.redirect(settingsUrl);
+  }
 
   // Generate PKCE values
   const codeVerifier = crypto.randomBytes(32).toString("base64url");
