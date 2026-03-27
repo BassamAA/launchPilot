@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthListener } from "@/components/AuthListener";
+import { BRAND_NAME } from "@/lib/brand";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -11,21 +12,21 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: "LaunchPilot — AI Marketing Autopilot for Developers",
-    template: "%s | LaunchPilot",
+    default: `${BRAND_NAME} — AI Marketing Autopilot for Developers`,
+    template: `%s | ${BRAND_NAME}`,
   },
   description:
-    "Paste your URL and LaunchPilot analyzes your site, builds a marketing strategy, generates content, and executes across SEO, social, Reddit, and directories.",
+    `Paste your URL and ${BRAND_NAME} analyzes your site, builds a marketing strategy, generates content, and executes across SEO, social, Reddit, and directories.`,
   keywords: ["marketing automation", "indie hacker", "developer marketing", "AI marketing"],
   openGraph: {
     type: "website",
-    title: "LaunchPilot — AI Marketing Autopilot",
-    description: "Your product is live. Where are your customers? LaunchPilot markets it for you.",
-    siteName: "LaunchPilot",
+    title: `${BRAND_NAME} — AI Marketing Autopilot`,
+    description: `Your product is live. Where are your customers? ${BRAND_NAME} markets it for you.`,
+    siteName: BRAND_NAME,
   },
   twitter: {
     card: "summary_large_image",
-    title: "LaunchPilot — AI Marketing Autopilot",
+    title: `${BRAND_NAME} — AI Marketing Autopilot`,
     description: "Paste your URL. Get customers. No marketing experience needed.",
   },
 };

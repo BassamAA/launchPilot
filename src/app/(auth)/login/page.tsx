@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button, Input, Card } from "@/components/ui";
 import { getSupabaseBrowserClient } from "@/lib/supabase-browser";
+import { BRAND_NAME } from "@/lib/brand";
 
 function LoginForm() {
   const router = useRouter();
@@ -40,7 +41,7 @@ function LoginForm() {
     <Card className="w-full max-w-md" padding="lg">
       <div className="mb-8 text-center">
         <h1 className="text-2xl font-bold text-gray-900 mb-2">Welcome back</h1>
-        <p className="text-gray-500 text-sm">Sign in to your LaunchPilot dashboard</p>
+        <p className="text-gray-500 text-sm">Sign in to your {BRAND_NAME} dashboard</p>
       </div>
 
       <form onSubmit={handleLogin} className="space-y-4">

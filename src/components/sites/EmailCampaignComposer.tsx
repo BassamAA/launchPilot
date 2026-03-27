@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { BRAND_NAME } from "@/lib/brand";
 import { Badge, Button, Card, Input, Textarea } from "@/components/ui";
 import { ContentItem } from "@/types";
 import { useToast } from "@/components/ui/Toast";
@@ -184,7 +185,7 @@ export function EmailCampaignComposer({
             <div className="rounded-xl border border-gray-100 bg-gray-50 p-4">
               <p className="text-xs font-medium uppercase tracking-wide text-gray-400">From</p>
               <p className="mt-1 text-sm font-semibold text-gray-900">
-                {String(emailSettings.from_name || "LaunchPilot")}
+                {String(emailSettings.from_name || BRAND_NAME)}
                 {emailSettings.from_email ? ` <${String(emailSettings.from_email)}>` : ""}
               </p>
             </div>

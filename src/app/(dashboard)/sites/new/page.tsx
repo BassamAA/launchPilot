@@ -12,6 +12,7 @@ import {
   SparklesIcon,
   BeakerIcon,
 } from "@heroicons/react/24/solid";
+import { BRAND_NAME } from "@/lib/brand";
 
 type Step = "input" | "analyzing" | "brief";
 
@@ -160,8 +161,8 @@ export default function NewSitePage() {
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-3">Add your site</h1>
           <p className="text-gray-500 mb-10 leading-relaxed">
-            Tell LaunchPilot where your business lives online. Add any combination of website,
-            Twitter, Instagram, or LinkedIn and LaunchPilot will merge the signals into one strategy.
+            Tell {BRAND_NAME} where your business lives online. Add any combination of website,
+            Twitter, Instagram, or LinkedIn and {BRAND_NAME} will merge the signals into one strategy.
           </p>
 
           <Card padding="lg">
@@ -300,7 +301,7 @@ export default function NewSitePage() {
                 <div className="w-2 h-2 rounded-full bg-brand-500 animate-pulse" />
                 Analyzing
               </div>
-              <h2 className="text-xl font-bold text-gray-900 mb-1">LaunchPilot is building your business profile</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-1">{BRAND_NAME} is building your business profile</h2>
               <p className="text-sm text-gray-500">
                 Website, social signals, and profile context are being merged into one strategy-ready brief.
               </p>
@@ -308,7 +309,7 @@ export default function NewSitePage() {
             <AnalysisProgress steps={progressSteps} currentStep={analysisStep} />
           </div>
           <p className="text-sm text-gray-400 animate-pulse-soft">
-            Hang tight — LaunchPilot is merging your online presence into one business profile…
+            Hang tight — {BRAND_NAME} is merging your online presence into one business profile…
           </p>
         </div>
       )}

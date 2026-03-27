@@ -1,5 +1,6 @@
 import { MergedAnalysis } from "@/lib/analyzers/types";
 import { BusinessProfile, MarketingBrief } from "@/types";
+import { BRAND_NAME } from "@/lib/brand";
 
 function unique<T>(values: T[]) {
   return Array.from(new Set(values));
@@ -21,7 +22,7 @@ function buildChannelStrengths(
     strengths.website = "Has enough on-site messaging to extract positioning and offer detail.";
   }
   if (merged.sources.instagram?.manualInput?.mainOffering || merged.sources.instagram?.bio) {
-    strengths.instagram = "Gives LaunchPilot visual-brand and audience clues even before direct execution exists.";
+    strengths.instagram = `Gives ${BRAND_NAME} visual-brand and audience clues even before direct execution exists.`;
   }
   if (merged.sources.linkedin?.headline || merged.sources.linkedin?.description) {
     strengths.linkedin = "Adds professional positioning and category context for B2B or expert-led businesses.";

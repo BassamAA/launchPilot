@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { Badge, Card, EmptyState, Spinner } from "@/components/ui";
+import { BRAND_NAME } from "@/lib/brand";
 import {
   Bar,
   BarChart,
@@ -179,7 +180,7 @@ export default function PerformancePage() {
     return (
       <EmptyState
         title="Performance data unavailable"
-        description="LaunchPilot could not load performance data for this site yet."
+        description={`${BRAND_NAME} could not load performance data for this site yet.`}
       />
     );
   }
@@ -230,7 +231,7 @@ export default function PerformancePage() {
           <div>
             <h2 className="font-bold text-gray-900 text-sm">Attribution</h2>
             <p className="mt-1 text-sm text-gray-500">
-              LaunchPilot is now tracking the path from published content to clicks and signups.
+              {BRAND_NAME} is now tracking the path from published content to clicks and signups.
             </p>
           </div>
           <Badge variant={data.attribution.trackingInstalled ? "success" : "warning"}>
@@ -260,7 +261,7 @@ export default function PerformancePage() {
 
         {!data.attribution.trackingInstalled && (
           <div className="mt-4 rounded-xl border border-amber-100 bg-amber-50 p-4 text-sm text-amber-900">
-            Install the LaunchPilot conversion pixel from the site settings page to connect clicks to signups.
+            Install the {BRAND_NAME} conversion pixel from the site settings page to connect clicks to signups.
           </div>
         )}
       </Card>
@@ -270,7 +271,7 @@ export default function PerformancePage() {
           <div>
             <h2 className="font-bold text-gray-900 text-sm">Outcome Funnel</h2>
             <p className="mt-1 text-sm text-gray-500">
-              LaunchPilot is optimizing for downstream quality, not just surface-level signups.
+              {BRAND_NAME} is optimizing for downstream quality, not just surface-level signups.
             </p>
           </div>
           <Badge variant="info">Activation-aware</Badge>
@@ -300,7 +301,7 @@ export default function PerformancePage() {
               <div>
                 <h2 className="font-bold text-gray-900 text-sm">Content Intelligence</h2>
                 <p className="mt-1 text-sm text-gray-500">
-                  LaunchPilot is learning what messaging patterns actually convert for this site.
+                  {BRAND_NAME} is learning what messaging patterns actually convert for this site.
                 </p>
               </div>
               <Badge variant="info">

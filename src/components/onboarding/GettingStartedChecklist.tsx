@@ -7,6 +7,7 @@ import { useToast } from "@/components/ui/Toast";
 import { getChecklistSteps, getOnboardingConfig } from "@/lib/onboarding";
 import { OnboardingPersona, SiteOnboardingState } from "@/types";
 import { CheckCircleIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { BRAND_NAME } from "@/lib/brand";
 
 interface ChecklistItem {
   key: string;
@@ -126,7 +127,7 @@ export function GettingStartedChecklist({
             </Badge>
           </div>
           <p className="mt-1 text-sm text-gray-600">
-            Complete the essentials and LaunchPilot’s automation will have enough context to start compounding.
+            Complete the essentials and {BRAND_NAME}&rsquo;s automation will have enough context to start compounding.
           </p>
         </div>
         <Button variant="ghost" size="sm" onClick={dismiss}>

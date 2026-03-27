@@ -10,6 +10,7 @@ import { publishContentItem } from "@/lib/publishing";
 import { replaceGrowthSurfaces } from "@/lib/surfaces";
 import { getSupabaseAdminClient } from "@/lib/supabase";
 import { buildInitialOnboardingState } from "@/lib/onboarding";
+import { BRAND_NAME } from "@/lib/brand";
 import {
   BusinessProfile,
   ContentChannel,
@@ -21,7 +22,7 @@ import {
 
 type SupabaseAdmin = ReturnType<typeof getSupabaseAdminClient>;
 
-const SYSTEM_COMPANY_NAME = "LaunchPilot System";
+const SYSTEM_COMPANY_NAME = `${BRAND_NAME} System`;
 
 function getAppUrl() {
   return process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
@@ -33,14 +34,14 @@ function getTwitterHandle() {
 
 function buildSelfMarketingBrief(appUrl: string): MarketingBrief {
   return {
-    product_name: "LaunchPilot",
+    product_name: BRAND_NAME,
     one_liner: "AI growth operator for founders who shipped a product but still have zero users.",
     target_customer:
       "Solo developers, indie hackers, creators, and small startup teams with a live product and weak or inconsistent marketing execution.",
     pain_point:
       "They can build fast but struggle to create a real marketing strategy, execute consistently, and learn from results before motivation dies.",
     value_proposition:
-      "LaunchPilot turns a live product into a working growth system: strategy, content, publishing, tracking, reprioritization, and next-step recommendations.",
+      `${BRAND_NAME} turns a live product into a working growth system: strategy, content, publishing, tracking, reprioritization, and next-step recommendations.`,
     positioning:
       "Not just a content generator. It is a marketing execution engine that publishes, tracks outcomes, learns what converts, and keeps working.",
     keywords: [
@@ -62,10 +63,10 @@ function buildSelfMarketingBrief(appUrl: string): MarketingBrief {
       "I built products but couldn’t market any of them",
       "What happens when you let AI market your startup for 30 days",
       "The indie hacker marketing problem is execution, not ideas",
-      "Real numbers from running LaunchPilot on itself",
+      `Real numbers from running ${BRAND_NAME} on itself`,
       "Why your side project has zero users and what to do next",
       "How a $79 tool replaces inconsistent founder marketing",
-      "Mini case studies from paying LaunchPilot users",
+      `Mini case studies from paying ${BRAND_NAME} users`,
     ],
     existing_channels: ["website", "twitter"],
     channel_strengths: {
@@ -73,7 +74,7 @@ function buildSelfMarketingBrief(appUrl: string): MarketingBrief {
       twitter: "Natural founder-led distribution and public build-in-the-open angle.",
     },
     channel_gaps: {
-      reddit: "Founder communities are still underused relative to the pain LaunchPilot solves.",
+      reddit: `Founder communities are still underused relative to the pain ${BRAND_NAME} solves.`,
       directory: "Directory presence can capture intent from builders searching for growth help.",
     },
     recommended_growth_surfaces: [
@@ -90,7 +91,7 @@ function buildSelfMarketingBrief(appUrl: string): MarketingBrief {
 
 function buildSelfMarketingProfile(appUrl: string, brief: MarketingBrief): BusinessProfile {
   return {
-    business_name: "LaunchPilot",
+    business_name: BRAND_NAME,
     primary_source: "website",
     source_count: 2,
     website_url: appUrl,
@@ -107,8 +108,8 @@ function buildSelfMarketingProfile(appUrl: string, brief: MarketingBrief): Busin
     follower_counts: { twitter: 0 },
     pricing: "$79/mo",
     social_proof: [
-      "Paying friend-users already rely on LaunchPilot to keep marketing moving.",
-      "LaunchPilot uses its own engine to market itself.",
+      `Paying friend-users already rely on ${BRAND_NAME} to keep marketing moving.`,
+      `${BRAND_NAME} uses its own engine to market itself.`,
     ],
     business_type: "saas",
     monetization_model: "subscription",
@@ -127,13 +128,13 @@ function buildSelfMarketingSources(appUrl: string) {
       raw_data: {
         source: "website",
         url: appUrl,
-        title: "LaunchPilot",
+        title: BRAND_NAME,
         description: "AI growth operator for founders and small teams.",
         headings: ["Get a full marketing system, not a blank page"],
-        bodyText: "LaunchPilot turns a product URL and online presence into a strategy, execution plan, content, publishing, tracking, and learning loop.",
+        bodyText: `${BRAND_NAME} turns a product URL and online presence into a strategy, execution plan, content, publishing, tracking, and learning loop.`,
         features: ["Strategy generation", "Execution plans", "Publishing", "Attribution", "Pattern learning"],
         pricing: "$79/mo",
-        testimonials: ["Real users are paying for LaunchPilot because it keeps marketing moving."],
+        testimonials: [`Real users are paying for ${BRAND_NAME} because it keeps marketing moving.`],
         ctas: ["Start marketing your product"],
         techStack: ["Next.js", "Supabase", "Claude"],
         raw: {},
@@ -145,7 +146,7 @@ function buildSelfMarketingSources(appUrl: string) {
       raw_data: {
         source: "twitter",
         handle: twitterHandle,
-        displayName: "LaunchPilot",
+        displayName: BRAND_NAME,
         bio: "AI marketing execution engine for founders shipping real products.",
         followerCount: 0,
         followingCount: 0,
@@ -171,11 +172,11 @@ function buildSelfMarketingSurfaces(): Array<Omit<GrowthSurface, "id" | "site_id
       display_name: "Founder-Led Social",
       status: "active",
       priority: 1,
-      rationale: "LaunchPilot’s story compounds fastest when the founder/operator angle is public and consistent.",
+      rationale: `${BRAND_NAME}'s story compounds fastest when the founder/operator angle is public and consistent.`,
       execution_ready: true,
       channels: ["twitter"],
       objective: "Turn product-building pain into visible distribution and signups.",
-      readiness_reason: "LaunchPilot already generates founder-led social content.",
+      readiness_reason: `${BRAND_NAME} already generates founder-led social content.`,
       execution_owner: "launchpilot",
       metadata_json: {},
       last_reviewed_at: new Date().toISOString(),
@@ -185,7 +186,7 @@ function buildSelfMarketingSurfaces(): Array<Omit<GrowthSurface, "id" | "site_id
       display_name: "SEO Content",
       status: "active",
       priority: 2,
-      rationale: "Search-driven founder pain is a durable acquisition surface for LaunchPilot.",
+      rationale: `Search-driven founder pain is a durable acquisition surface for ${BRAND_NAME}.`,
       execution_ready: true,
       channels: ["blog"],
       objective: "Capture high-intent founders looking for marketing help.",
@@ -217,7 +218,7 @@ function buildSelfMarketingSurfaces(): Array<Omit<GrowthSurface, "id" | "site_id
       execution_ready: true,
       channels: ["reddit"],
       objective: "Convert lived operator experience into trust inside founder communities.",
-      readiness_reason: "LaunchPilot can draft community content, but manual review keeps it safe.",
+      readiness_reason: `${BRAND_NAME} can draft community content, but manual review keeps it safe.`,
       execution_owner: "hybrid",
       metadata_json: {},
       last_reviewed_at: new Date().toISOString(),
@@ -227,11 +228,11 @@ function buildSelfMarketingSurfaces(): Array<Omit<GrowthSurface, "id" | "site_id
       display_name: "Landing Page Optimization",
       status: "active",
       priority: 5,
-      rationale: "The self-marketing loop is only useful if the LaunchPilot landing experience converts traffic cleanly.",
+      rationale: `The self-marketing loop is only useful if the ${BRAND_NAME} landing experience converts traffic cleanly.`,
       execution_ready: false,
       channels: [],
       objective: "Turn self-marketing traffic into activated trials and paid users.",
-      readiness_reason: "LaunchPilot can recommend funnel changes but not edit the site automatically.",
+      readiness_reason: `${BRAND_NAME} can recommend funnel changes but not edit the site automatically.`,
       execution_owner: "hybrid",
       metadata_json: {},
       last_reviewed_at: new Date().toISOString(),
@@ -281,7 +282,7 @@ export async function ensureSelfMarketingSite(supabase = getSupabaseAdminClient(
       checklist_dismissed: true,
       steps_completed: ["brief_confirmed", "surfaces_activated", "twitter_connected", "tracking_installed"],
       completed_at: new Date().toISOString(),
-      welcome_message: "LaunchPilot is running its own growth engine.",
+      welcome_message: `${BRAND_NAME} is running its own growth engine.`,
     },
   });
   onboarding.wizard_completed = true;
@@ -295,7 +296,7 @@ export async function ensureSelfMarketingSite(supabase = getSupabaseAdminClient(
       .insert({
         company_id: companyId,
         url: appUrl,
-        name: "LaunchPilot",
+        name: BRAND_NAME,
         slug: "launchpilot",
         source_type: "multi_source",
         sources_json: sourcesJson,
@@ -317,7 +318,7 @@ export async function ensureSelfMarketingSite(supabase = getSupabaseAdminClient(
       .update({
         company_id: companyId,
         url: appUrl,
-        name: "LaunchPilot",
+        name: BRAND_NAME,
         source_type: "multi_source",
         sources_json: sourcesJson,
         business_profile_json: businessProfile,

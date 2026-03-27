@@ -4,6 +4,7 @@ import { getUser, getSupabaseServerClient } from "@/lib/supabase";
 import { Button, Card, Badge, EmptyState } from "@/components/ui";
 import { PlusIcon, GlobeAltIcon, RocketLaunchIcon } from "@heroicons/react/24/outline";
 import { Site } from "@/types";
+import { BRAND_NAME } from "@/lib/brand";
 
 export default async function SitesPage() {
   const user = await getUser();
@@ -37,7 +38,7 @@ export default async function SitesPage() {
           Paste your first URL and watch the magic happen
         </h1>
         <p className="text-gray-500 text-lg max-w-md mb-10">
-          LaunchPilot will analyze your site, identify your customers, and generate a complete marketing plan.
+          {BRAND_NAME} will analyze your site, identify your customers, and generate a complete marketing plan.
         </p>
         <Link href="/sites/new">
           <Button size="lg" className="px-8">

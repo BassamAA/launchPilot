@@ -5,6 +5,7 @@ import { getSitePerformanceData } from "@/lib/performance";
 import { ensureSelfMarketingSite } from "@/lib/self-marketing";
 import { getSupabaseAdminClient, getUser } from "@/lib/supabase";
 import { ContentItem } from "@/types";
+import { BRAND_NAME } from "@/lib/brand";
 
 export default async function SelfMarketingAdminPage() {
   const user = await getUser();
@@ -38,7 +39,7 @@ export default async function SelfMarketingAdminPage() {
             <Badge variant="info">System site</Badge>
           </div>
           <p className="mt-1 text-sm text-gray-500">
-            LaunchPilot is using the same growth engine on itself. Review higher-risk content here and track whether self-marketing is producing signups.
+            {BRAND_NAME} is using the same growth engine on itself. Review higher-risk content here and track whether self-marketing is producing signups.
           </p>
         </div>
         <div className="text-sm text-gray-500">

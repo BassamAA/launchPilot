@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Button, Input, Card } from "@/components/ui";
 import { getSupabaseBrowserClient } from "@/lib/supabase-browser";
 import { RocketLaunchIcon } from "@heroicons/react/24/solid";
+import { BRAND_NAME } from "@/lib/brand";
 
 export default function ResetPasswordPage() {
   const router = useRouter();
@@ -60,7 +61,7 @@ export default function ResetPasswordPage() {
           <div className="w-8 h-8 rounded-lg bg-brand-500 flex items-center justify-center">
             <RocketLaunchIcon className="w-4 h-4 text-white" />
           </div>
-          <span className="font-bold text-gray-900 text-lg">LaunchPilot</span>
+          <span className="font-bold text-gray-900 text-lg">{BRAND_NAME}</span>
         </Link>
       </div>
 

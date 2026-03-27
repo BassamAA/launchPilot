@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { BRAND_NAME, BRAND_OUTREACH_EMAIL } from "@/lib/brand";
 import { recordGrowthSignal } from "@/lib/growth";
 import { getAuthorizedContentItem, getSupabaseAdminClient, getSupabaseServerClient, getUser } from "@/lib/supabase";
 
@@ -89,10 +90,10 @@ export async function POST(req: NextRequest) {
   const subject = (item.metadata_json as Record<string, string>)?.subject_line || item.title;
   const baseBody = item.body;
   const emailSettings = (emailConnection?.metadata_json || {}) as Record<string, string | boolean>;
-  const fromName = String(emailSettings.from_name || "LaunchPilot");
+  const fromName = String(emailSettings.from_name || BRAND_NAME);
   const fromEmail = emailSettings.mode === "custom"
-    ? String(emailSettings.from_email || process.env.RESEND_FROM_EMAIL || "outreach@mail.launchpilot.co")
-    : String(process.env.RESEND_FROM_EMAIL || "outreach@mail.launchpilot.co");
+    ? String(emailSettings.from_email || process.env.RESEND_FROM_EMAIL || BRAND_OUTREACH_EMAIL)
+    : String(process.env.RESEND_FROM_EMAIL || BRAND_OUTREACH_EMAIL);
   const from = `${fromName} <${fromEmail}>`;
 
   let sent = 0;

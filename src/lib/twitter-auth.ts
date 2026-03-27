@@ -1,3 +1,5 @@
+import { BRAND_NAME } from "@/lib/brand";
+
 export function hasTwitterOAuthEnv() {
   return Boolean(
     process.env.TWITTER_CLIENT_ID &&
@@ -15,7 +17,7 @@ export function getTwitterConnectionErrorMessage(error?: string | null) {
     case "twitter_invalid_state":
       return "Twitter authorization expired or became invalid. Try connecting again.";
     case "twitter_invalid_site":
-      return "LaunchPilot could not match that Twitter callback to a site.";
+      return `${BRAND_NAME} could not match that Twitter callback to a site.`;
     case "twitter_token":
       return "Twitter token exchange failed. Verify your callback URL and app permissions, then try again.";
     default:

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { MarketingBrief } from "@/types";
 import { Button, Card, Badge, Input, Textarea, cn } from "@/components/ui";
 import { PencilIcon, CheckIcon } from "@heroicons/react/24/outline";
+import { BRAND_NAME } from "@/lib/brand";
 
 interface MarketingBriefCardProps {
   brief: MarketingBrief;
@@ -90,7 +91,7 @@ export function MarketingBriefCard({
         <div>
           <h2 className="text-xl font-bold text-gray-900">Your Marketing Brief</h2>
           <p className="text-sm text-gray-500 mt-1">
-            Review and edit — this shapes everything LaunchPilot generates
+            Review and edit — this shapes everything {BRAND_NAME} generates
           </p>
         </div>
         {!isConfirmed && (
@@ -153,7 +154,7 @@ export function MarketingBriefCard({
                 Your Online Presence
               </p>
               <p className="mt-1 text-sm text-gray-500">
-                LaunchPilot merged these sources into one business profile.
+                {BRAND_NAME} merged these sources into one business profile.
               </p>
             </div>
             <Badge variant="info">{sourceEntries.length} source{sourceEntries.length === 1 ? "" : "s"}</Badge>
@@ -253,7 +254,7 @@ export function MarketingBriefCard({
                 Business Context
               </p>
               <p className="mt-1 text-sm text-gray-500">
-                Cross-channel signals LaunchPilot inferred from your online presence.
+                Cross-channel signals {BRAND_NAME} inferred from your online presence.
               </p>
             </div>
             <div className="flex flex-wrap gap-2">

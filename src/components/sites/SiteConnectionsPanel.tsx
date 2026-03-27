@@ -6,6 +6,7 @@ import { Badge, Button, Card, Input } from "@/components/ui";
 import { ContentChannel, PlatformConnection, Site, SiteOnboardingState } from "@/types";
 import { useToast } from "@/components/ui/Toast";
 import { getTwitterConnectionErrorMessage } from "@/lib/twitter-auth";
+import { BRAND_NAME } from "@/lib/brand";
 
 interface SiteConnectionsPanelProps {
   site: Pick<Site, "id" | "name" | "slug" | "public_tracking_key">;
@@ -81,7 +82,7 @@ export function SiteConnectionsPanel({
     String((email?.metadata_json?.domain as string | undefined) || "")
   );
   const [fromName, setFromName] = useState<string>(
-    String((email?.metadata_json?.from_name as string | undefined) || site.name || "LaunchPilot")
+    String((email?.metadata_json?.from_name as string | undefined) || site.name || BRAND_NAME)
   );
   const [fromEmail, setFromEmail] = useState<string>(
     String((email?.metadata_json?.from_email as string | undefined) || "")
@@ -301,7 +302,7 @@ export function SiteConnectionsPanel({
             <div className="flex items-center gap-2">
               <h2 className="text-lg font-bold text-gray-900">Blog</h2>
               <Badge variant={blogMode === "hosted" ? "success" : "info"}>
-                {blogMode === "hosted" ? "Hosted by LaunchPilot" : "External blog"}
+                {blogMode === "hosted" ? `Hosted by ${BRAND_NAME}` : "External blog"}
               </Badge>
             </div>
             <p className="text-sm text-gray-500 mt-1">
@@ -329,7 +330,7 @@ export function SiteConnectionsPanel({
               checked={blogMode === "hosted"}
               onChange={() => setBlogMode("hosted")}
             />
-            <span className="font-semibold text-gray-900">LaunchPilot hosted blog</span>
+            <span className="font-semibold text-gray-900">{BRAND_NAME} hosted blog</span>
             <p className="mt-1 text-sm text-gray-500">
               Posts go live at `/blog/{site.slug || "your-site"}` with zero setup.
             </p>
@@ -387,7 +388,7 @@ export function SiteConnectionsPanel({
         <div>
           <h2 className="text-lg font-bold text-gray-900">Auto-Approval</h2>
           <p className="text-sm text-gray-500 mt-1">
-            When enabled, LaunchPilot publishes these content types automatically after generation — no manual review required.
+            When enabled, {BRAND_NAME} publishes these content types automatically after generation — no manual review required.
           </p>
         </div>
         <div className="space-y-3">
@@ -427,7 +428,7 @@ export function SiteConnectionsPanel({
               {email ? <Badge variant="success">Configured</Badge> : <Badge variant="warning">Not configured</Badge>}
             </div>
             <p className="text-sm text-gray-500 mt-1">
-              Approved email items move into a campaign review flow. Use a LaunchPilot sender for testing or save your own domain details.
+              Approved email items move into a campaign review flow. Use a {BRAND_NAME} sender for testing or save your own domain details.
             </p>
           </div>
           {email && (
@@ -451,7 +452,7 @@ export function SiteConnectionsPanel({
               checked={emailMode === "default"}
               onChange={() => setEmailMode("default")}
             />
-            <span className="font-semibold text-gray-900">LaunchPilot sender</span>
+            <span className="font-semibold text-gray-900">{BRAND_NAME} sender</span>
             <p className="mt-1 text-sm text-gray-500">
               Fastest path for testing. Good for trial campaigns and QA.
             </p>
@@ -484,7 +485,7 @@ export function SiteConnectionsPanel({
             label="From name"
             value={fromName}
             onChange={(event) => setFromName(event.target.value)}
-            placeholder="Bassam from LaunchPilot"
+            placeholder={`Bassam from ${BRAND_NAME}`}
           />
           <Input
             label="From email"
@@ -495,7 +496,7 @@ export function SiteConnectionsPanel({
         </div>
 
         <div className="rounded-xl border border-blue-100 bg-blue-50 p-4 text-sm text-blue-900">
-          Add the domain in Resend first, publish the DNS records they provide, wait for verification, then save the verified sender here. Until then you can use the default LaunchPilot testing address.
+          Add the domain in Resend first, publish the DNS records they provide, wait for verification, then save the verified sender here. Until then you can use the default {BRAND_NAME} testing address.
         </div>
 
         <div className="flex items-center justify-between">
@@ -534,7 +535,7 @@ export function SiteConnectionsPanel({
               {site.public_tracking_key ? <Badge variant="info">Ready to install</Badge> : <Badge variant="warning">Missing key</Badge>}
             </div>
             <p className="mt-1 text-sm text-gray-500">
-              Install one first-party pixel on your product site so LaunchPilot can connect clicks to signups.
+              Install one first-party pixel on your product site so {BRAND_NAME} can connect clicks to signups.
             </p>
           </div>
         </div>
@@ -544,7 +545,7 @@ export function SiteConnectionsPanel({
             <p className="text-xs font-medium uppercase tracking-wide text-gray-400">Pixel script</p>
             <p className="mt-2 break-all text-sm text-gray-900">{pixelUrl || "Tracking key unavailable"}</p>
             <p className="mt-2 text-xs text-gray-500">
-              Add this script to the pages where you want LaunchPilot attribution available.
+              Add this script to the pages where you want {BRAND_NAME} attribution available.
             </p>
           </div>
 
@@ -560,7 +561,7 @@ export function SiteConnectionsPanel({
         </div>
 
         <div className="rounded-xl border border-blue-100 bg-blue-50 p-4 text-sm text-blue-900">
-          LaunchPilot stores the last tracked link in local storage, then attributes the conversion back to the originating content item and channel. Use the explicit call above or add a page marker like <code>data-launchpilot-conversion="signup"</code>.
+          {BRAND_NAME} stores the last tracked link in local storage, then attributes the conversion back to the originating content item and channel. Use the explicit call above or add a page marker like <code>data-launchpilot-conversion="signup"</code>.
         </div>
 
         {conversionSnippet && (

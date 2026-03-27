@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { CheckCircleIcon, ExclamationCircleIcon } from "@heroicons/react/24/solid";
 import { cn } from "@/components/ui";
+import { BRAND_NAME } from "@/lib/brand";
 
 export interface ProgressStep {
   id: string;
@@ -104,7 +105,7 @@ export function AnalysisCard({ url, currentStep }: { url: string; currentStep: n
           <div className="w-2 h-2 rounded-full bg-brand-500 animate-pulse" />
           Analyzing
         </div>
-        <h2 className="text-xl font-bold text-gray-900 mb-1">LaunchPilot is reading your site</h2>
+        <h2 className="text-xl font-bold text-gray-900 mb-1">{BRAND_NAME} is reading your site</h2>
         <p className="text-sm text-gray-500 font-mono truncate">{url}</p>
       </div>
       <AnalysisProgress currentStep={currentStep} />

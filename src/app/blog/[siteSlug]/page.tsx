@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getBlogFeedData } from "@/lib/publishing";
 import { extractTextExcerpt } from "@/lib/markdown";
 import { ContentItem, ContentMetadata } from "@/types";
+import { BRAND_NAME } from "@/lib/brand";
 
 export async function generateMetadata({ params }: { params: { siteSlug: string } }) {
   const data = await getBlogFeedData(params.siteSlug);
@@ -12,13 +13,13 @@ export async function generateMetadata({ params }: { params: { siteSlug: string 
 
   return {
     title: `${data.site.name} Blog`,
-    description: `Latest LaunchPilot-hosted posts for ${data.site.name}.`,
+    description: `Latest ${BRAND_NAME}-hosted posts for ${data.site.name}.`,
     alternates: {
       canonical: `/blog/${params.siteSlug}`,
     },
     openGraph: {
       title: `${data.site.name} Blog`,
-      description: `Latest LaunchPilot-hosted posts for ${data.site.name}.`,
+      description: `Latest ${BRAND_NAME}-hosted posts for ${data.site.name}.`,
       url: `/blog/${params.siteSlug}`,
       type: "website",
     },
@@ -40,11 +41,11 @@ export default async function HostedBlogIndexPage({
       <div className="mx-auto max-w-4xl px-6 py-16">
         <div className="mb-12 rounded-[2rem] bg-white p-10 shadow-sm ring-1 ring-stone-200">
           <p className="text-sm font-semibold uppercase tracking-[0.22em] text-emerald-700">
-            LaunchPilot Hosted Blog
+            {BRAND_NAME} Hosted Blog
           </p>
           <h1 className="mt-4 font-serif text-5xl text-stone-900">{data.site.name}</h1>
           <p className="mt-4 max-w-2xl text-lg text-stone-600">
-            Marketing content published by LaunchPilot. Subscribe via the RSS feed or browse the latest posts below.
+            Marketing content published by {BRAND_NAME}. Subscribe via the RSS feed or browse the latest posts below.
           </p>
           <div className="mt-6 flex flex-wrap gap-4 text-sm">
             <a href={`/blog/${params.siteSlug}/feed.xml`} className="text-emerald-700 hover:underline">

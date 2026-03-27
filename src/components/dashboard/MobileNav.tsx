@@ -6,6 +6,7 @@ import { buildPersonaSummary, sortLabelsForPersona } from "@/lib/onboarding";
 import { usePathname } from "next/navigation";
 import { Site } from "@/types";
 import { cn } from "@/components/ui";
+import { BRAND_NAME } from "@/lib/brand";
 import {
   Bars3Icon,
   XMarkIcon,
@@ -80,7 +81,7 @@ export function MobileNav({ sites }: MobileNavProps) {
                 <div className="w-8 h-8 rounded-lg bg-brand-500 flex items-center justify-center">
                   <RocketLaunchIcon className="w-4 h-4 text-white" />
                 </div>
-                <span className="font-bold text-gray-900 text-lg">LaunchPilot</span>
+                <span className="font-bold text-gray-900 text-lg">{BRAND_NAME}</span>
               </Link>
               <button onClick={() => setOpen(false)} className="p-1 text-gray-400 hover:text-gray-600">
                 <XMarkIcon className="w-5 h-5" />

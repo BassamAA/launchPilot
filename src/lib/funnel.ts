@@ -3,6 +3,7 @@ import { buildMarketingSystemPrompt, callClaude } from "@/lib/claude";
 import { getSitePerformanceData } from "@/lib/performance";
 import { getSupabaseAdminClient } from "@/lib/supabase";
 import { BusinessProfile, FunnelRecommendation, MarketingBrief, OfferTest } from "@/types";
+import { BRAND_NAME } from "@/lib/brand";
 
 type SupabaseAdmin = ReturnType<typeof getSupabaseAdminClient>;
 
@@ -21,7 +22,7 @@ function buildFallbackFunnelRecommendations(siteId: string, performance: Awaited
       category: "landing_page",
       title: "Tighten the landing-page promise",
       recommendation:
-        "Traffic is arriving but not converting. Make the first screen mirror the promise used in LaunchPilot content and shorten the path to the primary CTA.",
+        `Traffic is arriving but not converting. Make the first screen mirror the promise used in ${BRAND_NAME} content and shorten the path to the primary CTA.`,
       priority: 1,
       rationale: "Clicks are present without downstream conversion proof.",
       status: "open",

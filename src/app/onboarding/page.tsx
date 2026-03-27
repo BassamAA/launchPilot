@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { RocketLaunchIcon } from "@heroicons/react/24/solid";
+import { BRAND_NAME } from "@/lib/brand";
 
 const TIMEZONES = [
   { value: "UTC", label: "UTC — Coordinated Universal Time" },
@@ -72,7 +73,7 @@ export default function OnboardingPage() {
           <div className="w-8 h-8 rounded-lg bg-brand-500 flex items-center justify-center">
             <RocketLaunchIcon className="w-4 h-4 text-white" />
           </div>
-          <span className="font-bold text-gray-900 text-lg">LaunchPilot</span>
+          <span className="font-bold text-gray-900 text-lg">{BRAND_NAME}</span>
         </div>
       </div>
 
@@ -94,7 +95,7 @@ export default function OnboardingPage() {
 
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8">
             <div className="mb-8">
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">Welcome to LaunchPilot</h1>
+              <h1 className="text-2xl font-bold text-gray-900 mb-2">Welcome to {BRAND_NAME}</h1>
               <p className="text-gray-500 text-sm leading-relaxed">
                 Quick setup — takes 30 seconds. Then we'll analyze your first site and build your marketing plan.
               </p>

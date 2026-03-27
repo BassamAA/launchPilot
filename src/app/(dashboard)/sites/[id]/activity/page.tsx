@@ -2,6 +2,7 @@ import { redirect, notFound } from "next/navigation";
 import { getUser, getSupabaseServerClient } from "@/lib/supabase";
 import { ActivityLog } from "@/types";
 import { Card } from "@/components/ui";
+import { BRAND_NAME } from "@/lib/brand";
 
 const ACTION_ICONS: Record<string, string> = {
   site_analyzed: "🔍",
@@ -32,7 +33,7 @@ export default async function ActivityPage({ params }: { params: { id: string } 
     <div className="max-w-2xl space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Activity Feed</h1>
-        <p className="text-gray-500 text-sm mt-1">Everything LaunchPilot has done for this site</p>
+        <p className="text-gray-500 text-sm mt-1">Everything {BRAND_NAME} has done for this site</p>
       </div>
 
       {activities.length === 0 ? (

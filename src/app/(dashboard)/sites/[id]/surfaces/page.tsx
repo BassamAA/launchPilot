@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { Badge, Button, Card, EmptyState, Spinner } from "@/components/ui";
 import { useToast } from "@/components/ui/Toast";
 import { GrowthSurface } from "@/types";
+import { BRAND_NAME } from "@/lib/brand";
 import {
   BoltIcon,
   CalendarIcon,
@@ -114,7 +115,7 @@ export default function GrowthSurfacesPage() {
     return (
       <EmptyState
         title="No growth surfaces yet"
-        description="Confirm the marketing brief first so LaunchPilot can recommend the right growth surfaces for this business."
+        description={`Confirm the marketing brief first so ${BRAND_NAME} can recommend the right growth surfaces for this business.`}
       />
     );
   }
@@ -124,7 +125,7 @@ export default function GrowthSurfacesPage() {
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Growth Surfaces</h1>
         <p className="mt-1 text-sm text-gray-500">
-          LaunchPilot recommends the growth motions that fit this business. Active surfaces shape the plan and content mix.
+          {BRAND_NAME} recommends the growth motions that fit this business. Active surfaces shape the plan and content mix.
         </p>
       </div>
 
@@ -148,7 +149,7 @@ export default function GrowthSurfacesPage() {
                     </Badge>
                   </div>
                   <p className="mt-2 text-sm text-gray-600 max-w-3xl">
-                    {surface.rationale || "LaunchPilot recommended this growth surface based on your business profile."}
+                    {surface.rationale || `${BRAND_NAME} recommended this growth surface based on your business profile.`}
                   </p>
                   <div className="mt-3 flex flex-wrap gap-2">
                     {surface.channels.length > 0 ? (
@@ -163,7 +164,7 @@ export default function GrowthSurfacesPage() {
                   </div>
                   {!surface.execution_ready && (
                     <p className="mt-3 text-xs text-gray-500">
-                      Coming soon. LaunchPilot will use this surface as strategy guidance first, then add direct execution later.
+                      Coming soon. {BRAND_NAME} will use this surface as strategy guidance first, then add direct execution later.
                     </p>
                   )}
                 </div>

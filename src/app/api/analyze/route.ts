@@ -62,7 +62,7 @@ async function generateBriefFromMergedAnalysis(merged: MergedAnalysis) {
   const result = await callClaude<MarketingBrief>({
     model: "sonnet",
     systemPrompt:
-      "You are LaunchPilot, an expert marketing strategist. Analyze businesses from multi-source online presence data. Return valid JSON only.",
+      "You are BreakthroughPilot, an expert marketing strategist. Analyze businesses from multi-source online presence data. Return valid JSON only.",
     userPrompt: `Analyze this business based on the following online presence data and generate a marketing brief.
 
 ## Available Data Sources

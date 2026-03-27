@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { BRAND_NAME } from "@/lib/brand";
 import { getPersonaChannelOrder } from "@/lib/onboarding";
 import { Badge, Button, Input, Card, cn } from "@/components/ui";
 import { useToast } from "@/components/ui/Toast";
@@ -119,7 +120,7 @@ export function ContentLibrary({ siteId, items: initialItems, persona }: Content
   if (items.length === 0) {
     const emptyMessage =
       persona === "creator"
-        ? "Generate your first social-led batch to give LaunchPilot something to publish and learn from."
+        ? `Generate your first social-led batch to give ${BRAND_NAME} something to publish and learn from.`
         : persona === "service_provider"
           ? "Generate your first outreach and credibility assets to start filling the queue."
           : "Generate your 30-day plan first";

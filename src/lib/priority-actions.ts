@@ -1,4 +1,5 @@
 import { ContentItem, GrowthExperiment, SiteOnboardingState } from "@/types";
+import { BRAND_NAME } from "@/lib/brand";
 
 export interface PriorityAction {
   id: string;
@@ -140,7 +141,7 @@ export function getPriorityActions(input: PriorityActionInput): PriorityAction[]
     actions.push({
       id: "pattern_insight",
       urgency: "low",
-      message: `LaunchPilot learned that ${bestPatternInsight} — new content reflects this.`,
+      message: `${BRAND_NAME} learned that ${bestPatternInsight} — new content reflects this.`,
       cta: "See performance",
       href: `/sites/${siteId}/performance`,
       weight: 35,
@@ -152,7 +153,7 @@ export function getPriorityActions(input: PriorityActionInput): PriorityAction[]
     actions.push({
       id: "finish_setup",
       urgency: "low",
-      message: "Finish the quick setup to let LaunchPilot start working for you immediately.",
+      message: `Finish the quick setup to let ${BRAND_NAME} start working for you immediately.`,
       cta: "Continue setup",
       href: `/sites/${siteId}`,
       weight: 30,

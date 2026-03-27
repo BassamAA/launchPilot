@@ -8,6 +8,7 @@ import { buildPersonaSummary, sortLabelsForPersona } from "@/lib/onboarding";
 import { getPartnerIntelligence } from "@/lib/partners";
 import { getPriorityActions } from "@/lib/priority-actions";
 import { getUser, getSupabaseServerClient } from "@/lib/supabase";
+import { BRAND_NAME } from "@/lib/brand";
 import { PriorityActionsBar } from "@/components/dashboard/PriorityActionsBar";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { SiteActionsBar } from "@/components/sites/SiteActionsBar";
@@ -665,7 +666,7 @@ export default async function SiteDashboardPage({
         <Card padding="md">
           <h3 className="font-bold text-gray-900 mb-4 text-sm">Content by Channel</h3>
           <p className="mb-4 text-xs text-gray-400">
-            LaunchPilot is emphasizing {onboardingConfig.featuresToHighlight.join(", ").replace(/_/g, " ")} for this persona first.
+            {BRAND_NAME} is emphasizing {onboardingConfig.featuresToHighlight.join(", ").replace(/_/g, " ")} for this persona first.
           </p>
           {Object.keys(channelBreakdown).length > 0 ? (
             <div className="space-y-3">

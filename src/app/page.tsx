@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui";
 import { HeroDemo } from "@/components/landing/HeroDemo";
 import { PRICING_PLANS } from "@/lib/stripe";
+import { BRAND_APP_HOST, BRAND_NAME, BRAND_SUPPORT_EMAIL } from "@/lib/brand";
 import {
   RocketLaunchIcon,
   DocumentTextIcon,
@@ -33,7 +34,7 @@ const STEPS = [
     icon: GlobeAltIcon,
     title: "Paste Your URL",
     description:
-      "Drop your live site URL. LaunchPilot crawls it, reads every word, and figures out exactly what you've built and who needs it.",
+      `Drop your live site URL. ${BRAND_NAME} crawls it, reads every word, and figures out exactly what you've built and who needs it.`,
   },
   {
     number: "02",
@@ -47,14 +48,14 @@ const STEPS = [
     icon: RocketLaunchIcon,
     title: "Approve & Launch",
     description:
-      "Review content in your queue, edit anything you want, and approve. LaunchPilot handles the rest — tracking what goes live, what's pending, and what's working.",
+      `Review content in your queue, edit anything you want, and approve. ${BRAND_NAME} handles the rest — tracking what goes live, what's pending, and what's working.`,
   },
 ];
 
 const FAQS = [
   {
     q: "Do I need any marketing experience?",
-    a: "None. LaunchPilot is built for developers and founders who know how to build but have never done marketing. It handles the strategy, the writing, and the execution planning.",
+    a: `None. ${BRAND_NAME} is built for developers and founders who know how to build but have never done marketing. It handles the strategy, the writing, and the execution planning.`,
   },
   {
     q: "Will it spam people or post without my permission?",
@@ -62,11 +63,11 @@ const FAQS = [
   },
   {
     q: "What if I don't like the generated content?",
-    a: "Edit it inline in the approval queue. Or reject it and request a regeneration. Every content card has an edit button — it's your voice, LaunchPilot just does the first draft.",
+    a: `Edit it inline in the approval queue. Or reject it and request a regeneration. Every content card has an edit button — it's your voice, ${BRAND_NAME} just does the first draft.`,
   },
   {
     q: "How is this different from just using ChatGPT?",
-    a: "ChatGPT writes when you ask it to. LaunchPilot analyzes your site, builds a multi-channel strategy tailored to your specific product and audience, generates all content with that context, schedules it, and tracks what gets published. It's an execution engine, not a chat interface.",
+    a: `ChatGPT writes when you ask it to. ${BRAND_NAME} analyzes your site, builds a multi-channel strategy tailored to your specific product and audience, generates all content with that context, schedules it, and tracks what gets published. It's an execution engine, not a chat interface.`,
   },
   {
     q: "Can I use this for multiple products?",
@@ -74,7 +75,7 @@ const FAQS = [
   },
   {
     q: "Does it work for already-launched products too?",
-    a: "Absolutely. Whether you launched yesterday or a year ago with no traction, LaunchPilot builds you a fresh marketing operation from scratch.",
+    a: `Absolutely. Whether you launched yesterday or a year ago with no traction, ${BRAND_NAME} builds you a fresh marketing operation from scratch.`,
   },
 ];
 
@@ -88,7 +89,7 @@ export default function LandingPage() {
             <div className="w-8 h-8 rounded-lg bg-brand-500 flex items-center justify-center">
               <RocketLaunchIcon className="w-4 h-4 text-white" />
             </div>
-            <span className="font-bold text-gray-900 text-lg">LaunchPilot</span>
+            <span className="font-bold text-gray-900 text-lg">{BRAND_NAME}</span>
           </div>
           <div className="hidden md:flex items-center gap-8 text-sm text-gray-600">
             <a href="#how-it-works" className="hover:text-gray-900 transition-colors">How it works</a>
@@ -121,7 +122,7 @@ export default function LandingPage() {
           </h1>
 
           <p className="text-xl text-gray-500 max-w-2xl mx-auto mb-8 leading-relaxed">
-            LaunchPilot analyzes your website, builds a complete marketing strategy,
+            {BRAND_NAME} analyzes your website, builds a complete marketing strategy,
             generates all the content, and executes across SEO, social, Reddit, email,
             and directories — all on autopilot.
           </p>
@@ -142,7 +143,7 @@ export default function LandingPage() {
             <div className="w-3 h-3 rounded-full bg-red-400" />
             <div className="w-3 h-3 rounded-full bg-yellow-400" />
             <div className="w-3 h-3 rounded-full bg-green-400" />
-            <div className="mx-auto text-xs text-gray-400 font-mono">app.launchpilot.io</div>
+            <div className="mx-auto text-xs text-gray-400 font-mono">{BRAND_APP_HOST}</div>
           </div>
           <div className="p-8 bg-[#f8fafc]">
             <div className="grid grid-cols-4 gap-4 mb-6">
@@ -222,7 +223,7 @@ export default function LandingPage() {
               Every channel, one platform
             </h2>
             <p className="text-lg text-gray-500 max-w-2xl mx-auto">
-              LaunchPilot generates platform-native content for every major marketing channel.
+              {BRAND_NAME} generates platform-native content for every major marketing channel.
               Not generic copy — tailored to your product, your customer, and each platform's culture.
             </p>
           </div>
@@ -251,11 +252,11 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
             {[
               {
-                quote: "I shipped 3 products in the last year and none of them had more than 50 users. LaunchPilot changed that — my last launch hit 400 signups in week 1.",
+                quote: `I shipped 3 products in the last year and none of them had more than 50 users. ${BRAND_NAME} changed that — my last launch hit 400 signups in week 1.`,
                 author: "Founder, SaaS indie hacker",
               },
               {
-                quote: "I'm a developer, not a marketer. LaunchPilot wrote content that genuinely sounds like me. Approved 80% of it without edits.",
+                quote: `I'm a developer, not a marketer. ${BRAND_NAME} wrote content that genuinely sounds like me. Approved 80% of it without edits.`,
                 author: "Solo founder",
               },
               {
@@ -371,14 +372,14 @@ export default function LandingPage() {
             <div className="w-7 h-7 rounded-lg bg-brand-500 flex items-center justify-center">
               <RocketLaunchIcon className="w-3.5 h-3.5 text-white" />
             </div>
-            <span className="font-bold text-gray-900">LaunchPilot</span>
+            <span className="font-bold text-gray-900">{BRAND_NAME}</span>
           </div>
           <div className="flex items-center gap-6 text-sm text-gray-400">
             <Link href="/privacy" className="hover:text-gray-600">Privacy</Link>
             <Link href="/terms" className="hover:text-gray-600">Terms</Link>
-            <a href="mailto:hello@launchpilot.io" className="hover:text-gray-600">Contact</a>
+            <a href={`mailto:${BRAND_SUPPORT_EMAIL}`} className="hover:text-gray-600">Contact</a>
           </div>
-          <p className="text-sm text-gray-400">© 2026 LaunchPilot. All rights reserved.</p>
+          <p className="text-sm text-gray-400">© 2026 {BRAND_NAME}. All rights reserved.</p>
         </div>
       </footer>
     </div>

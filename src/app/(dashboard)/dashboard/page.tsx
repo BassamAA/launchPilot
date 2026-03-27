@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui";
 import { PlusIcon, GlobeAltIcon, RocketLaunchIcon } from "@heroicons/react/24/outline";
 import { SparklesIcon } from "@heroicons/react/24/solid";
 import { Site } from "@/types";
+import { BRAND_NAME } from "@/lib/brand";
 
 export const metadata = { title: "Dashboard" };
 
@@ -59,7 +60,7 @@ export default async function DashboardPage() {
           Hey {firstName}, let's get your first customers.
         </h1>
         <p className="text-gray-500 text-lg max-w-md mb-10 leading-relaxed">
-          Paste your site URL and LaunchPilot will analyze it, identify your ideal customer,
+          Paste your site URL and {BRAND_NAME} will analyze it, identify your ideal customer,
           and generate a complete 30-day marketing plan.
         </p>
         <Link

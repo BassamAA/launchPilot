@@ -9,6 +9,7 @@ import {
   Site,
   SiteOnboardingState,
 } from "@/types";
+import { BRAND_NAME } from "@/lib/brand";
 
 type SourceRecord = Record<string, unknown> | null | undefined;
 
@@ -17,7 +18,7 @@ const PERSONA_CONFIG: Record<OnboardingPersona, Omit<OnboardingConfig, "persona"
     primarySources: ["website", "twitter"],
     suggestedSurfaces: ["seo_content", "founder_social", "directory_presence", "community_engagement"],
     skipSurfaces: ["short_form_video"],
-    welcomeMessage: "LaunchPilot sees a SaaS-style business. The fastest win is shipping a sharp acquisition wedge and consistent founder-led distribution.",
+    welcomeMessage: `${BRAND_NAME} sees a SaaS-style business. The fastest win is shipping a sharp acquisition wedge and consistent founder-led distribution.`,
     quickWins: [
       "Publish your first blog post",
       "Submit to three directories",
@@ -30,7 +31,7 @@ const PERSONA_CONFIG: Record<OnboardingPersona, Omit<OnboardingConfig, "persona"
     primarySources: ["instagram", "twitter", "linkedin"],
     suggestedSurfaces: ["founder_social", "short_form_video", "community_engagement"],
     skipSurfaces: ["cold_outbound", "seo_content"],
-    welcomeMessage: "LaunchPilot sees a creator-led business. The first win is building a repeatable publishing rhythm and learning which hooks convert.",
+    welcomeMessage: `${BRAND_NAME} sees a creator-led business. The first win is building a repeatable publishing rhythm and learning which hooks convert.`,
     quickWins: [
       "Generate your first week of social posts",
       "Connect Twitter for faster publishing",
@@ -43,7 +44,7 @@ const PERSONA_CONFIG: Record<OnboardingPersona, Omit<OnboardingConfig, "persona"
     primarySources: ["website", "linkedin", "twitter"],
     suggestedSurfaces: ["cold_outbound", "founder_social", "referral_program"],
     skipSurfaces: ["short_form_video"],
-    welcomeMessage: "LaunchPilot sees a service-led business. The fastest path is tight positioning plus outbound and referral loops.",
+    welcomeMessage: `${BRAND_NAME} sees a service-led business. The fastest path is tight positioning plus outbound and referral loops.`,
     quickWins: [
       "Review your outbound messaging",
       "Approve a week of credibility-building posts",
@@ -56,7 +57,7 @@ const PERSONA_CONFIG: Record<OnboardingPersona, Omit<OnboardingConfig, "persona"
     primarySources: ["website", "instagram", "twitter"],
     suggestedSurfaces: ["short_form_video", "lifecycle_email", "founder_social"],
     skipSurfaces: ["cold_outbound"],
-    welcomeMessage: "LaunchPilot sees a product-led storefront. Visual demand creation and lifecycle follow-up should move first.",
+    welcomeMessage: `${BRAND_NAME} sees a product-led storefront. Visual demand creation and lifecycle follow-up should move first.`,
     quickWins: [
       "Generate product-led social content",
       "Review your first lifecycle email ideas",
@@ -69,7 +70,7 @@ const PERSONA_CONFIG: Record<OnboardingPersona, Omit<OnboardingConfig, "persona"
     primarySources: ["website", "instagram", "linkedin"],
     suggestedSurfaces: ["founder_social", "community_engagement", "directory_presence"],
     skipSurfaces: ["cold_outbound"],
-    welcomeMessage: "LaunchPilot sees a location-based business. Local proof and community distribution matter more than broad channel volume.",
+    welcomeMessage: `${BRAND_NAME} sees a location-based business. Local proof and community distribution matter more than broad channel volume.`,
     quickWins: [
       "Approve local-proof content",
       "Review directory submissions",
@@ -82,7 +83,7 @@ const PERSONA_CONFIG: Record<OnboardingPersona, Omit<OnboardingConfig, "persona"
     primarySources: ["website", "twitter", "linkedin"],
     suggestedSurfaces: ["founder_social", "community_engagement", "directory_presence"],
     skipSurfaces: [],
-    welcomeMessage: "LaunchPilot has enough signal to start. The first goal is fast execution and learning which growth surfaces respond.",
+    welcomeMessage: `${BRAND_NAME} has enough signal to start. The first goal is fast execution and learning which growth surfaces respond.`,
     quickWins: [
       "Confirm your active surfaces",
       "Approve your first content batch",

@@ -12,7 +12,7 @@ export async function GET(
   { params }: { params: { trackingKey: string } }
 ) {
   if (!params?.trackingKey) {
-    return new NextResponse("console.warn('LaunchPilot pixel: missing tracking key');", {
+    return new NextResponse("console.warn('BreakthroughPilot pixel: missing tracking key');", {
       headers: {
         "Content-Type": "application/javascript; charset=utf-8",
       },
@@ -27,7 +27,7 @@ export async function GET(
     .maybeSingle();
 
   if (!site) {
-    return new NextResponse("console.warn('LaunchPilot pixel: invalid tracking key');", {
+    return new NextResponse("console.warn('BreakthroughPilot pixel: invalid tracking key');", {
       headers: {
         "Content-Type": "application/javascript; charset=utf-8",
       },

@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { Button, Badge, Card, Spinner, EmptyState, cn } from "@/components/ui";
 import { useToast } from "@/components/ui/Toast";
 import { ContentItem, MarketingPlan, ContentStatus, GrowthExperiment, GrowthSignal } from "@/types";
+import { BRAND_NAME } from "@/lib/brand";
 import {
   CalendarIcon,
   ListBulletIcon,
@@ -230,8 +231,8 @@ export default function PlanPage() {
           title={plan ? "Your last strategy run didn’t finish" : "Generate your growth strategy"}
           description={
             plan
-              ? "LaunchPilot found an incomplete strategy draft for this month. Generate again to rebuild the growth thesis and the full 30-day execution layer."
-              : "LaunchPilot will generate a broader growth strategy first, then turn it into a concrete 30-day execution plan with content and publishing actions."
+              ? `${BRAND_NAME} found an incomplete strategy draft for this month. Generate again to rebuild the growth thesis and the full 30-day execution layer.`
+              : `${BRAND_NAME} will generate a broader growth strategy first, then turn it into a concrete 30-day execution plan with content and publishing actions.`
           }
           action={
             <Button size="lg" onClick={handleGeneratePlan} loading={generating}>

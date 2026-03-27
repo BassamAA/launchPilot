@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { BRAND_NAME } from "@/lib/brand";
 import { Button } from "@/components/ui";
 import { reportClientError } from "@/lib/monitoring";
 
@@ -26,7 +27,7 @@ export default function GlobalError({
         <div className="flex min-h-screen items-center justify-center px-4">
           <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 text-center shadow-sm">
             <p className="text-sm font-semibold uppercase tracking-wide text-slate-400">
-              LaunchPilot
+              {BRAND_NAME}
             </p>
             <h1 className="mt-3 text-2xl font-bold">Something went wrong</h1>
             <p className="mt-3 text-sm text-slate-500">

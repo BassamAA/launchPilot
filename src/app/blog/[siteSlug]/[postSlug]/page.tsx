@@ -72,7 +72,7 @@ export default async function HostedBlogPostPage({
                 keepalive: true
               });
             } catch (error) {
-              console.error("LaunchPilot blog tracking failed", error);
+              console.error("BreakthroughPilot blog tracking failed", error);
             }
           })();
         `}

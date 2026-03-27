@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { Badge, Button, Card, Input, Textarea } from "@/components/ui";
 import { BusinessProfile } from "@/types";
 import { useToast } from "@/components/ui/Toast";
+import { BRAND_NAME } from "@/lib/brand";
 
 interface BusinessProfilePanelProps {
   siteId: string;
@@ -82,7 +83,7 @@ export function BusinessProfilePanel({
             </Badge>
           </div>
           <p className="text-sm text-gray-500 mt-1">
-            Manual enrichment for weaker social-only businesses. LaunchPilot uses this profile in surfaces, planning, and future strategy.
+            Manual enrichment for weaker social-only businesses. {BRAND_NAME} uses this profile in surfaces, planning, and future strategy.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
