@@ -169,6 +169,7 @@ export interface Site {
   onboarding_json?: SiteOnboardingState | null;
   is_system_site?: boolean;
   autopilot_enabled?: boolean;
+  social_strategy_json?: SocialStrategyState | null;
   status: SiteStatus;
   brief_json: MarketingBrief | null;
   brief_confirmed: boolean;
@@ -766,6 +767,23 @@ export interface OfferTest {
   metadata_json: Record<string, unknown>;
   created_at: string;
   updated_at: string;
+}
+
+// ─── Social Strategy Types ──────────────────────────────────────────
+
+export interface SocialStrategyState {
+  instagram?: {
+    generated_at: string;
+    strategy_json: import("@/lib/generators/instagram").InstagramStrategy;
+  };
+  youtube?: {
+    generated_at: string;
+    strategy_json: import("@/lib/generators/instagram").YouTubeStrategy;
+  };
+  linkedin?: {
+    generated_at: string;
+    strategy_json: import("@/lib/generators/instagram").LinkedInStrategy;
+  };
 }
 
 // ─── Stripe Types ───────────────────────────────────────────────────
