@@ -1,8 +1,9 @@
 import { Resend } from "resend";
 import { logStructured } from "@/lib/observability";
+import { BRAND_MARKETING_URL, BRAND_NAME, BRAND_NAME_UPPER, BRAND_NOTIFICATIONS_EMAIL } from "@/lib/brand";
 
-const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || "LaunchPilot <notifications@launchpilot.io>";
-const APP_URL = (process.env.NEXT_PUBLIC_APP_URL || "https://launchpilot.io").replace(/\/$/, "");
+const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || `${BRAND_NAME} <${BRAND_NOTIFICATIONS_EMAIL}>`;
+const APP_URL = (process.env.NEXT_PUBLIC_APP_URL || BRAND_MARKETING_URL).replace(/\/$/, "");
 
 interface NotificationEmail {
   to: string;
@@ -17,9 +18,9 @@ function button(text: string, href: string) {
 function emailShell(body: string) {
   return `<!DOCTYPE html><html><body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f9fafb;padding:32px 16px;margin:0;">
 <div style="max-width:520px;margin:0 auto;background:#fff;border-radius:12px;border:1px solid #e5e7eb;padding:32px;">
-<p style="margin:0 0 6px;font-size:14px;font-weight:700;color:#6366f1;letter-spacing:0.05em;">LAUNCHPILOT</p>
+<p style="margin:0 0 6px;font-size:14px;font-weight:700;color:#6366f1;letter-spacing:0.05em;">${BRAND_NAME_UPPER}</p>
 ${body}
-<p style="margin:24px 0 0;font-size:12px;color:#9ca3af;">You're receiving this because you have a LaunchPilot site. <a href="${APP_URL}/settings" style="color:#6366f1;">Manage notifications</a></p>
+<p style="margin:24px 0 0;font-size:12px;color:#9ca3af;">You're receiving this because you have a ${BRAND_NAME} site. <a href="${APP_URL}/settings" style="color:#6366f1;">Manage notifications</a></p>
 </div></body></html>`;
 }
 
@@ -49,7 +50,7 @@ export async function sendPlanReadyEmail(opts: {
     subject: `Your ${opts.siteName} marketing plan is ready`,
     html: emailShell(`
 <h2 style="margin:0 0 12px;font-size:20px;font-weight:700;color:#111827;">Your 30-day plan is ready</h2>
-<p style="margin:0 0 16px;font-size:15px;color:#374151;">LaunchPilot generated ${opts.itemCount} content pieces for <strong>${opts.siteName}</strong>. They're in your queue waiting for approval — review, edit, and approve to start publishing.</p>
+<p style="margin:0 0 16px;font-size:15px;color:#374151;">${BRAND_NAME} generated ${opts.itemCount} content pieces for <strong>${opts.siteName}</strong>. They're in your queue waiting for approval — review, edit, and approve to start publishing.</p>
 ${button("Go to approval queue →", `${APP_URL}/sites/${opts.siteId}/queue`)}
 <p style="margin:20px 0 0;font-size:13px;color:#6b7280;">Takes about 5 minutes to approve your first batch.</p>`),
   });
@@ -121,10 +122,10 @@ export async function sendPatternInsightEmail(opts: {
 }) {
   await send({
     to: opts.to,
-    subject: `LaunchPilot learned something about ${opts.siteName}`,
+    subject: `${BRAND_NAME} learned something about ${opts.siteName}`,
     html: emailShell(`
 <h2 style="margin:0 0 12px;font-size:20px;font-weight:700;color:#111827;">New content insight</h2>
-<p style="margin:0 0 16px;font-size:15px;color:#374151;">After analyzing your published content, LaunchPilot found a pattern that's worth knowing:</p>
+<p style="margin:0 0 16px;font-size:15px;color:#374151;">After analyzing your published content, ${BRAND_NAME} found a pattern that's worth knowing:</p>
 <blockquote style="margin:0 0 20px;padding:12px 16px;background:#f3f4f6;border-left:3px solid #6366f1;border-radius:0 8px 8px 0;font-size:15px;color:#111827;">${opts.insight}</blockquote>
 <p style="margin:0 0 20px;font-size:14px;color:#6b7280;">New content for ${opts.siteName} has been adjusted to reflect this.</p>
 ${button("See what changed →", `${APP_URL}/sites/${opts.siteId}/performance`)}`),

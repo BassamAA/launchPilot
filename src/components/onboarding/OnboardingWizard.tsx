@@ -6,6 +6,7 @@ import { Badge, Button, Card, cn } from "@/components/ui";
 import { useToast } from "@/components/ui/Toast";
 import { getOnboardingConfig } from "@/lib/onboarding";
 import { ContentItem, GrowthSurface, OnboardingPersona, SiteOnboardingState } from "@/types";
+import { BRAND_NAME } from "@/lib/brand";
 import {
   ArrowRightIcon,
   CheckCircleIcon,
@@ -152,7 +153,7 @@ export function OnboardingWizard({
       await persistOnboarding(nextOnboarding);
 
       if (queueItems.length <= 1) {
-        toast("First wins unlocked. LaunchPilot is now working in the background.", "success");
+        toast(`First wins unlocked. ${BRAND_NAME} is now working in the background.`, "success");
         setOpen(false);
         window.location.reload();
       } else {
@@ -213,12 +214,12 @@ export function OnboardingWizard({
     },
     {
       title: "Install tracking pixel",
-      description: "Make sure LaunchPilot can measure the traffic and signups it creates.",
+      description: `Make sure ${BRAND_NAME} can measure the traffic and signups it creates.`,
       href: `/sites/${siteId}/settings`,
     },
     {
       title: "Review your first queue",
-      description: "LaunchPilot will tee up content once your plan is ready.",
+      description: `${BRAND_NAME} will tee up content once your plan is ready.`,
       href: `/sites/${siteId}/queue`,
     },
   ];
@@ -231,7 +232,7 @@ export function OnboardingWizard({
             <SparklesIcon className="h-4 w-4" />
             Adaptive onboarding
           </div>
-          <h2 className="mt-4 text-xl font-bold text-gray-900">Your first 5 minutes with LaunchPilot</h2>
+          <h2 className="mt-4 text-xl font-bold text-gray-900">Your first 5 minutes with {BRAND_NAME}</h2>
           <p className="mt-2 max-w-2xl text-sm text-gray-600">{config.welcomeMessage}</p>
         </div>
         <Button variant="ghost" size="sm" onClick={handleSkip}>
@@ -259,7 +260,7 @@ export function OnboardingWizard({
               Choose where you want to show up
             </h3>
             <p className="mt-2 text-sm text-gray-600">
-              LaunchPilot pre-selected the channels that work best for your type of product. Turn off any you don&apos;t want — you can always change this later.
+              {BRAND_NAME} pre-selected the channels that work best for your type of product. Turn off any you don&apos;t want — you can always change this later.
             </p>
           </div>
 
@@ -309,7 +310,7 @@ export function OnboardingWizard({
             <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Step 2 of 3</p>
             <h3 className="mt-1 text-lg font-semibold text-gray-900">Optional — connect & track</h3>
             <p className="mt-2 text-sm text-gray-600">
-              These make LaunchPilot more powerful, but you can skip them and do it after your first content goes live.
+              These make {BRAND_NAME} more powerful, but you can skip them and do it after your first content goes live.
             </p>
           </div>
 
@@ -391,7 +392,7 @@ export function OnboardingWizard({
             </div>
           ) : (
             <div className="rounded-2xl border border-gray-200 bg-white p-6 text-sm text-gray-500">
-              LaunchPilot will generate a first batch from your active surfaces when you click the button above.
+              {BRAND_NAME} will generate a first batch from your active surfaces when you click the button above.
             </div>
           )}
 

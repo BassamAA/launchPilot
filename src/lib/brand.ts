@@ -1,0 +1,10 @@
+export const BRAND_NAME = "BreakthroughPilot";
+export const BRAND_NAME_UPPER = "BREAKTHROUGHPILOT";
+export const BRAND_DOMAIN = "breakthroughpilot.com";
+export const BRAND_MARKETING_URL = `https://${BRAND_DOMAIN}`;
+export const BRAND_APP_HOST = `app.${BRAND_DOMAIN}`;
+export const BRAND_APP_URL = `https://${BRAND_APP_HOST}`;
+export const BRAND_SUPPORT_EMAIL = `hello@${BRAND_DOMAIN}`;
+export const BRAND_NOTIFICATIONS_EMAIL = `notifications@${BRAND_DOMAIN}`;
+export const BRAND_OUTREACH_EMAIL = `outreach@mail.${BRAND_DOMAIN}`;
+export const BRAND_USER_AGENT = `Mozilla/5.0 (compatible; ${BRAND_NAME}/1.0; +${BRAND_MARKETING_URL})`;

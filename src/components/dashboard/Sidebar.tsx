@@ -5,6 +5,7 @@ import { buildPersonaSummary, sortLabelsForPersona } from "@/lib/onboarding";
 import { usePathname } from "next/navigation";
 import { Site } from "@/types";
 import { cn } from "@/components/ui";
+import { BRAND_NAME } from "@/lib/brand";
 import {
   HomeIcon,
   DocumentTextIcon,
@@ -106,7 +107,7 @@ export function Sidebar({ sites }: SidebarProps) {
           <div className="w-8 h-8 rounded-lg bg-brand-500 flex items-center justify-center">
             <RocketLaunchIcon className="w-4 h-4 text-white" />
           </div>
-          <span className="font-bold text-gray-900 text-lg">LaunchPilot</span>
+          <span className="font-bold text-gray-900 text-lg">{BRAND_NAME}</span>
         </Link>
       </div>
 
