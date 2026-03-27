@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
+import { buildMissingAuthConfigFallback, hasSupabaseAuthEnv } from "@/lib/middleware-auth";
 import { isPublicPath } from "@/lib/public-paths";
 
 export async function middleware(req: NextRequest) {
@@ -8,6 +9,14 @@ export async function middleware(req: NextRequest) {
   // Allow public paths and static assets
   if (isPublicPath(pathname)) {
     return NextResponse.next();
+  }
+
+  if (!hasSupabaseAuthEnv()) {
+    const fallback = buildMissingAuthConfigFallback(pathname, req.url);
+    if (fallback.type === "json") {
+      return NextResponse.json(fallback.body, { status: fallback.status });
+    }
+    return NextResponse.redirect(fallback.location, { status: fallback.status });
   }
 
   const res = NextResponse.next();

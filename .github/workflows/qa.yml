@@ -39,7 +39,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: npm run start > /tmp/launchpilot.log 2>&1 &
+      - run: NEXT_PUBLIC_SUPABASE_URL=https://example.supabase.co NEXT_PUBLIC_SUPABASE_ANON_KEY=smoke-anon-key SUPABASE_SERVICE_ROLE_KEY=smoke-service-role-key NEXT_PUBLIC_APP_URL=http://127.0.0.1:3000 npm run start > /tmp/launchpilot.log 2>&1 &
       - run: npx wait-on http://127.0.0.1:3000
       - run: SMOKE_BASE_URL=http://127.0.0.1:3000 npm run qa:smoke
 
