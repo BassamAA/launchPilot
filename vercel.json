@@ -1,0 +1,59 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/generate-scheduled",
+      "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/cron/publish-approved",
+      "schedule": "0 9 * * *"
+    },
+    {
+      "path": "/api/cron/publish-scheduled",
+      "schedule": "*/15 * * * *"
+    },
+    {
+      "path": "/api/cron/refresh-tokens",
+      "schedule": "0 */6 * * *"
+    },
+    {
+      "path": "/api/cron/check-email-status",
+      "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/cron/fetch-signals",
+      "schedule": "0 */6 * * *"
+    },
+    {
+      "path": "/api/cron/self-market",
+      "schedule": "0 13 * * *"
+    },
+    {
+      "path": "/api/cron/notifications",
+      "schedule": "0 9 * * 1"
+    }
+  ],
+  "functions": {
+    "src/app/api/analyze/route.ts": {
+      "maxDuration": 60
+    },
+    "src/app/api/generate-plan/route.ts": {
+      "maxDuration": 120
+    },
+    "src/app/api/bulk-generate/route.ts": {
+      "maxDuration": 300
+    },
+    "src/app/api/email/send/route.ts": {
+      "maxDuration": 60
+    },
+    "src/app/api/cron/check-email-status/route.ts": {
+      "maxDuration": 60
+    },
+    "src/app/api/cron/fetch-signals/route.ts": {
+      "maxDuration": 60
+    },
+    "src/app/api/cron/self-market/route.ts": {
+      "maxDuration": 120
+    }
+  }
+}
