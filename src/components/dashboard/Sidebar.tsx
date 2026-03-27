@@ -14,6 +14,7 @@ import {
   QueueListIcon,
   BoltIcon,
   ChartBarIcon,
+  SparklesIcon,
   ClockIcon,
   Cog6ToothIcon,
   LinkIcon,
@@ -87,6 +88,11 @@ export function Sidebar({ sites, pendingCountBySite = {} }: SidebarProps) {
           label: "Results",
           href: `/sites/${activeSiteId}/performance`,
           icon: <ChartBarIcon className="w-4 h-4" />,
+        },
+        {
+          label: "Social",
+          href: `/sites/${activeSiteId}/social`,
+          icon: <SparklesIcon className="w-4 h-4" />,
         },
         {
           label: "History",

@@ -59,6 +59,9 @@
     "src/app/api/cron/self-market/route.ts": {
       "maxDuration": 120
     },
+    "src/app/api/sites/[id]/social-strategy/route.ts": {
+      "maxDuration": 120
+    },
     "src/app/api/cron/autopilot/route.ts": {
       "maxDuration": 300
     }

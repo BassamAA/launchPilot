@@ -58,6 +58,10 @@ export const businessProfilePatchSchema = z.object({
   monetization_model: z.string().trim().optional(),
 });
 
+export const socialStrategyGenerateSchema = z.object({
+  platform: z.enum(["instagram", "youtube", "linkedin"]),
+});
+
 export const surfacePatchSchema = z.object({
   surfaceId: z.string().uuid(),
   status: z.enum(["recommended", "active", "paused", "not_applicable"]),

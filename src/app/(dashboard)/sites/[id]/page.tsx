@@ -7,6 +7,7 @@ import { getFunnelIntelligence } from "@/lib/funnel";
 import { buildPersonaSummary, sortLabelsForPersona } from "@/lib/onboarding";
 import { getPartnerIntelligence } from "@/lib/partners";
 import { getPriorityActions } from "@/lib/priority-actions";
+import { hasSocialStrategy } from "@/lib/social-strategy";
 import { getUser, getSupabaseServerClient } from "@/lib/supabase";
 import { BRAND_NAME } from "@/lib/brand";
 import { PriorityActionsBar } from "@/components/dashboard/PriorityActionsBar";
@@ -33,6 +34,7 @@ import {
   ClockIcon,
   ChartBarIcon,
   Cog6ToothIcon,
+  SparklesIcon,
 } from "@heroicons/react/24/outline";
 import {
   CheckCircleIcon,
@@ -61,6 +63,7 @@ export default async function SiteDashboardPage({
 
   const siteObj = site as Site;
   const businessProfile = normalizeBusinessProfile(siteObj.business_profile_json);
+  const hasSocialStrategyReady = hasSocialStrategy(siteObj.social_strategy_json);
   const { persona, config: onboardingConfig } = buildPersonaSummary(siteObj);
 
   // Content stats
@@ -280,6 +283,12 @@ export default async function SiteDashboardPage({
         href: `/sites/${params.id}/performance`,
         icon: ChartBarIcon,
         desc: "Outcomes & signals",
+      },
+      {
+        label: "Social Strategy",
+        href: `/sites/${params.id}/social`,
+        icon: SparklesIcon,
+        desc: hasSocialStrategyReady ? "Playbooks ready" : "Generate playbooks",
       },
       {
         label: "Connections",

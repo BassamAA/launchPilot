@@ -18,6 +18,7 @@ import {
   QueueListIcon,
   BoltIcon,
   ChartBarIcon,
+  SparklesIcon,
   ClockIcon,
   LinkIcon,
   Cog6ToothIcon,
@@ -56,6 +57,7 @@ export function MobileNav({ sites, pendingCountBySite = {} }: MobileNavProps) {
         { label: "Queue", href: `/sites/${activeSiteId}/queue`, icon: QueueListIcon },
         { label: "Content", href: `/sites/${activeSiteId}/content`, icon: BoltIcon },
         { label: "Performance", href: `/sites/${activeSiteId}/performance`, icon: ChartBarIcon },
+        { label: "Social", href: `/sites/${activeSiteId}/social`, icon: SparklesIcon },
         { label: "History", href: `/sites/${activeSiteId}/activity`, icon: ClockIcon },
         { label: "Connections", href: `/sites/${activeSiteId}/settings`, icon: LinkIcon },
       ], currentPersona)
