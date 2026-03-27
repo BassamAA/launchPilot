@@ -18,14 +18,28 @@ export default function BillingPage() {
   const canceled = searchParams.get("canceled");
 
   const [loading, setLoading] = useState<string | null>(null);
+  const [syncing, setSyncing] = useState(false);
   const [billingData, setBillingData] = useState<UserBillingData | null>(null);
 
-  useEffect(() => {
-    fetch("/api/stripe/billing-status")
-      .then((r) => r.json())
-      .then((d) => setBillingData(d))
-      .catch(() => {});
-  }, []);
+  async function loadBillingData() {
+    const d = await fetch("/api/stripe/billing-status").then((r) => r.json()).catch(() => null);
+    if (d) setBillingData(d);
+  }
+
+  useEffect(() => { loadBillingData(); }, []);
+
+  async function handleSync() {
+    setSyncing(true);
+    try {
+      const res = await fetch("/api/stripe/sync", { method: "POST" });
+      const data = await res.json();
+      if (data.synced) {
+        await loadBillingData();
+      }
+    } finally {
+      setSyncing(false);
+    }
+  }
 
   async function handleCheckout(tier: string) {
     setLoading(tier);
@@ -88,6 +102,15 @@ export default function BillingPage() {
             {!isTrial && currentPlan && (
               <p className="text-sm text-gray-500 mt-1">${currentPlan.price}/month</p>
             )}
+          {isTrial && (
+            <button
+              onClick={handleSync}
+              disabled={syncing}
+              className="mt-2 text-xs text-gray-400 hover:text-gray-600 underline underline-offset-2 disabled:opacity-50"
+            >
+              {syncing ? "Checking…" : "Already paid? Sync your plan →"}
+            </button>
+          )}
           </div>
           {!isUnlimited && (
             <div className="text-right text-sm">
