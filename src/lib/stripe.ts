@@ -94,12 +94,14 @@ export async function createCheckoutSession({
   priceId,
   customerId,
   userId,
+  tier,
   successUrl,
   cancelUrl,
 }: {
   priceId: string;
   customerId?: string;
   userId: string;
+  tier: string;
   successUrl: string;
   cancelUrl: string;
 }): Promise<Stripe.Checkout.Session> {
@@ -110,10 +112,10 @@ export async function createCheckoutSession({
     line_items: [{ price: priceId, quantity: 1 }],
     success_url: successUrl,
     cancel_url: cancelUrl,
-    metadata: { user_id: userId },
+    metadata: { user_id: userId, tier },
     subscription_data: {
       trial_period_days: 7,
-      metadata: { user_id: userId },
+      metadata: { user_id: userId, tier },
     },
     allow_promotion_codes: true,
   });
@@ -133,6 +135,7 @@ export async function createBillingPortalSession({
 }
 
 export function getTierFromPriceId(priceId: string): SubscriptionTier {
-  const plan = PRICING_PLANS.find((p) => p.stripe_price_id === priceId);
+  const normalizedId = priceId?.trim();
+  const plan = PRICING_PLANS.find((p) => p.stripe_price_id.trim() === normalizedId);
   return (plan?.id as SubscriptionTier) || "free_trial";
 }

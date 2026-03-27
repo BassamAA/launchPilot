@@ -48,7 +48,36 @@ export async function POST() {
     }
 
     const priceId = active.items.data[0]?.price.id;
-    const tier = getTierFromPriceId(priceId);
+    let tier = getTierFromPriceId(priceId);
+
+    // Fall back to tier stored in subscription metadata
+    if (tier === "free_trial" && active.metadata?.tier && active.metadata.tier !== "free_trial") {
+      tier = active.metadata.tier as typeof tier;
+    }
+
+    if (tier === "free_trial") {
+      // Can't identify the tier — don't overwrite an existing paid plan
+      const { data: current } = await supabase
+        .from("user_profiles")
+        .select("subscription_tier")
+        .eq("id", user.id)
+        .single();
+
+      if (current?.subscription_tier && current.subscription_tier !== "free_trial") {
+        logStructured("warn", "stripe_sync_tier_unknown_keeping_existing", {
+          userId: user.id,
+          priceId,
+          kept: current.subscription_tier,
+          hint: "Check STRIPE_*_PRICE_ID env vars match your Stripe dashboard price IDs",
+        });
+        // Just update the subscription ID, not the tier
+        await supabase
+          .from("user_profiles")
+          .update({ stripe_subscription_id: active.id, trial_ends_at: null })
+          .eq("id", user.id);
+        return NextResponse.json({ synced: true, tier: current.subscription_tier });
+      }
+    }
 
     await supabase
       .from("user_profiles")

@@ -45,10 +45,32 @@ export async function POST(req: NextRequest) {
 
         const subscription = await stripe.subscriptions.retrieve(subscriptionId);
         const priceId = subscription.items.data[0]?.price.id;
-        const tier = getTierFromPriceId(priceId);
 
+        // Try price-ID lookup first, fall back to tier stored in checkout metadata
+        let tier = getTierFromPriceId(priceId);
         if (tier === "free_trial") {
-          logStructured("warn", "stripe_webhook_unknown_price_id", { priceId, sessionId: session.id, userId });
+          const metaTier = session.metadata?.tier || subscription.metadata?.tier;
+          if (metaTier && metaTier !== "free_trial") {
+            tier = metaTier as typeof tier;
+            logStructured("info", "stripe_webhook_tier_from_metadata", { userId, tier, priceId });
+          } else {
+            logStructured("error", "stripe_webhook_unknown_price_id", {
+              priceId,
+              sessionId: session.id,
+              userId,
+              hint: "Check STRIPE_*_PRICE_ID env vars match your Stripe dashboard price IDs",
+            });
+            // Don't update the tier when we can't identify it — keeps current plan
+            // Still save the Stripe IDs so future syncs can recover
+            await supabase
+              .from("user_profiles")
+              .update({
+                stripe_customer_id: session.customer as string,
+                stripe_subscription_id: subscriptionId,
+              })
+              .eq("id", userId);
+            break;
+          }
         }
 
         const { error } = await supabase
@@ -72,11 +94,17 @@ export async function POST(req: NextRequest) {
       case "customer.subscription.updated": {
         const sub = event.data.object as Stripe.Subscription;
         const priceId = sub.items.data[0]?.price.id;
-        const tier = getTierFromPriceId(priceId);
+        let tier = getTierFromPriceId(priceId);
+
+        // Fall back to subscription metadata tier if price ID lookup failed
+        if (tier === "free_trial" && sub.metadata?.tier && sub.metadata.tier !== "free_trial") {
+          tier = sub.metadata.tier as typeof tier;
+          logStructured("info", "stripe_webhook_sub_updated_tier_from_metadata", { tier, priceId });
+        }
 
         const { data: profile } = await supabase
           .from("user_profiles")
-          .select("id")
+          .select("id, subscription_tier")
           .eq("stripe_customer_id", sub.customer as string)
           .single();
 
@@ -85,12 +113,21 @@ export async function POST(req: NextRequest) {
           break;
         }
 
-        await supabase
-          .from("user_profiles")
-          .update({ subscription_tier: tier, stripe_subscription_id: sub.id })
-          .eq("id", profile.id);
-
-        logStructured("info", "stripe_webhook_subscription_updated", { userId: profile.id, tier, priceId });
+        // Only update if we identified the tier, or if downgrading to free (cancelled sub)
+        if (tier !== "free_trial" || sub.status === "canceled") {
+          await supabase
+            .from("user_profiles")
+            .update({ subscription_tier: tier, stripe_subscription_id: sub.id })
+            .eq("id", profile.id);
+          logStructured("info", "stripe_webhook_subscription_updated", { userId: profile.id, tier, priceId });
+        } else {
+          logStructured("warn", "stripe_webhook_sub_updated_tier_unknown", {
+            userId: profile.id,
+            priceId,
+            currentTier: profile.subscription_tier,
+            hint: "Skipping update — could not identify tier from price ID",
+          });
+        }
         break;
       }
 

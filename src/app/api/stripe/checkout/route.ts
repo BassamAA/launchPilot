@@ -24,6 +24,7 @@ export async function POST(req: NextRequest) {
       priceId: plan.stripe_price_id,
       customerId: profile?.stripe_customer_id || undefined,
       userId: user.id,
+      tier: plan.id,
       successUrl: `${baseUrl}/settings/billing?success=true`,
       cancelUrl: `${baseUrl}/settings/billing?canceled=true`,
     });
