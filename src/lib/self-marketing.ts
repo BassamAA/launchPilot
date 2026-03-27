@@ -242,6 +242,18 @@ function buildSelfMarketingSurfaces(): Array<Omit<GrowthSurface, "id" | "site_id
 }
 
 async function ensureSystemCompany(supabase: SupabaseAdmin) {
+  // If an owner email is set, assign the system site to that user's company
+  // so the owner can see and manage it directly from their dashboard.
+  const ownerEmail = process.env.SELF_MARKETING_OWNER_EMAIL?.trim();
+  if (ownerEmail) {
+    const { data: ownerProfile } = await supabase
+      .from("user_profiles")
+      .select("company_id")
+      .eq("email", ownerEmail)
+      .maybeSingle();
+    if (ownerProfile?.company_id) return ownerProfile.company_id;
+  }
+
   const { data: existing } = await supabase
     .from("companies")
     .select("id")
