@@ -55,9 +55,10 @@ function buildSelfMarketingBrief(appUrl: string): MarketingBrief {
     recommended_channels: [
       { channel: "blog", reasoning: "Compounding SEO and founder-education surface.", priority: 1 },
       { channel: "twitter", reasoning: "Founder-led distribution and proof loop.", priority: 2 },
-      { channel: "reddit", reasoning: "High-intent founder communities.", priority: 3 },
-      { channel: "directory", reasoning: "Capture intent on startup and tool directories.", priority: 4 },
-      { channel: "email", reasoning: "Lifecycle proof and onboarding education.", priority: 5 },
+      { channel: "linkedin", reasoning: "High-intent founder and indie hacker audience with strong organic reach.", priority: 3 },
+      { channel: "reddit", reasoning: "High-intent founder communities.", priority: 4 },
+      { channel: "directory", reasoning: "Capture intent on startup and tool directories.", priority: 5 },
+      { channel: "email", reasoning: "Lifecycle proof and onboarding education.", priority: 6 },
     ],
     content_angles: [
       "I built products but couldn’t market any of them",
@@ -486,7 +487,7 @@ async function autoReviewSelfMarketingQueue(siteId: string, supabase: SupabaseAd
   let manualQueued = 0;
   // System site: auto-approve all publishable channels using auto_approve source
   // so twitter publishes immediately without requiring manual intervention
-  const autoChannels = new Set(["blog", "twitter", "directory"]);
+  const autoChannels = new Set(["blog", "twitter", "linkedin", "directory"]);
   const manualChannels = new Set(["reddit"]);
 
   for (const item of (readyDrafts || []) as ContentItem[]) {
@@ -511,7 +512,7 @@ async function publishDueSelfMarketingContent(siteId: string, supabase: Supabase
     .select("id, channel")
     .eq("site_id", siteId)
     .eq("status", "approved")
-    .in("channel", ["blog", "twitter"])
+    .in("channel", ["blog", "twitter", "linkedin"])
     .or(`scheduled_date.is.null,scheduled_date.lte.${today}`)
     .limit(20);
 
