@@ -116,7 +116,7 @@ export default function LandingPage() {
             AI-powered marketing for indie hackers
           </div>
 
-          <h1 className="text-6xl md:text-8xl font-bold text-gray-900 leading-[1.05] tracking-tight mb-4">
+          <h1 className="text-4xl sm:text-6xl md:text-8xl font-bold text-gray-900 leading-[1.05] tracking-tight mb-4">
             Your product is live.{" "}
             <span className="text-brand-500">Where are your customers?</span>
           </h1>
@@ -146,7 +146,7 @@ export default function LandingPage() {
             <div className="mx-auto text-xs text-gray-400 font-mono">{BRAND_APP_HOST}</div>
           </div>
           <div className="p-8 bg-[#f8fafc]">
-            <div className="grid grid-cols-4 gap-4 mb-6">
+            <div className="grid grid-cols-2 gap-4 mb-6">
               {[
                 { label: "Content Generated", value: "42", color: "text-brand-600" },
                 { label: "Approved", value: "28", color: "text-emerald-600" },
@@ -166,16 +166,16 @@ export default function LandingPage() {
                 { channel: "🔴 Reddit", title: "r/freelance — comment on 'what invoicing tools do you use'", status: "Pending", statusColor: "text-amber-600 bg-amber-50" },
                 { channel: "📋 Directory", title: "Product Hunt submission — ready to copy/paste", status: "Ready", statusColor: "text-brand-600 bg-brand-50" },
               ].map((item) => (
-                <div key={item.title} className="bg-white rounded-xl border border-gray-100 shadow-card p-4 flex items-center gap-4">
-                  <span className="text-lg w-8">{item.channel.split(" ")[0]}</span>
+                <div key={item.title} className="bg-white rounded-xl border border-gray-100 shadow-card p-4 flex items-center gap-3">
+                  <span className="text-lg w-8 flex-shrink-0">{item.channel.split(" ")[0]}</span>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-gray-900 truncate">{item.title}</p>
                     <p className="text-xs text-gray-400 mt-0.5">{item.channel.split(" ").slice(1).join(" ")}</p>
                   </div>
-                  <span className={`text-xs font-semibold px-2 py-1 rounded-full ${item.statusColor}`}>
+                  <span className={`text-xs font-semibold px-2 py-1 rounded-full flex-shrink-0 ${item.statusColor}`}>
                     {item.status}
                   </span>
-                  <button className="px-3 py-1.5 bg-brand-500 text-white text-xs font-medium rounded-lg">
+                  <button className="hidden sm:block px-3 py-1.5 bg-brand-500 text-white text-xs font-medium rounded-lg flex-shrink-0">
                     Approve
                   </button>
                 </div>

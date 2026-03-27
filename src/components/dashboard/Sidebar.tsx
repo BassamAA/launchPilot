@@ -16,6 +16,7 @@ import {
   ChartBarIcon,
   ClockIcon,
   Cog6ToothIcon,
+  LinkIcon,
   PlusCircleIcon,
   ChevronDownIcon,
   RocketLaunchIcon,
@@ -24,9 +25,10 @@ import { useState } from "react";
 
 interface SidebarProps {
   sites: Site[];
+  pendingCountBySite?: Record<string, number>;
 }
 
-export function Sidebar({ sites }: SidebarProps) {
+export function Sidebar({ sites, pendingCountBySite = {} }: SidebarProps) {
   const pathname = usePathname();
   const [sitesOpen, setSitesOpen] = useState(true);
 
@@ -91,6 +93,11 @@ export function Sidebar({ sites }: SidebarProps) {
           href: `/sites/${activeSiteId}/activity`,
           icon: <ClockIcon className="w-4 h-4" />,
         },
+        {
+          label: "Connections",
+          href: `/sites/${activeSiteId}/settings`,
+          icon: <LinkIcon className="w-4 h-4" />,
+        },
       ], currentPersona)
     : [];
 
@@ -130,31 +137,39 @@ export function Sidebar({ sites }: SidebarProps) {
 
           {sitesOpen && (
             <div className="mt-1 space-y-0.5">
-              {sites.map((site) => (
-                <Link
-                  key={site.id}
-                  href={`/sites/${site.id}`}
-                  className={cn(
-                    "flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors",
-                    site.id === activeSiteId
-                      ? "bg-brand-50 text-brand-700 font-medium"
-                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                  )}
-                >
-                  <div
+              {sites.map((site) => {
+                const sitePending = pendingCountBySite[site.id] || 0;
+                return (
+                  <Link
+                    key={site.id}
+                    href={`/sites/${site.id}`}
                     className={cn(
-                      "w-2 h-2 rounded-full flex-shrink-0",
-                      site.status === "active" && "bg-emerald-400",
-                      site.status === "analyzing" && "bg-amber-400 animate-pulse",
-                      site.status === "error" && "bg-red-400",
-                      site.status === "paused" && "bg-gray-300"
+                      "flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors",
+                      site.id === activeSiteId
+                        ? "bg-brand-50 text-brand-700 font-medium"
+                        : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                     )}
-                  />
-                  <span className="truncate">
-                    {site.name && site.name !== "" ? site.name : getSiteHostname(site)}
-                  </span>
-                </Link>
-              ))}
+                  >
+                    <div
+                      className={cn(
+                        "w-2 h-2 rounded-full flex-shrink-0",
+                        site.status === "active" && "bg-emerald-400",
+                        site.status === "analyzing" && "bg-amber-400 animate-pulse",
+                        site.status === "error" && "bg-red-400",
+                        site.status === "paused" && "bg-gray-300"
+                      )}
+                    />
+                    <span className="truncate flex-1">
+                      {site.name && site.name !== "" ? site.name : getSiteHostname(site)}
+                    </span>
+                    {sitePending > 0 && (
+                      <span className="ml-auto min-w-[1.25rem] h-5 px-1 flex items-center justify-center rounded-full bg-amber-400 text-white text-xs font-bold leading-none flex-shrink-0">
+                        {sitePending > 99 ? "99+" : sitePending}
+                      </span>
+                    )}
+                  </Link>
+                );
+              })}
 
               <Link
                 href="/sites/new"
@@ -179,21 +194,30 @@ export function Sidebar({ sites }: SidebarProps) {
               {currentSite.name || getSiteHostname(currentSite)}
             </p>
             <div className="mt-1 space-y-0.5">
-              {siteNav.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={cn(
-                    "flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors",
-                    isActive(item.href, item.exact)
-                      ? "bg-brand-50 text-brand-700 font-medium"
-                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                  )}
-                >
-                  {item.icon}
-                  {item.label}
-                </Link>
-              ))}
+              {siteNav.map((item) => {
+                const isQueue = item.href.endsWith("/queue");
+                const pendingCount = isQueue && activeSiteId ? (pendingCountBySite[activeSiteId] || 0) : 0;
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={cn(
+                      "flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors",
+                      isActive(item.href, item.exact)
+                        ? "bg-brand-50 text-brand-700 font-medium"
+                        : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                    )}
+                  >
+                    {item.icon}
+                    <span className="flex-1">{item.label}</span>
+                    {pendingCount > 0 && (
+                      <span className="ml-auto min-w-[1.25rem] h-5 px-1 flex items-center justify-center rounded-full bg-amber-400 text-white text-xs font-bold leading-none">
+                        {pendingCount > 99 ? "99+" : pendingCount}
+                      </span>
+                    )}
+                  </Link>
+                );
+              })}
             </div>
           </div>
         )}

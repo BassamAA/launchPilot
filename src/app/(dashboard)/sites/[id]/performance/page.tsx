@@ -239,7 +239,7 @@ export default function PerformancePage() {
           </Badge>
         </div>
 
-        <div className="mt-4 grid gap-4 md:grid-cols-4">
+        <div className="mt-4 grid grid-cols-2 gap-4 md:grid-cols-4">
           <div className="rounded-xl border border-gray-100 bg-gray-50 p-4">
             <p className="text-xs uppercase tracking-wide text-gray-400">Total Clicks</p>
             <p className="mt-2 text-xl font-bold text-gray-900">{formatNumber(data.attribution.totalClicks)}</p>
@@ -277,7 +277,7 @@ export default function PerformancePage() {
           <Badge variant="info">Activation-aware</Badge>
         </div>
 
-        <div className="mt-4 grid gap-4 md:grid-cols-6">
+        <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-6">
           {[
             ["Clicks", data.funnel.totalClicks],
             ["Signups", data.funnel.totalSignups],

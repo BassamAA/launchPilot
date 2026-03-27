@@ -18,15 +18,18 @@ import {
   QueueListIcon,
   BoltIcon,
   ChartBarIcon,
+  ClockIcon,
+  LinkIcon,
   Cog6ToothIcon,
   PlusCircleIcon,
 } from "@heroicons/react/24/outline";
 
 interface MobileNavProps {
   sites: Site[];
+  pendingCountBySite?: Record<string, number>;
 }
 
-export function MobileNav({ sites }: MobileNavProps) {
+export function MobileNav({ sites, pendingCountBySite = {} }: MobileNavProps) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
@@ -53,6 +56,8 @@ export function MobileNav({ sites }: MobileNavProps) {
         { label: "Queue", href: `/sites/${activeSiteId}/queue`, icon: QueueListIcon },
         { label: "Content", href: `/sites/${activeSiteId}/content`, icon: BoltIcon },
         { label: "Performance", href: `/sites/${activeSiteId}/performance`, icon: ChartBarIcon },
+        { label: "History", href: `/sites/${activeSiteId}/activity`, icon: ClockIcon },
+        { label: "Connections", href: `/sites/${activeSiteId}/settings`, icon: LinkIcon },
       ], currentPersona)
     : [];
 
@@ -94,27 +99,35 @@ export function MobileNav({ sites }: MobileNavProps) {
               <div>
                 <p className="px-3 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wide">Sites</p>
                 <div className="space-y-0.5">
-                  {sites.map((site) => (
-                    <Link
-                      key={site.id}
-                      href={`/sites/${site.id}`}
-                      onClick={() => setOpen(false)}
-                      className={cn(
-                        "flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm transition-colors",
-                        site.id === activeSiteId
-                          ? "bg-brand-50 text-brand-700 font-medium"
-                          : "text-gray-600 hover:bg-gray-50"
-                      )}
-                    >
-                      <div className={cn("w-2 h-2 rounded-full flex-shrink-0",
-                        site.status === "active" && "bg-emerald-400",
-                        site.status === "analyzing" && "bg-amber-400",
-                        site.status === "error" && "bg-red-400",
-                        site.status === "paused" && "bg-gray-300"
-                      )} />
-                      <span className="truncate">{site.name || getSiteHostname(site)}</span>
-                    </Link>
-                  ))}
+                  {sites.map((site) => {
+                    const sitePending = pendingCountBySite[site.id] || 0;
+                    return (
+                      <Link
+                        key={site.id}
+                        href={`/sites/${site.id}`}
+                        onClick={() => setOpen(false)}
+                        className={cn(
+                          "flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm transition-colors",
+                          site.id === activeSiteId
+                            ? "bg-brand-50 text-brand-700 font-medium"
+                            : "text-gray-600 hover:bg-gray-50"
+                        )}
+                      >
+                        <div className={cn("w-2 h-2 rounded-full flex-shrink-0",
+                          site.status === "active" && "bg-emerald-400",
+                          site.status === "analyzing" && "bg-amber-400",
+                          site.status === "error" && "bg-red-400",
+                          site.status === "paused" && "bg-gray-300"
+                        )} />
+                        <span className="truncate flex-1">{site.name || getSiteHostname(site)}</span>
+                        {sitePending > 0 && (
+                          <span className="min-w-[1.25rem] h-5 px-1 flex items-center justify-center rounded-full bg-amber-400 text-white text-xs font-bold leading-none flex-shrink-0">
+                            {sitePending > 99 ? "99+" : sitePending}
+                          </span>
+                        )}
+                      </Link>
+                    );
+                  })}
                   <Link
                     href="/sites/new"
                     onClick={() => setOpen(false)}
@@ -133,22 +146,31 @@ export function MobileNav({ sites }: MobileNavProps) {
                     {sites.find((s) => s.id === activeSiteId)?.name || "Site"}
                   </p>
                   <div className="space-y-0.5">
-                    {siteNav.map(({ label, href, icon: Icon }) => (
-                      <Link
-                        key={href}
-                        href={href}
-                        onClick={() => setOpen(false)}
-                        className={cn(
-                          "flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm transition-colors",
-                          pathname === href || (href !== `/sites/${activeSiteId}` && pathname.startsWith(href))
-                            ? "bg-brand-50 text-brand-700 font-medium"
-                            : "text-gray-600 hover:bg-gray-50"
-                        )}
-                      >
-                        <Icon className="w-4 h-4" />
-                        {label}
-                      </Link>
-                    ))}
+                    {siteNav.map(({ label, href, icon: Icon }) => {
+                      const isQueue = href.endsWith("/queue");
+                      const pendingCount = isQueue && activeSiteId ? (pendingCountBySite[activeSiteId] || 0) : 0;
+                      return (
+                        <Link
+                          key={href}
+                          href={href}
+                          onClick={() => setOpen(false)}
+                          className={cn(
+                            "flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm transition-colors",
+                            pathname === href || (href !== `/sites/${activeSiteId}` && pathname.startsWith(href))
+                              ? "bg-brand-50 text-brand-700 font-medium"
+                              : "text-gray-600 hover:bg-gray-50"
+                          )}
+                        >
+                          <Icon className="w-4 h-4" />
+                          <span className="flex-1">{label}</span>
+                          {pendingCount > 0 && (
+                            <span className="min-w-[1.25rem] h-5 px-1 flex items-center justify-center rounded-full bg-amber-400 text-white text-xs font-bold leading-none flex-shrink-0">
+                              {pendingCount > 99 ? "99+" : pendingCount}
+                            </span>
+                          )}
+                        </Link>
+                      );
+                    })}
                   </div>
                 </div>
               )}

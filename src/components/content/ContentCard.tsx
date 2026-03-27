@@ -226,7 +226,7 @@ export function ContentCard({
       )}
 
       {/* Action bar */}
-      <div className="px-4 pb-4 pt-2 flex items-center gap-2 border-t border-gray-50">
+      <div className="px-4 pb-4 pt-2 flex items-center gap-2 flex-wrap border-t border-gray-50">
         {/* Generating state */}
         {generating ? (
           <div className="flex items-center gap-2 text-sm text-brand-600 font-medium flex-1">

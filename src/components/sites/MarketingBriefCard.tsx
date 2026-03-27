@@ -87,7 +87,7 @@ export function MarketingBriefCard({
   return (
     <div className="space-y-6 animate-slide-up">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-start justify-between flex-wrap gap-3">
         <div>
           <h2 className="text-xl font-bold text-gray-900">Your Marketing Brief</h2>
           <p className="text-sm text-gray-500 mt-1">

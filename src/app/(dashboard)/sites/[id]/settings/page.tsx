@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { Badge } from "@/components/ui";
 import { BusinessProfilePanel } from "@/components/sites/BusinessProfilePanel";
 import { SiteConnectionsPanel } from "@/components/sites/SiteConnectionsPanel";
+import { DeleteSiteButton } from "@/components/sites/DeleteSiteButton";
 import { getSupabaseServerClient, getUser } from "@/lib/supabase";
 import { BusinessProfile, PlatformConnection, Site, SiteOnboardingState } from "@/types";
 
@@ -57,6 +58,15 @@ export default async function SiteSettingsPage({
         profile={((site.business_profile_json as BusinessProfile | null | undefined) ?? null)}
         sourcesJson={(site.sources_json || null) as Record<string, unknown> | null}
       />
+
+      {/* Danger zone */}
+      <div className="rounded-xl border border-red-100 bg-red-50/40 p-6">
+        <h2 className="font-bold text-red-900 mb-1">Danger Zone</h2>
+        <p className="text-sm text-red-700 mb-4">
+          Permanently delete this site and all associated content, plans, and analytics. This cannot be undone.
+        </p>
+        <DeleteSiteButton siteId={params.id} siteName={site.name || "this site"} />
+      </div>
     </div>
   );
 }

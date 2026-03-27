@@ -28,13 +28,24 @@ export default async function DashboardLayout({
   }
 
   let sites: Site[] = [];
+  let pendingCountBySite: Record<string, number> = {};
   if (profile.company_id) {
-    const { data } = await supabase
-      .from("sites")
-      .select("*")
-      .eq("company_id", profile.company_id)
-      .order("created_at", { ascending: true });
-    sites = (data as Site[]) || [];
+    const [{ data: sitesData }, { data: pendingData }] = await Promise.all([
+      supabase
+        .from("sites")
+        .select("*")
+        .eq("company_id", profile.company_id)
+        .order("created_at", { ascending: true }),
+      supabase
+        .from("content_items")
+        .select("site_id")
+        .eq("status", "draft")
+        .neq("body", ""),
+    ]);
+    sites = (sitesData as Site[]) || [];
+    for (const item of pendingData || []) {
+      pendingCountBySite[item.site_id] = (pendingCountBySite[item.site_id] || 0) + 1;
+    }
   }
 
   const userInfo = {
@@ -49,12 +60,12 @@ export default async function DashboardLayout({
       <div className="flex h-screen bg-[#f8fafc] overflow-hidden">
         {/* Desktop sidebar */}
         <div className="hidden md:block">
-          <Sidebar sites={sites} />
+          <Sidebar sites={sites} pendingCountBySite={pendingCountBySite} />
         </div>
         <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
           {/* Mobile top bar — hamburger + user controls in one row */}
           <div className="flex items-center h-14 border-b border-gray-100 bg-white px-4 flex-shrink-0 md:hidden">
-            <MobileNav sites={sites} />
+            <MobileNav sites={sites} pendingCountBySite={pendingCountBySite} />
             <div className="flex-1" />
             <TopBar user={userInfo} compact />
           </div>

@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { getUser, getSupabaseServerClient } from "@/lib/supabase";
 import { Card, Badge, Button } from "@/components/ui";
+import { EditProfileName } from "@/components/dashboard/EditProfileName";
 import { PRICING_PLANS } from "@/lib/stripe";
 import Link from "next/link";
 import { CheckIcon } from "@heroicons/react/24/solid";
@@ -34,10 +35,7 @@ export default async function SettingsPage() {
             <span className="text-sm text-gray-500">Email</span>
             <span className="text-sm font-medium text-gray-900">{user.email}</span>
           </div>
-          <div className="flex items-center justify-between py-2 border-b border-gray-50">
-            <span className="text-sm text-gray-500">Name</span>
-            <span className="text-sm font-medium text-gray-900">{profile?.name || "—"}</span>
-          </div>
+          <EditProfileName currentName={profile?.name || ""} />
           <div className="flex items-center justify-between py-2">
             <span className="text-sm text-gray-500">Role</span>
             <Badge variant="purple" className="capitalize">{profile?.role}</Badge>

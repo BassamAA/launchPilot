@@ -434,7 +434,7 @@ export default async function SiteDashboardPage({
         />
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
         {[
           { label: "Tweets Posted", value: tweetsPosted },
           { label: "Blog Posts", value: blogPostsPublished },

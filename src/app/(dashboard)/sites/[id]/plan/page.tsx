@@ -518,7 +518,7 @@ export default function PlanPage() {
               style={{ width: `${items.length ? (approved / items.length) * 100 : 0}%` }}
             />
           </div>
-          <div className="flex items-center gap-4 mt-3">
+          <div className="flex items-center gap-4 mt-3 flex-wrap">
             {[
               { label: "Total actions", value: items.length, color: "text-gray-600" },
               { label: "Content ready", value: withContent, color: "text-brand-600" },
@@ -700,7 +700,8 @@ function CalendarView({ items }: { items: ContentItem[] }) {
                 {monthDate.toLocaleDateString("en-US", { month: "long", year: "numeric" })}
               </h3>
             </div>
-            <div className="grid grid-cols-7">
+            <div className="overflow-x-auto">
+          <div className="grid grid-cols-7 min-w-[420px]">
               {DAYS.map((d) => (
                 <div
                   key={`${year}-${month}-${d}`}
@@ -763,6 +764,7 @@ function CalendarView({ items }: { items: ContentItem[] }) {
                 );
               })}
             </div>
+          </div>
           </Card>
         );
       })}

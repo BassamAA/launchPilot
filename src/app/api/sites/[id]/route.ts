@@ -29,6 +29,28 @@ export async function GET(
   }
 }
 
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const user = await getUser();
+    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    const site = await getAuthorizedSite(params.id);
+    if (!site) return NextResponse.json({ error: "Site not found" }, { status: 404 });
+
+    const supabase = getSupabaseAdminClient();
+    const { error } = await supabase.from("sites").delete().eq("id", params.id);
+    if (error) throw error;
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    logRouteError("api_site_delete_failed", error, { site_id: params.id });
+    return NextResponse.json({ error: "Failed to delete site" }, { status: 500 });
+  }
+}
+
 export async function PATCH(
   req: NextRequest,
   { params }: { params: { id: string } }
