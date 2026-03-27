@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui";
 import { BusinessProfilePanel } from "@/components/sites/BusinessProfilePanel";
 import { SiteConnectionsPanel } from "@/components/sites/SiteConnectionsPanel";
 import { DeleteSiteButton } from "@/components/sites/DeleteSiteButton";
+import { AutopilotPanel } from "@/components/sites/AutopilotPanel";
 import { getSupabaseServerClient, getUser } from "@/lib/supabase";
 import { BusinessProfile, PlatformConnection, Site, SiteOnboardingState } from "@/types";
 
@@ -19,7 +20,7 @@ export default async function SiteSettingsPage({
   const supabase = getSupabaseServerClient();
   const { data: site } = await supabase
     .from("sites")
-    .select("id, name, slug, status, public_tracking_key, business_profile_json, sources_json, onboarding_json")
+    .select("id, name, slug, status, public_tracking_key, autopilot_enabled, business_profile_json, sources_json, onboarding_json")
     .eq("id", params.id)
     .single();
 
@@ -51,6 +52,12 @@ export default async function SiteSettingsPage({
         connected={searchParams.connected}
         error={searchParams.error}
         appUrl={process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}
+      />
+
+      <AutopilotPanel
+        siteId={params.id}
+        autopilotEnabled={!!(site as Site & { autopilot_enabled?: boolean }).autopilot_enabled}
+        twitterConnected={!!(connections || []).find((c) => (c as PlatformConnection).platform === "twitter")}
       />
 
       <BusinessProfilePanel

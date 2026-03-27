@@ -25,6 +25,10 @@
       "schedule": "0 4 * * *"
     },
     {
+      "path": "/api/cron/autopilot",
+      "schedule": "0 8 * * *"
+    },
+    {
       "path": "/api/cron/self-market",
       "schedule": "0 13 * * *"
     },
@@ -54,6 +58,9 @@
     },
     "src/app/api/cron/self-market/route.ts": {
       "maxDuration": 120
+    },
+    "src/app/api/cron/autopilot/route.ts": {
+      "maxDuration": 300
     }
   }
 }

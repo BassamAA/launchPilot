@@ -484,16 +484,18 @@ async function autoReviewSelfMarketingQueue(siteId: string, supabase: SupabaseAd
 
   let autoApproved = 0;
   let manualQueued = 0;
-  const lowRiskChannels = new Set(["blog", "directory"]);
-  const manualReviewChannels = new Set(["twitter", "reddit"]);
+  // System site: auto-approve all publishable channels using auto_approve source
+  // so twitter publishes immediately without requiring manual intervention
+  const autoChannels = new Set(["blog", "twitter", "directory"]);
+  const manualChannels = new Set(["reddit"]);
 
   for (const item of (readyDrafts || []) as ContentItem[]) {
-    if (lowRiskChannels.has(item.channel)) {
-      const result = await publishContentItem(item.id, "approve", supabase);
+    if (autoChannels.has(item.channel)) {
+      const result = await publishContentItem(item.id, "auto_approve", supabase);
       if (result.success) autoApproved += 1;
       continue;
     }
-    if (manualReviewChannels.has(item.channel)) {
+    if (manualChannels.has(item.channel)) {
       const result = await publishContentItem(item.id, "approve", supabase);
       if (result.success) manualQueued += 1;
     }
@@ -509,7 +511,7 @@ async function publishDueSelfMarketingContent(siteId: string, supabase: Supabase
     .select("id, channel")
     .eq("site_id", siteId)
     .eq("status", "approved")
-    .in("channel", ["blog"])
+    .in("channel", ["blog", "twitter"])
     .or(`scheduled_date.is.null,scheduled_date.lte.${today}`)
     .limit(20);
 

@@ -266,8 +266,8 @@ export default async function SiteDashboardPage({
         label: "Approval Queue",
         href: `/sites/${params.id}/queue`,
         icon: QueueListIcon,
-        desc: pendingApproval > 0 ? `${pendingApproval} waiting` : "All clear",
-        urgent: pendingApproval > 0,
+        desc: siteObj.autopilot_enabled ? "Autopilot is handling this" : pendingApproval > 0 ? `${pendingApproval} waiting` : "All clear",
+        urgent: !siteObj.autopilot_enabled && pendingApproval > 0,
       },
       {
         label: "All Content",
@@ -296,8 +296,8 @@ export default async function SiteDashboardPage({
       {/* Header */}
       <div className="flex items-start justify-between flex-wrap gap-4">
         <div>
-          <div className="flex items-center gap-3 mb-1.5">
-            <h1 className="text-2xl font-bold text-gray-900">{siteObj.name}</h1>
+          <div className="flex items-center gap-3 mb-1.5 flex-wrap">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{siteObj.name}</h1>
             <Badge
               variant={
                 siteObj.status === "active" ? "success" :
@@ -307,6 +307,11 @@ export default async function SiteDashboardPage({
             >
               {siteObj.status}
             </Badge>
+            {siteObj.autopilot_enabled && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-brand-500 text-white">
+                ⚡ AUTOPILOT
+              </span>
+            )}
           </div>
           <a
             href={siteObj.url}

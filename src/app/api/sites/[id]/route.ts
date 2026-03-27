@@ -64,7 +64,7 @@ export async function PATCH(
     if (!site) return NextResponse.json({ error: "Site not found" }, { status: 404 });
 
     // Only allow client-safe fields to be updated
-    const allowedFields = ["onboarding_json", "name"] as const;
+    const allowedFields = ["onboarding_json", "name", "autopilot_enabled"] as const;
     const update: Record<string, unknown> = {};
     for (const key of allowedFields) {
       if (key in body) update[key] = body[key];

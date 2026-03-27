@@ -335,7 +335,7 @@ export async function publishContentItem(
       };
     }
 
-    if (source === "approve" && isFutureScheduledDate(item.scheduled_date)) {
+    if ((source === "approve" || source === "auto_approve") && isFutureScheduledDate(item.scheduled_date)) {
       await updateItem(supabase, item.id, {
         status: "approved",
         metadata_json: {
@@ -486,7 +486,7 @@ export async function publishContentItem(
       };
     }
 
-    if (source === "approve" && isFutureScheduledDate(item.scheduled_date)) {
+    if ((source === "approve" || source === "auto_approve") && isFutureScheduledDate(item.scheduled_date)) {
       await updateItem(supabase, item.id, {
         status: "approved",
         metadata_json: {

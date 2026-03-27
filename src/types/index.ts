@@ -168,6 +168,7 @@ export interface Site {
   business_profile_json?: BusinessProfile | null;
   onboarding_json?: SiteOnboardingState | null;
   is_system_site?: boolean;
+  autopilot_enabled?: boolean;
   status: SiteStatus;
   brief_json: MarketingBrief | null;
   brief_confirmed: boolean;
