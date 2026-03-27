@@ -24,9 +24,19 @@ export default function BillingPage() {
   async function loadBillingData() {
     const d = await fetch("/api/stripe/billing-status").then((r) => r.json()).catch(() => null);
     if (d) setBillingData(d);
+    return d;
   }
 
-  useEffect(() => { loadBillingData(); }, []);
+  useEffect(() => {
+    if (success) {
+      // Stripe redirects here before the webhook fires — sync immediately
+      fetch("/api/stripe/sync", { method: "POST" })
+        .then(() => loadBillingData())
+        .catch(() => loadBillingData());
+    } else {
+      loadBillingData();
+    }
+  }, [success]);
 
   async function handleSync() {
     setSyncing(true);
@@ -74,7 +84,9 @@ export default function BillingPage() {
 
       {success && (
         <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 text-emerald-800 font-medium">
-          Subscription activated — you&apos;re all set.
+          {currentPlan && currentPlan.id !== "free_trial"
+            ? `You're on the ${currentPlan.name} plan — all set.`
+            : "Payment received — syncing your plan…"}
         </div>
       )}
       {canceled && (
