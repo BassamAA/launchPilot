@@ -3,6 +3,7 @@ import { getAuthorizedSite, getUser, getSupabaseAdminClient } from "@/lib/supaba
 import { encryptSecret } from "@/lib/crypto";
 import { getTwitterCallbackUrl } from "@/lib/publishing";
 import { hasTwitterOAuthEnv } from "@/lib/twitter-auth";
+import { logStructured } from "@/lib/observability";
 
 // Twitter OAuth 2.0 PKCE — step 2: exchange code for tokens
 export async function GET(req: NextRequest) {
@@ -63,7 +64,8 @@ export async function GET(req: NextRequest) {
   });
 
   if (!tokenRes.ok) {
-    console.error("[twitter/callback] token exchange failed", await tokenRes.text());
+    const errBody = await tokenRes.text();
+    logStructured("error", "twitter_token_exchange_failed", { siteId, status: tokenRes.status, body: errBody });
     return NextResponse.redirect(
       `${appOrigin}/sites/${siteId}/settings?tab=connections&error=twitter_token`
     );
