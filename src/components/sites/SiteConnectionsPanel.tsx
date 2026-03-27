@@ -6,6 +6,7 @@ import { Badge, Button, Card, Input } from "@/components/ui";
 import { ContentChannel, PlatformConnection, Site, SiteOnboardingState } from "@/types";
 import { useToast } from "@/components/ui/Toast";
 import { getTwitterConnectionErrorMessage } from "@/lib/twitter-auth";
+import { getLinkedInConnectionErrorMessage } from "@/lib/linkedin-auth";
 import { BRAND_NAME } from "@/lib/brand";
 
 interface SiteConnectionsPanelProps {
@@ -60,6 +61,10 @@ export function SiteConnectionsPanel({
     () => connections.find((connection) => connection.platform === "email"),
     [connections]
   );
+  const linkedin = useMemo(
+    () => connections.find((connection) => connection.platform === "linkedin"),
+    [connections]
+  );
   const blog = useMemo(
     () => connections.find((connection) => connection.platform === "blog_external"),
     [connections]
@@ -89,7 +94,7 @@ export function SiteConnectionsPanel({
   );
   const [savingBlog, setSavingBlog] = useState(false);
   const [savingEmail, setSavingEmail] = useState(false);
-  const [disconnecting, setDisconnecting] = useState<null | "twitter" | "email" | "blog_external">(null);
+  const [disconnecting, setDisconnecting] = useState<null | "twitter" | "linkedin" | "email" | "blog_external">(null);
   const appOrigin = (appUrl || "").replace(/\/$/, "") || "http://localhost:3000";
   const pixelUrl = site.public_tracking_key
     ? `${appOrigin}/pixel/${site.public_tracking_key}.js`
@@ -101,6 +106,8 @@ export function SiteConnectionsPanel({
     ? `<script async src="${pixelUrl}"></script>\n<script>\n  window.launchpilot?.trackEvent({ event: "activated" });\n  window.launchpilot?.trackEvent({ event: "subscribed", value: 99, currency: "USD" });\n</script>`
     : null;
   const twitterErrorMessage = getTwitterConnectionErrorMessage(error);
+  const linkedinErrorMessage = getLinkedInConnectionErrorMessage(error);
+  const connectionErrorMessage = twitterErrorMessage || linkedinErrorMessage;
 
   async function saveConnection(platform: string, metadataJson: Record<string, unknown>) {
     const res = await fetch("/api/connections", {
@@ -182,7 +189,7 @@ export function SiteConnectionsPanel({
     );
   }
 
-  async function handleDisconnect(platform: "twitter" | "email" | "blog_external") {
+  async function handleDisconnect(platform: "twitter" | "linkedin" | "email" | "blog_external") {
     setDisconnecting(platform);
     try {
       const res = await fetch("/api/connections", {
@@ -214,7 +221,7 @@ export function SiteConnectionsPanel({
           className={connected ? "border-emerald-200 bg-emerald-50" : "border-red-200 bg-red-50"}
         >
           <p className={`text-sm font-medium ${connected ? "text-emerald-800" : "text-red-800"}`}>
-            {connected ? `${connected} connected successfully.` : twitterErrorMessage}
+            {connected ? `${connected} connected successfully.` : connectionErrorMessage}
           </p>
         </Card>
       )}
@@ -258,6 +265,49 @@ export function SiteConnectionsPanel({
           <div className="rounded-xl border border-gray-100 bg-gray-50 p-3">
             <p className="text-xs font-medium uppercase tracking-wide text-gray-400">Expires</p>
             <p className="mt-1 text-sm font-semibold text-gray-900">{formatDate(twitter?.expires_at)}</p>
+          </div>
+        </div>
+      </Card>
+
+      <Card padding="md" className="space-y-4">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2">
+              <h2 className="text-lg font-bold text-gray-900">LinkedIn</h2>
+              {linkedin ? <Badge variant="success">Connected</Badge> : <Badge variant="warning">Not connected</Badge>}
+            </div>
+            <p className="text-sm text-gray-500 mt-1">
+              Connect LinkedIn so approved posts can publish automatically to your profile.
+            </p>
+          </div>
+          {linkedin ? (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleDisconnect("linkedin")}
+              loading={disconnecting === "linkedin"}
+            >
+              Disconnect
+            </Button>
+          ) : (
+            <Button size="sm" type="button" onClick={() => (window.location.href = `/api/auth/linkedin?siteId=${site.id}`)}>
+              Connect LinkedIn
+            </Button>
+          )}
+        </div>
+
+        <div className="grid gap-3 md:grid-cols-3">
+          <div className="rounded-xl border border-gray-100 bg-gray-50 p-3">
+            <p className="text-xs font-medium uppercase tracking-wide text-gray-400">Profile</p>
+            <p className="mt-1 text-sm font-semibold text-gray-900">{linkedin?.platform_username || "Not connected"}</p>
+          </div>
+          <div className="rounded-xl border border-gray-100 bg-gray-50 p-3">
+            <p className="text-xs font-medium uppercase tracking-wide text-gray-400">Connected</p>
+            <p className="mt-1 text-sm font-semibold text-gray-900">{formatDate(linkedin?.connected_at)}</p>
+          </div>
+          <div className="rounded-xl border border-gray-100 bg-gray-50 p-3">
+            <p className="text-xs font-medium uppercase tracking-wide text-gray-400">Expires</p>
+            <p className="mt-1 text-sm font-semibold text-gray-900">{formatDate(linkedin?.expires_at)}</p>
           </div>
         </div>
       </Card>
@@ -412,7 +462,7 @@ export function SiteConnectionsPanel({
         </div>
         <div className="flex items-center justify-between">
           <p className="text-sm text-gray-500">
-            Twitter, Reddit, and email always require manual approval.
+            Twitter, LinkedIn, Reddit, and email always require manual approval.
           </p>
           <Button onClick={handleSaveAutoApprove} loading={savingAutoApprove}>
             Save

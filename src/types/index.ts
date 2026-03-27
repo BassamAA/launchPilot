@@ -25,6 +25,7 @@ export type ContentStatus =
 export type ContentChannel =
   | "blog"
   | "twitter"
+  | "linkedin"
   | "reddit"
   | "email"
   | "tiktok"
@@ -368,7 +369,7 @@ export interface AnalysisStep {
 export interface PlatformConnection {
   id: string;
   site_id: string;
-  platform: "twitter" | "email" | "blog_external";
+  platform: "twitter" | "linkedin" | "email" | "blog_external";
   access_token_encrypted: string | null;
   refresh_token_encrypted: string | null;
   platform_user_id: string | null;

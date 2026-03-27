@@ -40,7 +40,7 @@ export default async function SiteSettingsPage({
             <Badge variant="info">Connections</Badge>
           </div>
           <p className="text-sm text-gray-500 mt-1">
-            Configure Twitter, hosted blog behavior, and email delivery for this site.
+            Configure Twitter, LinkedIn, hosted blog behavior, and email delivery for this site.
           </p>
         </div>
       </div>
@@ -58,6 +58,7 @@ export default async function SiteSettingsPage({
         siteId={params.id}
         autopilotEnabled={!!(site as Site & { autopilot_enabled?: boolean }).autopilot_enabled}
         twitterConnected={!!(connections || []).find((c) => (c as PlatformConnection).platform === "twitter")}
+        linkedinConnected={!!(connections || []).find((c) => (c as PlatformConnection).platform === "linkedin")}
       />
 
       <BusinessProfilePanel

@@ -2,6 +2,8 @@ import { getSupabaseAdminClient } from "@/lib/supabase";
 import { decryptSecret, encryptSecret } from "@/lib/crypto";
 import { recordGrowthSignal } from "@/lib/growth";
 import { buildPostSlug, buildSiteSlug } from "@/lib/slugs";
+import { logStructured } from "@/lib/observability";
+import { publishToLinkedIn } from "@/lib/publishers/linkedin";
 import { ContentMetadata, PlatformConnection, Site } from "@/types";
 
 type PublishSource = "approve" | "manual" | "cron" | "auto_approve";
@@ -234,6 +236,42 @@ export async function publishTweetForSite(
   return { success: true, tweetId: rootTweetId };
 }
 
+export async function publishLinkedInPostForSite(
+  siteId: string,
+  text: string,
+  supabase = getSupabaseAdminClient()
+): Promise<{ success: boolean; postId?: string; error?: string }> {
+  const connection = await getPlatformConnection(supabase, siteId, "linkedin");
+  if (!connection) {
+    return { success: false, error: "LinkedIn is not connected for this site." };
+  }
+
+  const accessToken = decryptSecret(connection.access_token_encrypted);
+  if (!accessToken) {
+    return { success: false, error: "LinkedIn access token is missing." };
+  }
+
+  const personUrn = connection.platform_user_id;
+  if (!personUrn) {
+    return { success: false, error: "LinkedIn profile URN is missing. Reconnect LinkedIn." };
+  }
+
+  try {
+    const result = await publishToLinkedIn(text, accessToken, personUrn);
+    return { success: true, postId: result.postId };
+  } catch (error) {
+    logStructured("error", "linkedin_publish_for_site_failed", {
+      siteId,
+      error: error instanceof Error ? error.message : String(error),
+      person_urn: personUrn,
+    });
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "LinkedIn publish failed",
+    };
+  }
+}
+
 async function updateItem(
   supabase: ReturnType<typeof getSupabaseAdminClient>,
   itemId: string,
@@ -463,6 +501,153 @@ export async function publishContentItem(
         metricName: "tweet_published",
         metricValue: 1,
         metadata: { tweet_id: result.tweetId || null, published_url: publishedUrl, source },
+      },
+      supabase
+    );
+
+    return { success: true, status: "published", publishedUrl };
+  }
+
+  if (item.channel === "linkedin") {
+    const connection = await getPlatformConnection(supabase, item.site_id, "linkedin");
+
+    if (!connection) {
+      return {
+        success: false,
+        status: "needs_connection",
+        message: "Connect LinkedIn before approving this post.",
+        redirectUrl: `/sites/${item.site_id}/settings?tab=connections`,
+      };
+    }
+
+    if ((source === "approve" || source === "auto_approve") && isFutureScheduledDate(item.scheduled_date)) {
+      await updateItem(supabase, item.id, {
+        status: "approved",
+        metadata_json: {
+          ...metadata,
+          publish_state: "scheduled",
+          scheduled_for_publish: item.scheduled_date,
+        },
+      });
+      await logActivity(
+        supabase,
+        item.site_id,
+        "content_scheduled",
+        `Scheduled LinkedIn post for ${item.scheduled_date}`,
+        { content_item_id: item.id, channel: "linkedin" }
+      );
+      await recordGrowthSignal(
+        {
+          siteId: item.site_id,
+          contentItemId: item.id,
+          channel: "linkedin",
+          signalType: "scheduled",
+          metricName: "scheduled_items",
+          metricValue: 1,
+          metadata: { scheduled_for: item.scheduled_date, source },
+        },
+        supabase
+      );
+      return { success: true, status: "scheduled", message: "LinkedIn post queued for scheduled publishing." };
+    }
+
+    if (source === "approve" && !item.auto_executable) {
+      await updateItem(supabase, item.id, {
+        status: "approved",
+        metadata_json: { ...metadata, publish_state: "ready_to_publish" },
+      });
+      await logActivity(
+        supabase,
+        item.site_id,
+        "content_approved",
+        `LinkedIn post approved and ready to publish: ${item.title}`,
+        { content_item_id: item.id, channel: "linkedin" }
+      );
+      await recordGrowthSignal(
+        {
+          siteId: item.site_id,
+          contentItemId: item.id,
+          channel: "linkedin",
+          signalType: "approved",
+          metricName: "ready_to_publish",
+          metricValue: 1,
+          metadata: { publish_state: "ready_to_publish" },
+        },
+        supabase
+      );
+      return {
+        success: true,
+        status: "ready_to_publish",
+        message: "LinkedIn post approved. Use Publish Now to send it to LinkedIn.",
+      };
+    }
+
+    const result = await publishLinkedInPostForSite(item.site_id, item.body || item.title, supabase);
+    if (!result.success) {
+      await updateItem(supabase, item.id, {
+        status: "failed",
+        metadata_json: {
+          ...metadata,
+          publish_error: result.error,
+          publish_error_at: new Date().toISOString(),
+        },
+      });
+      await logActivity(
+        supabase,
+        item.site_id,
+        "content_publish_failed",
+        `LinkedIn publish failed for ${item.title}`,
+        { content_item_id: item.id, channel: "linkedin", error: result.error || null }
+      );
+      await recordGrowthSignal(
+        {
+          siteId: item.site_id,
+          contentItemId: item.id,
+          channel: "linkedin",
+          signalType: "publish_failed",
+          metricName: "publish_failure",
+          metricValue: 1,
+          metadata: { error: result.error || null, source },
+        },
+        supabase
+      );
+      return {
+        success: false,
+        status: "failed",
+        error: result.error || "LinkedIn publish failed",
+      };
+    }
+
+    const publishedUrl = result.postId
+      ? `https://www.linkedin.com/feed/update/${result.postId}`
+      : null;
+
+    await updateItem(supabase, item.id, {
+      status: "published",
+      published_date: new Date().toISOString(),
+      published_url: publishedUrl,
+      metadata_json: {
+        ...metadata,
+        publish_state: "published",
+        published_via: "linkedin",
+      },
+    });
+    await logActivity(
+      supabase,
+      item.site_id,
+      "published_linkedin",
+      `Published LinkedIn post: ${item.title}`,
+      { content_item_id: item.id, post_id: result.postId || null, published_url: publishedUrl }
+    );
+    await recordGrowthSignal(
+      {
+        siteId: item.site_id,
+        contentItemId: item.id,
+        channel: "linkedin",
+        signalType: "published",
+        metricName: "linkedin_published",
+        metricValue: 1,
+        metadata: { post_id: result.postId || null, published_url: publishedUrl, source },
       },
       supabase
     );

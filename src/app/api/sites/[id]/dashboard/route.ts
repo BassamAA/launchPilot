@@ -32,6 +32,7 @@ export async function GET(
     const reachByChannel: Record<ContentChannel, number> = {
       blog: 500,
       twitter: 200,
+      linkedin: 150,
       reddit: 1000,
       email: 50,
       tiktok: 2000,

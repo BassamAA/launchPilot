@@ -9,9 +9,10 @@ interface AutopilotPanelProps {
   siteId: string;
   autopilotEnabled: boolean;
   twitterConnected: boolean;
+  linkedinConnected: boolean;
 }
 
-export function AutopilotPanel({ siteId, autopilotEnabled, twitterConnected }: AutopilotPanelProps) {
+export function AutopilotPanel({ siteId, autopilotEnabled, twitterConnected, linkedinConnected }: AutopilotPanelProps) {
   const router = useRouter();
   const { toast } = useToast();
   const [enabled, setEnabled] = useState(autopilotEnabled);
@@ -101,6 +102,13 @@ export function AutopilotPanel({ siteId, autopilotEnabled, twitterConnected }: A
               : "Tweets automatically — connect Twitter to activate",
             done: twitterConnected,
             warn: !twitterConnected,
+          },
+          {
+            label: linkedinConnected
+              ? "LinkedIn posts automatically (LinkedIn connected)"
+              : "LinkedIn posts automatically — connect LinkedIn to activate",
+            done: linkedinConnected,
+            warn: !linkedinConnected,
           },
         ].map((item, i) => (
           <div key={i} className="flex items-start gap-2.5 text-sm">

@@ -21,6 +21,7 @@ export const CHANNEL_CONFIG: Record<
 > = {
   blog: { label: "Blog Post", color: "text-emerald-700", bg: "bg-emerald-50", icon: "✍️" },
   twitter: { label: "Twitter / X", color: "text-sky-700", bg: "bg-sky-50", icon: "𝕏" },
+  linkedin: { label: "LinkedIn", color: "text-blue-700", bg: "bg-blue-50", icon: "in" },
   reddit: { label: "Reddit", color: "text-orange-700", bg: "bg-orange-50", icon: "🔴" },
   email: { label: "Cold Email", color: "text-violet-700", bg: "bg-violet-50", icon: "📧" },
   tiktok: { label: "TikTok/Reels", color: "text-pink-700", bg: "bg-pink-50", icon: "🎵" },
