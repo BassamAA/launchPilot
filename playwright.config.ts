@@ -6,6 +6,7 @@ const webServerCommand = [
   "NEXT_PUBLIC_SUPABASE_ANON_KEY=e2e-anon-key",
   "SUPABASE_SERVICE_ROLE_KEY=e2e-service-role-key",
   "NEXT_PUBLIC_APP_URL=http://127.0.0.1:3001",
+  "NEXT_DIST_DIR=.next-e2e",
   "PORT=3001",
   "npm run dev",
 ].join(" ");
