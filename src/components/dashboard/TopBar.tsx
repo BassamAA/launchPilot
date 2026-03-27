@@ -39,9 +39,9 @@ export function TopBar({ user, title, compact }: TopBarProps) {
   const displayName = user.name || user.email?.split("@")[0] || "User";
   const tierLabels: Record<string, string> = {
     free_trial: "Free Trial",
-    starter: "Starter",
-    growth: "Growth",
-    agency: "Agency",
+    starter: "Solo",
+    growth: "Pro",
+    agency: "Scale",
   };
   const tierVariants: Record<string, "default" | "info" | "success" | "purple"> = {
     free_trial: "default",

@@ -8,6 +8,7 @@ import { inferSiteSourceType, normalizeHandle } from "@/lib/intake";
 import { logRouteError, logStructured } from "@/lib/observability";
 import { analyzeRequestSchema } from "@/lib/validation";
 import { AnalyzeRequest, MarketingBrief } from "@/types";
+import { PRICING_PLANS } from "@/lib/stripe";
 
 function buildPrimaryUrl(inputs: SourceInputs, merged: MergedAnalysis) {
   if (inputs.website) return inputs.website.startsWith("http") ? inputs.website : `https://${inputs.website}`;
@@ -156,20 +157,15 @@ export async function POST(req: NextRequest) {
       .select("id")
       .eq("company_id", companyId);
 
-    const siteLimits: Record<string, number> = {
-      free_trial: 1,
-      starter: 1,
-      growth: 3,
-      agency: 10,
-    };
-
     const { data: profile } = await supabase
       .from("user_profiles")
       .select("subscription_tier")
       .eq("id", user.id)
       .single();
 
-    const limit = siteLimits[profile?.subscription_tier || "free_trial"] || 1;
+    const tier = profile?.subscription_tier || "free_trial";
+    const plan = PRICING_PLANS.find((p) => p.id === tier);
+    const limit = tier === "free_trial" ? 1 : (plan?.limits.sites ?? 1);
     if (!site_id && (existingSites?.length || 0) >= limit) {
       return NextResponse.json(
         { error: `Your plan allows ${limit} site(s). Upgrade to add more.` },
