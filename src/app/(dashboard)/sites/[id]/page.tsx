@@ -1,24 +1,39 @@
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import { getUser, getSupabaseServerClient } from "@/lib/supabase";
-import { getPriorityActions } from "@/lib/priority-actions";
-import { hasSocialStrategy } from "@/lib/social-strategy";
-import { SiteActionsBar } from "@/components/sites/SiteActionsBar";
-import { PriorityActionsBar } from "@/components/dashboard/PriorityActionsBar";
-import { Badge, Card } from "@/components/ui";
-import { Site, ContentItem, GrowthExperiment } from "@/types";
-import {
-  SparklesIcon,
-  QueueListIcon,
-  CalendarIcon,
-  LinkIcon,
-  ArrowRightIcon,
-} from "@heroicons/react/24/outline";
-import {
-  BoltIcon as BoltSolid,
-  CheckCircleIcon,
-  DocumentTextIcon as DocSolid,
-} from "@heroicons/react/24/solid";
+import { Site, ContentItem } from "@/types";
+import { ArrowRightIcon, CalendarDaysIcon, LinkIcon } from "@heroicons/react/24/outline";
+
+function platformUrl(channel: string, body: string): string | null {
+  if (channel === "tweet" || channel === "twitter")
+    return `https://x.com/intent/tweet?text=${encodeURIComponent((body || "").slice(0, 280))}`;
+  if (channel === "linkedin") return "https://www.linkedin.com/feed/";
+  if (channel === "instagram") return "https://www.instagram.com/";
+  return null;
+}
+
+function platformLabel(channel: string): string {
+  if (channel === "tweet" || channel === "twitter") return "𝕏 Post on X";
+  if (channel === "linkedin") return "Post on LinkedIn";
+  if (channel === "instagram") return "Post on Instagram";
+  if (channel === "blog") return "Publish post";
+  return "Publish";
+}
+
+function platformStyle(channel: string): string {
+  if (channel === "tweet" || channel === "twitter")
+    return "bg-gray-900 text-white hover:bg-gray-700";
+  if (channel === "linkedin") return "bg-blue-600 text-white hover:bg-blue-700";
+  if (channel === "instagram")
+    return "bg-gradient-to-r from-purple-500 to-pink-500 text-white";
+  return "bg-brand-500 text-white hover:bg-brand-600";
+}
+
+const CHANNEL_LABEL: Record<string, string> = {
+  tweet: "Tweet", twitter: "Tweet", linkedin: "LinkedIn",
+  instagram: "Instagram", blog: "Blog", email: "Email",
+  reddit: "Reddit", directory: "Directory",
+};
 
 export default async function SiteDashboardPage({
   params,
@@ -29,231 +44,213 @@ export default async function SiteDashboardPage({
   if (!user) redirect("/login");
 
   const supabase = getSupabaseServerClient();
-
   const { data: site } = await supabase
     .from("sites")
-    .select("*")
+    .select("id, name, url, status, brief_json, social_strategy_json")
     .eq("id", params.id)
     .single();
 
   if (!site) notFound();
-
   const siteObj = site as Site;
-  const hasSocialStrategyReady = hasSocialStrategy(siteObj.social_strategy_json);
 
-  const [{ data: items }, { data: connections }, { data: experiments }] = await Promise.all([
-    supabase
-      .from("content_items")
-      .select("id, status, channel, body, created_at, published_url")
-      .eq("site_id", params.id),
-    supabase
-      .from("platform_connections")
-      .select("platform")
-      .eq("site_id", params.id),
-    supabase
-      .from("growth_experiments")
-      .select("id, hypothesis, confidence, target_channel, rationale, next_action, success_metric")
-      .eq("site_id", params.id)
-      .eq("status", "active")
-      .order("confidence", { ascending: false })
-      .limit(3),
-  ]);
+  const today = new Date().toISOString().split("T")[0];
+  const todayEnd = today + "T23:59:59";
 
-  const allItems = (items || []) as Pick<ContentItem, "id" | "status" | "channel" | "body" | "created_at" | "published_url">[];
-  const totalGenerated = allItems.filter((i) => i.body).length;
-  const totalApproved = allItems.filter((i) => ["approved", "published"].includes(i.status)).length;
-  const totalPublished = allItems.filter((i) => i.status === "published").length;
-  const pendingApproval = allItems.filter((i) => i.status === "draft" && i.body).length;
-  const needsGeneration = allItems.filter((i) => !i.body).length;
-  const twitterConnected = Boolean((connections || []).some((c) => c.platform === "twitter"));
-  const activeExperiments = (experiments || []) as GrowthExperiment[];
+  const [{ data: todayItems }, { data: upcomingItems }, { data: allPublished }, { data: connections }] =
+    await Promise.all([
+      // Today's scheduled items not yet published
+      supabase
+        .from("content_items")
+        .select("id, channel, title, body, status, scheduled_date")
+        .eq("site_id", params.id)
+        .gte("scheduled_date", today)
+        .lte("scheduled_date", todayEnd)
+        .not("status", "in", '("published","rejected")')
+        .order("scheduled_date", { ascending: true }),
+      // Next 5 upcoming (after today)
+      supabase
+        .from("content_items")
+        .select("id, channel, title, scheduled_date")
+        .eq("site_id", params.id)
+        .gt("scheduled_date", todayEnd)
+        .not("status", "in", '("published","rejected")')
+        .order("scheduled_date", { ascending: true })
+        .limit(5),
+      // Total published count
+      supabase
+        .from("content_items")
+        .select("id", { count: "exact", head: true })
+        .eq("site_id", params.id)
+        .eq("status", "published"),
+      // Connected platforms
+      supabase
+        .from("platform_connections")
+        .select("platform")
+        .eq("site_id", params.id),
+    ]);
 
-  const lastPublishedItem = allItems
-    .filter((i) => i.status === "published" && i.created_at)
-    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0];
-
-  const priorityActions = getPriorityActions({
-    siteId: params.id,
-    pendingApproval,
-    totalPublished,
-    twitterConnected,
-    hasTrackingActivity: false,
-    briefConfirmed: siteObj.brief_confirmed,
-    totalGenerated,
-    onboarding: siteObj.onboarding_json,
-    activeExperiments,
-    lastPublishedAt: lastPublishedItem?.created_at || null,
-    recentItems: allItems,
-    bestPatternInsight: null,
-  });
-
-  const quickLinks = [
-    {
-      label: "Social Strategy",
-      href: `/sites/${params.id}/social`,
-      icon: SparklesIcon,
-      desc: hasSocialStrategyReady ? "Playbooks ready — see daily plan" : "Generate your social playbooks",
-      highlight: hasSocialStrategyReady,
-    },
-    {
-      label: "Review & Publish",
-      href: `/sites/${params.id}/queue`,
-      icon: QueueListIcon,
-      desc: pendingApproval > 0 ? `${pendingApproval} items waiting for review` : "Queue is clear",
-      urgent: pendingApproval > 0,
-    },
-    {
-      label: "Content Plan",
-      href: `/sites/${params.id}/plan`,
-      icon: CalendarIcon,
-      desc: totalGenerated > 0 ? `${allItems.length} content actions` : "Generate your 30-day plan",
-    },
-    {
-      label: "Connections",
-      href: `/sites/${params.id}/settings`,
-      icon: LinkIcon,
-      desc: twitterConnected ? "Twitter connected" : "Connect your social accounts",
-      urgent: !twitterConnected,
-    },
-  ];
+  const hasConnections = (connections ?? []).length > 0;
+  const hasBrief = !!siteObj.brief_json;
+  const publishedCount = (allPublished as unknown as { count: number } | null)?.count ?? 0;
+  const today_list = (todayItems ?? []) as Pick<ContentItem, "id" | "channel" | "title" | "body" | "status" | "scheduled_date">[];
+  const upcoming_list = (upcomingItems ?? []) as Pick<ContentItem, "id" | "channel" | "title" | "scheduled_date">[];
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-start justify-between flex-wrap gap-4">
-        <div>
-          <div className="flex items-center gap-3 mb-1 flex-wrap">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{siteObj.name}</h1>
-            <Badge
-              variant={
-                siteObj.status === "active" ? "success" :
-                siteObj.status === "analyzing" ? "warning" :
-                siteObj.status === "error" ? "danger" : "default"
-              }
-            >
-              {siteObj.status}
-            </Badge>
-            {siteObj.autopilot_enabled && (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-brand-500 text-white">
-                ⚡ AUTOPILOT
-              </span>
-            )}
-          </div>
-          <a
-            href={siteObj.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-sm text-gray-400 hover:text-brand-600 transition-colors"
-          >
-            {siteObj.url} ↗
-          </a>
-        </div>
+    <div className="max-w-2xl space-y-8">
+      {/* Site header */}
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{siteObj.name}</h1>
+        <a
+          href={siteObj.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-sm text-gray-400 hover:text-brand-600 transition-colors"
+        >
+          {siteObj.url} ↗
+        </a>
       </div>
 
-      {/* Action prompts */}
-      <SiteActionsBar
-        siteId={params.id}
-        briefConfirmed={siteObj.brief_confirmed}
-        hasBrief={!!siteObj.brief_json}
-        totalGenerated={totalGenerated}
-        pendingApproval={pendingApproval}
-        needsGeneration={needsGeneration}
-      />
-
-      {priorityActions.length > 0 && (
-        <PriorityActionsBar actions={priorityActions} />
+      {/* Setup nudges — only shown when missing */}
+      {(!hasBrief || !hasConnections) && (
+        <div className="space-y-2">
+          {!hasBrief && (
+            <Link
+              href={`/sites/${params.id}/social`}
+              className="flex items-center justify-between rounded-xl border border-amber-200 bg-amber-50 dark:bg-amber-900/10 dark:border-amber-800 px-4 py-3 hover:bg-amber-100 dark:hover:bg-amber-900/20 transition-colors"
+            >
+              <div>
+                <p className="text-sm font-semibold text-amber-900 dark:text-amber-200">Generate your posting calendar</p>
+                <p className="text-xs text-amber-700 dark:text-amber-400 mt-0.5">Tell us about your business to get a 30-day social plan</p>
+              </div>
+              <ArrowRightIcon className="w-4 h-4 text-amber-500 flex-shrink-0" />
+            </Link>
+          )}
+          {!hasConnections && (
+            <Link
+              href={`/sites/${params.id}/settings`}
+              className="flex items-center justify-between rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <LinkIcon className="w-4 h-4 text-gray-400" />
+                <div>
+                  <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">Connect your social accounts</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Twitter/X, LinkedIn, Instagram</p>
+                </div>
+              </div>
+              <ArrowRightIcon className="w-4 h-4 text-gray-400 flex-shrink-0" />
+            </Link>
+          )}
+        </div>
       )}
 
-      {/* Stats */}
-      <div className="grid grid-cols-3 gap-4">
-        <Card padding="md">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center">
-              <DocSolid className="w-5 h-5 text-indigo-500" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{totalGenerated}</p>
-              <p className="text-xs text-gray-400">Generated</p>
-            </div>
-          </div>
-        </Card>
-        <Card padding="md">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center">
-              <CheckCircleIcon className="w-5 h-5 text-emerald-500" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{totalApproved}</p>
-              <p className="text-xs text-gray-400">Approved</p>
-            </div>
-          </div>
-        </Card>
-        <Card padding="md">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center">
-              <BoltSolid className="w-5 h-5 text-amber-500" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{totalPublished}</p>
-              <p className="text-xs text-gray-400">Published</p>
-            </div>
-          </div>
-        </Card>
-      </div>
-
-      {/* Quick links */}
-      <div className="grid grid-cols-2 gap-4">
-        {quickLinks.map(({ label, href, icon: Icon, desc, urgent, highlight }) => (
-          <Link key={href} href={href}>
-            <Card
-              hover
-              padding="md"
-              className={
-                urgent
-                  ? "border-amber-200 dark:border-amber-800 bg-amber-50/30 dark:bg-amber-900/10"
-                  : highlight
-                  ? "border-brand-200 dark:border-brand-700 bg-brand-50/30 dark:bg-brand-900/10"
-                  : ""
-              }
-            >
-              <div className="flex items-start justify-between gap-3">
-                <Icon className={`w-5 h-5 mt-0.5 ${urgent ? "text-amber-500" : highlight ? "text-brand-500" : "text-gray-400 dark:text-gray-500"}`} />
-                <ArrowRightIcon className="w-4 h-4 text-gray-300 dark:text-gray-600 flex-shrink-0" />
-              </div>
-              <p className="mt-3 font-semibold text-gray-900 dark:text-white text-sm">{label}</p>
-              <p className={`text-xs mt-1 ${urgent ? "text-amber-600 dark:text-amber-400 font-medium" : highlight ? "text-brand-600 dark:text-brand-400" : "text-gray-400 dark:text-gray-500"}`}>
-                {desc}
-              </p>
-            </Card>
-          </Link>
-        ))}
-      </div>
-
-      {/* Active growth bets — only if they exist */}
-      {activeExperiments.length > 0 && (
-        <div>
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-sm font-semibold text-gray-900 dark:text-white">Active Growth Bets</h2>
-            <Link href={`/sites/${params.id}/plan`} className="text-xs text-brand-600 dark:text-brand-400 hover:underline flex items-center gap-1">
-              Open plan <ArrowRightIcon className="w-3 h-3" />
-            </Link>
-          </div>
-          <div className="space-y-3">
-            {activeExperiments.map((experiment) => (
-              <Card key={experiment.id} padding="md">
-                <div className="flex items-start justify-between gap-3">
-                  <p className="font-semibold text-gray-900 dark:text-white text-sm leading-relaxed">{experiment.hypothesis}</p>
-                  <Badge variant="info">{experiment.confidence}%</Badge>
-                </div>
-                {experiment.next_action && (
-                  <p className="mt-2 text-sm text-brand-700 dark:text-brand-300">
-                    Next: {experiment.next_action}
-                  </p>
-                )}
-              </Card>
-            ))}
-          </div>
+      {/* TODAY */}
+      <section>
+        <div className="flex items-center gap-2 mb-3">
+          <h2 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wide">Today</h2>
+          {publishedCount > 0 && (
+            <span className="text-xs text-gray-400 dark:text-gray-500">{publishedCount} published total</span>
+          )}
         </div>
+
+        {today_list.length === 0 ? (
+          <Link
+            href={`/sites/${params.id}/social`}
+            className="flex items-center justify-between rounded-xl border border-dashed border-gray-200 dark:border-gray-700 px-4 py-5 text-gray-400 dark:text-gray-500 hover:border-brand-300 hover:text-brand-600 dark:hover:text-brand-400 transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <CalendarDaysIcon className="w-5 h-5" />
+              <span className="text-sm font-medium">Nothing scheduled today — open your calendar</span>
+            </div>
+            <ArrowRightIcon className="w-4 h-4 flex-shrink-0" />
+          </Link>
+        ) : (
+          <div className="space-y-3">
+            {today_list.map((item) => {
+              const url = item.body ? platformUrl(item.channel, item.body) : null;
+              const label = CHANNEL_LABEL[item.channel] ?? item.channel;
+              return (
+                <div
+                  key={item.id}
+                  className="rounded-xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-3"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase mb-1">{label}</p>
+                      {item.title && (
+                        <p className="text-sm font-medium text-gray-800 dark:text-gray-200 truncate">{item.title}</p>
+                      )}
+                      {item.body && (
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 line-clamp-2 leading-relaxed">
+                          {item.body}
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex-shrink-0">
+                      {!item.body ? (
+                        <Link
+                          href={`/sites/${params.id}/social`}
+                          className="text-xs font-semibold bg-brand-500 text-white px-3 py-1.5 rounded-lg hover:bg-brand-600 transition-colors whitespace-nowrap"
+                        >
+                          Generate
+                        </Link>
+                      ) : url ? (
+                        <a
+                          href={url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap ${platformStyle(item.channel)}`}
+                        >
+                          {platformLabel(item.channel)}
+                        </a>
+                      ) : (
+                        <Link
+                          href={`/sites/${params.id}/social`}
+                          className="text-xs font-medium text-brand-600 dark:text-brand-400 hover:underline whitespace-nowrap"
+                        >
+                          View →
+                        </Link>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </section>
+
+      {/* COMING UP */}
+      {upcoming_list.length > 0 && (
+        <section>
+          <h2 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wide mb-3">Coming up</h2>
+          <div className="space-y-2">
+            {upcoming_list.map((item) => {
+              const date = new Date(item.scheduled_date!);
+              return (
+                <div
+                  key={item.id}
+                  className="flex items-center gap-3 px-4 py-2.5 rounded-lg border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800"
+                >
+                  <span className="text-xs text-gray-400 dark:text-gray-500 w-16 flex-shrink-0">
+                    {date.toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                  </span>
+                  <span className="text-xs font-semibold text-gray-400 uppercase w-16 flex-shrink-0">
+                    {CHANNEL_LABEL[item.channel] ?? item.channel}
+                  </span>
+                  <span className="text-sm text-gray-700 dark:text-gray-300 truncate flex-1">
+                    {item.title ?? "—"}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+          <Link
+            href={`/sites/${params.id}/social`}
+            className="mt-3 flex items-center gap-1 text-xs text-brand-600 dark:text-brand-400 hover:underline"
+          >
+            See full calendar <ArrowRightIcon className="w-3 h-3" />
+          </Link>
+        </section>
       )}
     </div>
   );
