@@ -1,4 +1,3 @@
-import { decryptSecret } from "@/lib/crypto";
 import { recordGrowthSignal } from "@/lib/growth";
 import { getLatestContentPerformanceSnapshot, extractTweetId, resolveExperimentIdForContent } from "@/lib/performance";
 import { refreshTwitterConnectionToken } from "@/lib/publishing";
@@ -67,12 +66,12 @@ export async function fetchTwitterSignals(
     return { tweetsChecked: 0, snapshotsStored: 0, newSignals: 0 };
   }
 
-  let accessToken = decryptSecret(connection.access_token_encrypted);
+  let accessToken = connection.access_token;
   if (!accessToken) {
     return { tweetsChecked: 0, snapshotsStored: 0, newSignals: 0 };
   }
 
-  if (connection.expires_at && new Date(connection.expires_at) <= new Date()) {
+  if (connection.token_expires_at && new Date(connection.token_expires_at) <= new Date()) {
     accessToken = await refreshTwitterConnectionToken(connection, supabase);
     if (!accessToken) {
       return { tweetsChecked: 0, snapshotsStored: 0, newSignals: 0 };

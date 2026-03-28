@@ -22,6 +22,8 @@ export function getLinkedInConnectionErrorMessage(error?: string | null) {
       return "LinkedIn token exchange failed. Verify your callback URL, requested products, and app permissions, then try again.";
     case "linkedin_profile":
       return "LinkedIn connected, but we could not load the profile details needed to post.";
+    case "linkedin_save_failed":
+      return "LinkedIn authenticated but failed to save the connection. Check Vercel logs for details.";
     default:
       return error ? `LinkedIn error: ${error}` : null;
   }

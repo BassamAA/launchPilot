@@ -1,21 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { buildPersonaSummary, sortLabelsForPersona } from "@/lib/onboarding";
 import { usePathname } from "next/navigation";
 import { Site } from "@/types";
 import { cn } from "@/components/ui";
 import { BRAND_NAME } from "@/lib/brand";
 import {
   HomeIcon,
-  DocumentTextIcon,
   CalendarIcon,
-  Squares2X2Icon,
   QueueListIcon,
-  BoltIcon,
   ChartBarIcon,
   SparklesIcon,
-  ClockIcon,
   Cog6ToothIcon,
   LinkIcon,
   PlusCircleIcon,
@@ -40,8 +35,6 @@ export function Sidebar({ sites, pendingCountBySite = {} }: SidebarProps) {
   const activeSiteId = currentSiteId === "new" ? null : currentSiteId;
 
   const currentSite = sites.find((s) => s.id === activeSiteId);
-  const currentPersona = currentSite ? buildPersonaSummary(currentSite).persona : null;
-
   function getSiteHostname(site: Site): string {
     try {
       const url = site.url.startsWith("http") ? site.url : `https://${site.url}`;
@@ -52,27 +45,17 @@ export function Sidebar({ sites, pendingCountBySite = {} }: SidebarProps) {
   }
 
   const siteNav = activeSiteId
-    ? sortLabelsForPersona([
+    ? [
         {
-          label: "Dashboard",
+          label: "Overview",
           href: `/sites/${activeSiteId}`,
           icon: <HomeIcon className="w-4 h-4" />,
           exact: true,
         },
         {
-          label: "Product Brief",
-          href: `/sites/${activeSiteId}/brief`,
-          icon: <DocumentTextIcon className="w-4 h-4" />,
-        },
-        {
-          label: "Content Plan",
-          href: `/sites/${activeSiteId}/plan`,
-          icon: <CalendarIcon className="w-4 h-4" />,
-        },
-        {
-          label: "Where to Publish",
-          href: `/sites/${activeSiteId}/surfaces`,
-          icon: <Squares2X2Icon className="w-4 h-4" />,
+          label: "Calendar",
+          href: `/sites/${activeSiteId}/social`,
+          icon: <SparklesIcon className="w-4 h-4" />,
         },
         {
           label: "Review & Publish",
@@ -80,9 +63,9 @@ export function Sidebar({ sites, pendingCountBySite = {} }: SidebarProps) {
           icon: <QueueListIcon className="w-4 h-4" />,
         },
         {
-          label: "Content Library",
-          href: `/sites/${activeSiteId}/content`,
-          icon: <BoltIcon className="w-4 h-4" />,
+          label: "Content Plan",
+          href: `/sites/${activeSiteId}/plan`,
+          icon: <CalendarIcon className="w-4 h-4" />,
         },
         {
           label: "Results",
@@ -90,21 +73,11 @@ export function Sidebar({ sites, pendingCountBySite = {} }: SidebarProps) {
           icon: <ChartBarIcon className="w-4 h-4" />,
         },
         {
-          label: "Social",
-          href: `/sites/${activeSiteId}/social`,
-          icon: <SparklesIcon className="w-4 h-4" />,
-        },
-        {
-          label: "History",
-          href: `/sites/${activeSiteId}/activity`,
-          icon: <ClockIcon className="w-4 h-4" />,
-        },
-        {
           label: "Connections",
           href: `/sites/${activeSiteId}/settings`,
           icon: <LinkIcon className="w-4 h-4" />,
         },
-      ], currentPersona)
+      ]
     : [];
 
   function isActive(href: string, exact = false) {

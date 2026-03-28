@@ -370,15 +370,14 @@ export interface PlatformConnection {
   id: string;
   site_id: string;
   platform: "twitter" | "linkedin" | "email" | "blog_external";
-  access_token_encrypted: string | null;
-  refresh_token_encrypted: string | null;
-  platform_user_id: string | null;
-  platform_username: string | null;
-  metadata_json: Record<string, unknown>;
-  connected_at: string;
-  expires_at: string | null;
-  created_at: string;
-  updated_at: string;
+  access_token: string | null;
+  refresh_token: string | null;
+  account_id: string | null;
+  account_name: string | null;
+  scopes: string[] | null;
+  connected_at: string | null;
+  token_expires_at: string | null;
+  updated_at: string | null;
 }
 
 // ─── Email Sends ─────────────────────────────────────────────────────
@@ -784,6 +783,10 @@ export interface SocialStrategyState {
   linkedin?: {
     generated_at: string;
     strategy_json: import("@/lib/generators/instagram").LinkedInStrategy;
+  };
+  twitter?: {
+    generated_at: string;
+    strategy_json: import("@/lib/generators/instagram").TwitterStrategy;
   };
 }
 

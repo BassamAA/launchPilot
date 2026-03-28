@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthorizedSite, getUser, getSupabaseAdminClient } from "@/lib/supabase";
-import { encryptSecret } from "@/lib/crypto";
 
 // GET /api/connections?site_id=xxx — list platform connections for a site
 export async function GET(req: NextRequest) {
@@ -18,7 +17,7 @@ export async function GET(req: NextRequest) {
 
   const { data, error } = await supabase
     .from("platform_connections")
-    .select("id, platform, platform_username, platform_user_id, metadata_json, connected_at, expires_at")
+    .select("id, platform, account_name, account_id, connected_at, token_expires_at")
     .eq("site_id", site.id);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
@@ -34,12 +33,12 @@ export async function POST(req: NextRequest) {
   const {
     site_id,
     platform,
-    metadata_json,
     access_token,
     refresh_token,
-    platform_user_id,
-    platform_username,
-    expires_at,
+    account_id,
+    account_name,
+    token_expires_at,
+    scopes,
   } = await req.json();
 
   if (!site_id || !platform) {
@@ -56,18 +55,18 @@ export async function POST(req: NextRequest) {
       {
         site_id: site.id,
         platform,
-        access_token_encrypted: encryptSecret(access_token || null),
-        refresh_token_encrypted: encryptSecret(refresh_token || null),
-        platform_user_id: platform_user_id || null,
-        platform_username: platform_username || null,
-        metadata_json: metadata_json || {},
+        access_token: access_token || null,
+        refresh_token: refresh_token || null,
+        account_id: account_id || null,
+        account_name: account_name || null,
+        scopes: scopes || [],
         connected_at: new Date().toISOString(),
-        expires_at: expires_at || null,
+        token_expires_at: token_expires_at || null,
         updated_at: new Date().toISOString(),
       },
       { onConflict: "site_id,platform" }
     )
-    .select("id, platform, platform_username, platform_user_id, metadata_json, connected_at, expires_at")
+    .select("id, platform, account_name, account_id, connected_at, token_expires_at")
     .single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });

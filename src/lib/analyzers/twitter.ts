@@ -1,5 +1,4 @@
 import * as cheerio from "cheerio";
-import { decryptSecret } from "@/lib/crypto";
 import { getSupabaseAdminClient } from "@/lib/supabase";
 import { PlatformConnection } from "@/types";
 import { TwitterAnalysis } from "@/lib/analyzers/types";
@@ -179,7 +178,7 @@ export async function analyzeTwitter(handle: string, siteId?: string): Promise<T
   const normalized = normalizeHandle(handle);
   const supabase = getSupabaseAdminClient();
   const connection = await getSiteTwitterConnection(siteId, supabase);
-  const accessToken = connection ? decryptSecret(connection.access_token_encrypted) : null;
+  const accessToken = connection ? connection.access_token : null;
 
   if (accessToken) {
     const viaApi = await analyzeViaApi(normalized, accessToken);

@@ -7,7 +7,13 @@ export async function POST(req: NextRequest) {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    const { content_item_id, published_url }: { content_item_id?: string; published_url?: string } = await req.json();
+    const {
+      content_item_id,
+      published_url,
+      edited_body,
+      intent,
+    }: { content_item_id?: string; published_url?: string; edited_body?: string; intent?: boolean } = await req.json();
+
     if (!content_item_id) {
       return NextResponse.json({ error: "content_item_id required" }, { status: 400 });
     }
@@ -17,39 +23,33 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Content item not found" }, { status: 404 });
     }
 
-    if (["twitter", "blog"].includes((authorizedItem as { channel?: string }).channel || "")) {
-      const result = await publishContentItem(content_item_id, "manual");
-      if (!result.success) {
-        return NextResponse.json(
-          { error: result.error || result.message || "Publish failed", redirect_url: result.redirectUrl || null },
-          { status: result.status === "needs_connection" ? 409 : 500 }
-        );
-      }
-
-      return NextResponse.json({
-        success: true,
-        status: result.status,
-        published_url: result.publishedUrl || null,
-      });
+    // Save edited body if provided
+    if (edited_body !== undefined) {
+      const supabase = (await import("@/lib/supabase")).getSupabaseAdminClient();
+      await supabase
+        .from("content_items")
+        .update({ body: edited_body, updated_at: new Date().toISOString() })
+        .eq("id", content_item_id);
     }
 
-    const manualResult = await markContentItemManualComplete(
+    // intent=true: user opened the platform themselves, just mark as published
+    const result = await markContentItemManualComplete(
       content_item_id,
       {
         publishedUrl: published_url || null,
         action: "content_published",
-        description: "Marked complete by user after manual publishing",
+        description: intent ? "Published via platform intent" : "Marked complete by user",
       }
     );
 
-    if (!manualResult.success) {
-      return NextResponse.json({ error: manualResult.error || "Publish failed" }, { status: 500 });
+    if (!result.success) {
+      return NextResponse.json({ error: result.error || "Publish failed" }, { status: 500 });
     }
 
     return NextResponse.json({
       success: true,
-      status: manualResult.status,
-      published_url: manualResult.publishedUrl || null,
+      status: result.status,
+      published_url: result.publishedUrl || null,
     });
   } catch (error) {
     console.error("[/api/publish]", error);

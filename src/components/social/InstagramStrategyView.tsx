@@ -2,10 +2,12 @@
 
 import { Badge, Card } from "@/components/ui";
 import { CopyableTextBlock } from "@/components/social/CopyableTextBlock";
+import { InstagramPromptGenerator } from "@/components/social/InstagramPromptGenerator";
 import { InstagramStrategy } from "@/lib/generators/instagram";
 
 interface InstagramStrategyViewProps {
   strategy: InstagramStrategy;
+  siteId: string;
 }
 
 function formatBadgeClass(format: "reel" | "carousel" | "static" | "story") {
@@ -15,7 +17,7 @@ function formatBadgeClass(format: "reel" | "carousel" | "static" | "story") {
   return "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-200";
 }
 
-export function InstagramStrategyView({ strategy }: InstagramStrategyViewProps) {
+export function InstagramStrategyView({ strategy, siteId }: InstagramStrategyViewProps) {
   return (
     <div className="space-y-6">
       <Card className="space-y-4">
@@ -119,6 +121,25 @@ export function InstagramStrategyView({ strategy }: InstagramStrategyViewProps) 
         </Card>
       </div>
 
+      <Card className="space-y-4">
+        <div className="flex items-start justify-between gap-4 flex-wrap">
+          <div>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Posting Schedule</h2>
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{strategy.posting_frequency}</p>
+          </div>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {strategy.best_posting_times.map((slot) => (
+            <span
+              key={slot}
+              className="rounded-full border border-brand-200 dark:border-brand-700 bg-brand-50 dark:bg-brand-900/20 px-3 py-1.5 text-xs font-medium text-brand-700 dark:text-brand-300"
+            >
+              {slot}
+            </span>
+          ))}
+        </div>
+      </Card>
+
       <Card className="space-y-4 overflow-hidden">
         <div>
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white">30-Day Calendar</h2>
@@ -146,7 +167,15 @@ export function InstagramStrategyView({ strategy }: InstagramStrategyViewProps) 
                   </td>
                   <td className="px-3 py-3 text-gray-700 dark:text-gray-200">{item.pillar}</td>
                   <td className="px-3 py-3 text-gray-700 dark:text-gray-200">{item.concept}</td>
-                  <td className="px-3 py-3 text-gray-500 dark:text-gray-400">{item.caption_draft}</td>
+                  <td className="px-3 py-3 text-gray-500 dark:text-gray-400">
+                    {item.caption_draft}
+                    <InstagramPromptGenerator
+                      mode="strategy"
+                      siteId={siteId}
+                      concept={item.concept}
+                      caption={item.caption_draft}
+                    />
+                  </td>
                 </tr>
               ))}
             </tbody>

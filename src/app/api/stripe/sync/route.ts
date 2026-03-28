@@ -20,14 +20,35 @@ export async function POST() {
     .eq("id", user.id)
     .single();
 
-  if (!profile?.stripe_customer_id) {
+  let customerId = profile?.stripe_customer_id;
+
+  // If no customer ID on record, try to find by email in Stripe
+  if (!customerId && user.email) {
+    try {
+      const customers = await stripe.customers.list({ email: user.email, limit: 5 });
+      const found = customers.data.find((c) => !c.deleted);
+      if (found) {
+        customerId = found.id;
+        // Persist so we don't have to look it up again
+        await supabase
+          .from("user_profiles")
+          .update({ stripe_customer_id: customerId })
+          .eq("id", user.id);
+        logStructured("info", "stripe_sync_customer_recovered_by_email", { userId: user.id, customerId });
+      }
+    } catch (lookupErr) {
+      logStructured("warn", "stripe_sync_customer_lookup_failed", { userId: user.id, error: String(lookupErr) });
+    }
+  }
+
+  if (!customerId) {
     return NextResponse.json({ synced: false, reason: "No Stripe customer on record" });
   }
 
   try {
     // Fetch all active subscriptions for this customer
     const subscriptions = await stripe.subscriptions.list({
-      customer: profile.stripe_customer_id,
+      customer: customerId,
       status: "all",
       limit: 5,
     });

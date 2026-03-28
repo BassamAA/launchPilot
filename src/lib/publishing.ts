@@ -1,5 +1,4 @@
 import { getSupabaseAdminClient } from "@/lib/supabase";
-import { decryptSecret, encryptSecret } from "@/lib/crypto";
 import { recordGrowthSignal } from "@/lib/growth";
 import { buildPostSlug, buildSiteSlug } from "@/lib/slugs";
 import { logStructured } from "@/lib/observability";
@@ -135,7 +134,7 @@ export async function refreshTwitterConnectionToken(
   connection: PlatformConnection,
   supabase = getSupabaseAdminClient()
 ) {
-  const refreshToken = decryptSecret(connection.refresh_token_encrypted);
+  const refreshToken = connection.refresh_token;
   if (!refreshToken) return null;
 
   const res = await fetch("https://api.twitter.com/2/oauth2/token", {
@@ -164,9 +163,9 @@ export async function refreshTwitterConnectionToken(
   await supabase
     .from("platform_connections")
     .update({
-      access_token_encrypted: encryptSecret(nextAccessToken),
-      refresh_token_encrypted: encryptSecret((data.refresh_token as string | undefined) || refreshToken),
-      expires_at: data.expires_in
+      access_token: nextAccessToken,
+      refresh_token: (data.refresh_token as string | undefined) || refreshToken,
+      token_expires_at: data.expires_in
         ? new Date(Date.now() + data.expires_in * 1000).toISOString()
         : null,
       updated_at: new Date().toISOString(),
@@ -186,12 +185,12 @@ export async function publishTweetForSite(
     return { success: false, error: "Twitter is not connected for this site." };
   }
 
-  let accessToken = decryptSecret(connection.access_token_encrypted);
+  let accessToken = connection.access_token;
   if (!accessToken) {
     return { success: false, error: "Twitter access token is missing." };
   }
 
-  if (connection.expires_at && new Date(connection.expires_at) <= new Date()) {
+  if (connection.token_expires_at && new Date(connection.token_expires_at) <= new Date()) {
     accessToken = await refreshTwitterConnectionToken(connection, supabase);
     if (!accessToken) {
       return { success: false, error: "Twitter token refresh failed. Reconnect Twitter." };
@@ -222,7 +221,23 @@ export async function publishTweetForSite(
     });
 
     if (!res.ok) {
-      return { success: false, error: await res.text() };
+      const errText = await res.text();
+      let friendlyError = errText;
+      try {
+        const errJson = JSON.parse(errText);
+        if (errJson.title === "CreditsDepleted") {
+          friendlyError = "Your Twitter/X API plan has run out of credits. Upgrade at developer.twitter.com to enable posting.";
+        } else if (errJson.title === "Unauthorized" || res.status === 401) {
+          friendlyError = "Twitter authorization expired. Reconnect your Twitter account in Connections.";
+        } else if (errJson.title === "Forbidden" || res.status === 403) {
+          friendlyError = "Twitter API access denied. Your app may need write permissions enabled at developer.twitter.com.";
+        } else if (errJson.detail) {
+          friendlyError = errJson.detail;
+        } else if (errJson.errors?.[0]?.message) {
+          friendlyError = errJson.errors[0].message;
+        }
+      } catch {}
+      return { success: false, error: friendlyError };
     }
 
     const data = await res.json();
@@ -246,12 +261,12 @@ export async function publishLinkedInPostForSite(
     return { success: false, error: "LinkedIn is not connected for this site." };
   }
 
-  const accessToken = decryptSecret(connection.access_token_encrypted);
+  const accessToken = connection.access_token;
   if (!accessToken) {
     return { success: false, error: "LinkedIn access token is missing." };
   }
 
-  const personUrn = connection.platform_user_id;
+  const personUrn = connection.account_id ? `urn:li:person:${connection.account_id}` : null;
   if (!personUrn) {
     return { success: false, error: "LinkedIn profile URN is missing. Reconnect LinkedIn." };
   }
@@ -656,20 +671,7 @@ export async function publishContentItem(
   }
 
   if (item.channel === "blog") {
-    const blogConnection = await getPlatformConnection(supabase, item.site_id, "blog_external");
-    const blogMode = (blogConnection?.metadata_json?.mode as string | undefined) || "hosted";
-
-    if (blogMode === "external") {
-      await updateItem(supabase, item.id, {
-        status: "approved",
-        metadata_json: { ...metadata, publish_state: "external_blog_pending" },
-      });
-      return {
-        success: true,
-        status: "external_blog_pending",
-        message: "External blog publishing UI is ready, but the API integration is still coming soon.",
-      };
-    }
+    // External blog mode not yet supported — always use hosted publishing
 
     if ((source === "approve" || source === "auto_approve") && isFutureScheduledDate(item.scheduled_date)) {
       await updateItem(supabase, item.id, {

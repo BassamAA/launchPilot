@@ -1,22 +1,25 @@
 import {
   InstagramStrategy,
   LinkedInStrategy,
+  TwitterStrategy,
   YouTubeStrategy,
 } from "@/lib/generators/instagram";
 import { SocialStrategyState } from "@/types";
 
-export type SocialStrategyPlatform = "instagram" | "youtube" | "linkedin";
+export type SocialStrategyPlatform = "instagram" | "youtube" | "linkedin" | "twitter";
 
 export const SOCIAL_STRATEGY_PLATFORMS: SocialStrategyPlatform[] = [
   "instagram",
   "youtube",
   "linkedin",
+  "twitter",
 ];
 
 type SocialStrategyPayloadMap = {
   instagram: InstagramStrategy;
   youtube: YouTubeStrategy;
   linkedin: LinkedInStrategy;
+  twitter: TwitterStrategy;
 };
 
 export function normalizeSocialStrategyState(
@@ -38,8 +41,10 @@ export function normalizeSocialStrategyState(
         normalized.instagram = entry as SocialStrategyState["instagram"];
       } else if (platform === "youtube") {
         normalized.youtube = entry as SocialStrategyState["youtube"];
-      } else {
+      } else if (platform === "linkedin") {
         normalized.linkedin = entry as SocialStrategyState["linkedin"];
+      } else if (platform === "twitter") {
+        normalized.twitter = entry as SocialStrategyState["twitter"];
       }
     }
   }

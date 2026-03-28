@@ -3,6 +3,7 @@ import { logRouteError } from "@/lib/observability";
 import {
   generateInstagramStrategy,
   generateLinkedInStrategy,
+  generateTwitterStrategy,
   generateYouTubeStrategy,
 } from "@/lib/generators/instagram";
 import {
@@ -23,6 +24,7 @@ async function generatePlatformStrategy(
 ) {
   if (platform === "instagram") return generateInstagramStrategy(brief, businessProfile);
   if (platform === "youtube") return generateYouTubeStrategy(brief, businessProfile);
+  if (platform === "twitter") return generateTwitterStrategy(brief, businessProfile);
   return generateLinkedInStrategy(brief, businessProfile);
 }
 

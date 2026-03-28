@@ -15,6 +15,7 @@ interface SiteConnectionsPanelProps {
   onboarding?: SiteOnboardingState | null;
   connected?: string;
   error?: string;
+  twitterError?: string;
   appUrl?: string;
 }
 
@@ -46,6 +47,7 @@ export function SiteConnectionsPanel({
   onboarding,
   connected,
   error,
+  twitterError,
   appUrl,
 }: SiteConnectionsPanelProps) {
   const { toast } = useToast();
@@ -70,28 +72,14 @@ export function SiteConnectionsPanel({
     [connections]
   );
 
-  const [blogMode, setBlogMode] = useState<string>(
-    String((blog?.metadata_json?.mode as string | undefined) || "hosted")
-  );
-  const [blogProvider, setBlogProvider] = useState<string>(
-    String((blog?.metadata_json?.provider as string | undefined) || "wordpress")
-  );
-  const [blogApiUrl, setBlogApiUrl] = useState<string>(
-    String((blog?.metadata_json?.api_url as string | undefined) || "")
-  );
+  const [blogMode, setBlogMode] = useState<string>("hosted");
+  const [blogProvider, setBlogProvider] = useState<string>("wordpress");
+  const [blogApiUrl, setBlogApiUrl] = useState<string>("");
   const [blogApiKey, setBlogApiKey] = useState<string>("");
-  const [emailMode, setEmailMode] = useState<string>(
-    String((email?.metadata_json?.mode as string | undefined) || "default")
-  );
-  const [emailDomain, setEmailDomain] = useState<string>(
-    String((email?.metadata_json?.domain as string | undefined) || "")
-  );
-  const [fromName, setFromName] = useState<string>(
-    String((email?.metadata_json?.from_name as string | undefined) || site.name || BRAND_NAME)
-  );
-  const [fromEmail, setFromEmail] = useState<string>(
-    String((email?.metadata_json?.from_email as string | undefined) || "")
-  );
+  const [emailMode, setEmailMode] = useState<string>("default");
+  const [emailDomain, setEmailDomain] = useState<string>("");
+  const [fromName, setFromName] = useState<string>(site.name || BRAND_NAME);
+  const [fromEmail, setFromEmail] = useState<string>("");
   const [savingBlog, setSavingBlog] = useState(false);
   const [savingEmail, setSavingEmail] = useState(false);
   const [disconnecting, setDisconnecting] = useState<null | "twitter" | "linkedin" | "email" | "blog_external">(null);
@@ -223,6 +211,9 @@ export function SiteConnectionsPanel({
           <p className={`text-sm font-medium ${connected ? "text-emerald-800" : "text-red-800"}`}>
             {connected ? `${connected} connected successfully.` : connectionErrorMessage}
           </p>
+          {twitterError && !connected && (
+            <p className="text-xs text-red-700 mt-1 font-mono break-all">{decodeURIComponent(twitterError)}</p>
+          )}
         </Card>
       )}
 
@@ -256,7 +247,7 @@ export function SiteConnectionsPanel({
         <div className="grid gap-3 md:grid-cols-3">
           <div className="rounded-xl border border-gray-100 bg-gray-50 p-3">
             <p className="text-xs font-medium uppercase tracking-wide text-gray-400">Handle</p>
-            <p className="mt-1 text-sm font-semibold text-gray-900">{twitter?.platform_username || "Not connected"}</p>
+            <p className="mt-1 text-sm font-semibold text-gray-900">{twitter?.account_name || "Not connected"}</p>
           </div>
           <div className="rounded-xl border border-gray-100 bg-gray-50 p-3">
             <p className="text-xs font-medium uppercase tracking-wide text-gray-400">Connected</p>
@@ -264,7 +255,7 @@ export function SiteConnectionsPanel({
           </div>
           <div className="rounded-xl border border-gray-100 bg-gray-50 p-3">
             <p className="text-xs font-medium uppercase tracking-wide text-gray-400">Expires</p>
-            <p className="mt-1 text-sm font-semibold text-gray-900">{formatDate(twitter?.expires_at)}</p>
+            <p className="mt-1 text-sm font-semibold text-gray-900">{formatDate(twitter?.token_expires_at)}</p>
           </div>
         </div>
       </Card>
@@ -277,7 +268,7 @@ export function SiteConnectionsPanel({
               {linkedin ? <Badge variant="success">Connected</Badge> : <Badge variant="warning">Not connected</Badge>}
             </div>
             <p className="text-sm text-gray-500 mt-1">
-              Connect LinkedIn so approved posts can publish automatically to your profile.
+              Connect your <strong>personal LinkedIn account</strong> — posts publish to your personal profile, not a company page. LinkedIn's API requires special approval to post to company pages.
             </p>
           </div>
           {linkedin ? (
@@ -299,7 +290,7 @@ export function SiteConnectionsPanel({
         <div className="grid gap-3 md:grid-cols-3">
           <div className="rounded-xl border border-gray-100 bg-gray-50 p-3">
             <p className="text-xs font-medium uppercase tracking-wide text-gray-400">Profile</p>
-            <p className="mt-1 text-sm font-semibold text-gray-900">{linkedin?.platform_username || "Not connected"}</p>
+            <p className="mt-1 text-sm font-semibold text-gray-900">{linkedin?.account_name || "Not connected"}</p>
           </div>
           <div className="rounded-xl border border-gray-100 bg-gray-50 p-3">
             <p className="text-xs font-medium uppercase tracking-wide text-gray-400">Connected</p>
@@ -307,7 +298,7 @@ export function SiteConnectionsPanel({
           </div>
           <div className="rounded-xl border border-gray-100 bg-gray-50 p-3">
             <p className="text-xs font-medium uppercase tracking-wide text-gray-400">Expires</p>
-            <p className="mt-1 text-sm font-semibold text-gray-900">{formatDate(linkedin?.expires_at)}</p>
+            <p className="mt-1 text-sm font-semibold text-gray-900">{formatDate(linkedin?.token_expires_at)}</p>
           </div>
         </div>
       </Card>

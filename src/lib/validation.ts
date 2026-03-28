@@ -59,7 +59,7 @@ export const businessProfilePatchSchema = z.object({
 });
 
 export const socialStrategyGenerateSchema = z.object({
-  platform: z.enum(["instagram", "youtube", "linkedin"]),
+  platform: z.enum(["instagram", "youtube", "linkedin", "twitter"]),
 });
 
 export const surfacePatchSchema = z.object({

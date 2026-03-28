@@ -447,3 +447,169 @@ Generate 4 content pillars with 3 post ideas each, 8 post ideas, 4 collaborator 
 
   return result.data;
 }
+
+// ─── Twitter Strategy ──────────────────────────────────────────────────
+
+export interface TwitterStrategy {
+  account_positioning: string;
+  unique_angle: string;
+  content_pillars: Array<{
+    name: string;
+    description: string;
+    frequency_pct: number;
+    tweet_ideas: string[];
+  }>;
+  posting_schedule: {
+    tweets_per_day: number;
+    best_days: string[];
+    best_times: Array<{ day: string; times: string[] }>;
+    reasoning: string;
+  };
+  thread_concepts: Array<{
+    hook: string;
+    outline: string[];
+    cta: string;
+  }>;
+  engagement_tactics: string[];
+  accounts_to_engage: Array<{
+    archetype: string;
+    why: string;
+    example_accounts: string[];
+    engagement_approach: string;
+  }>;
+  thirty_day_calendar: Array<{
+    day: number;
+    type: "tweet" | "thread" | "reply_bait" | "poll";
+    pillar: string;
+    concept: string;
+    draft: string;
+    best_time: string;
+  }>;
+  growth_milestones: Array<{ followers: number; unlock: string }>;
+  what_not_to_do: string[];
+  generated_at: string;
+}
+
+export async function generateTwitterStrategy(
+  brief: MarketingBrief,
+  businessProfile: BusinessProfile | null
+): Promise<TwitterStrategy> {
+  const systemPrompt = `You are a Twitter/X growth strategist who has helped 200+ indie hackers and founders build audiences that drive real revenue. You understand what actually moves the needle on Twitter in 2024-2025 for small accounts:
+
+- Consistency beats virality — showing up daily compounds faster than one viral tweet
+- Threads are the highest-leverage content format: one good thread can add hundreds of followers overnight
+- Reply-bait tweets (questions, polls, hot takes) drive engagement signals that boost algorithmic reach
+- Build in public — sharing real numbers (MRR, churn, experiments) gets 5-10x more engagement than generic advice
+- The hook is everything — you have 280 characters on the first tweet and the first line is the only thing that determines if someone reads on
+- Engaging with accounts larger than you (thoughtful, specific replies) gets you in front of their audience for free
+- Niche dominance > broad appeal — being the go-to account for ONE specific pain point beats trying to appeal to everyone
+- Twitter growth is a 6-12 month game — set milestones that keep momentum going
+- Polls and reply-bait posts are the best way to trigger algorithm distribution for new accounts
+- Follow-up DMs after genuine engagement convert to customers at rates other channels cannot match
+
+You understand the difference between follower vanity metrics and building an audience that actually converts to paying customers.
+
+You MUST respond with ONLY valid JSON. No markdown, no text outside the JSON.`;
+
+  const profileContext = businessProfile
+    ? `\nBusiness context:
+- Description: ${businessProfile.description}
+- Target audience: ${businessProfile.target_audience}
+- Voice/tone: ${businessProfile.content_voice}
+- Pricing: ${businessProfile.pricing || "not specified"}
+- Social proof: ${businessProfile.social_proof?.slice(0, 2).join("; ") || "none yet"}`
+    : "";
+
+  const userPrompt = `Generate a complete, specific Twitter/X growth strategy for this product:
+
+Product: ${brief.product_name}
+One-liner: ${brief.one_liner}
+Target customer: ${brief.target_customer}
+Pain point they feel: ${brief.pain_point}
+Value proposition: ${brief.value_proposition}
+Positioning: ${brief.positioning}
+${profileContext}
+
+IMPORTANT CONSTRAINTS:
+- Assume this is a new or small account (< 500 followers) — tactics must work at zero reach
+- Every recommendation must be specific to THIS product and audience — no generic advice
+- Draft tweets must be written out in full (under 280 characters each) and ready to post
+- Thread hooks must be the actual first tweet, written out completely
+- Accounts to engage should be real account archetypes with specific handles in the example_accounts field
+- The 30-day calendar must have a specific draft for every single day (all 30 days) — no placeholders
+- Posting times must be specific (e.g., "8am EST", "12pm EST", "6pm EST")
+
+Return this EXACT JSON structure:
+
+{
+  "account_positioning": "One paragraph: who this account represents, what it stands for, and the single most compelling reason someone in the target audience should follow it",
+  "unique_angle": "The specific POV, format, or persona that makes this account stand out — e.g., 'The indie founder who shows real churn numbers', 'Hot takes on [niche] from a practitioner, not a guru'",
+  "content_pillars": [
+    {
+      "name": "Pillar name",
+      "description": "What this pillar covers and why it resonates with the audience on Twitter",
+      "frequency_pct": 25,
+      "tweet_ideas": ["Specific tweet idea 1 — written out", "Specific tweet idea 2 — written out", "Specific tweet idea 3 — written out", "Specific tweet idea 4 — written out"]
+    }
+  ],
+  "posting_schedule": {
+    "tweets_per_day": 2,
+    "best_days": ["Monday", "Tuesday", "Wednesday", "Thursday"],
+    "best_times": [
+      { "day": "Monday", "times": ["8am EST", "6pm EST"] },
+      { "day": "Tuesday", "times": ["8am EST", "12pm EST", "6pm EST"] }
+    ],
+    "reasoning": "Why this schedule works for this specific audience — when are they on Twitter, what mode are they in"
+  },
+  "thread_concepts": [
+    {
+      "hook": "Exact first tweet of the thread — written out completely, under 280 chars, engineered to stop the scroll",
+      "outline": ["Tweet 2: ...", "Tweet 3: ...", "Tweet 4: ...", "Tweet 5: ...", "Final tweet: CTA and summary"],
+      "cta": "Specific CTA at the end of the thread — what to ask readers to do"
+    }
+  ],
+  "engagement_tactics": [
+    "Specific, actionable tactic for growing through engagement — not 'reply to people', but exactly what to say and to whom"
+  ],
+  "accounts_to_engage": [
+    {
+      "archetype": "Type of account to engage with (e.g., 'Bootstrapped SaaS founders with 5k-50k followers')",
+      "why": "Why their audience is full of potential customers for ${brief.product_name}",
+      "example_accounts": ["@example1", "@example2", "@example3"],
+      "engagement_approach": "Exactly how to engage — what type of replies to leave, how to add value, what NOT to do"
+    }
+  ],
+  "thirty_day_calendar": [
+    {
+      "day": 1,
+      "type": "tweet",
+      "pillar": "Pillar name",
+      "concept": "What this tweet is about",
+      "draft": "The actual tweet text, ready to post, under 280 characters",
+      "best_time": "8am EST"
+    }
+  ],
+  "growth_milestones": [
+    { "followers": 100, "unlock": "What becomes possible at 100 followers for this specific product and strategy" },
+    { "followers": 500, "unlock": "What changes at 500 — what new tactics open up" },
+    { "followers": 1000, "unlock": "The inflection point — what to do differently now" },
+    { "followers": 5000, "unlock": "Real leverage — what business outcomes become achievable" }
+  ],
+  "what_not_to_do": [
+    "Specific Twitter mistake this founder/product type tends to make",
+    "Another common pitfall that kills growth or damages reputation"
+  ],
+  "generated_at": "${new Date().toISOString()}"
+}
+
+Generate exactly 5 content pillars with 4 tweet ideas each, 5 thread concepts, 8 engagement tactics, 5 accounts_to_engage archetypes, ALL 30 days of the calendar (every day 1-30), 4 growth milestones, and 6 things not to do. Every draft tweet in the calendar must be unique and fully written out. The best_times array in posting_schedule must include an entry for each day in best_days.`;
+
+  const result = await callClaude<TwitterStrategy>({
+    model: "sonnet",
+    systemPrompt,
+    userPrompt,
+    maxTokens: 10000,
+  });
+
+  return result.data;
+}

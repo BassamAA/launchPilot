@@ -12,7 +12,7 @@ export default async function SiteSettingsPage({
   searchParams,
 }: {
   params: { id: string };
-  searchParams: { connected?: string; error?: string };
+  searchParams: { connected?: string; error?: string; twitter_error?: string };
 }) {
   const user = await getUser();
   if (!user) redirect("/login");
@@ -51,6 +51,7 @@ export default async function SiteSettingsPage({
         onboarding={(site.onboarding_json as SiteOnboardingState | null | undefined) ?? null}
         connected={searchParams.connected}
         error={searchParams.error}
+        twitterError={searchParams.twitter_error}
         appUrl={process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}
       />
 

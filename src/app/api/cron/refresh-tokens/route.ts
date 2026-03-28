@@ -17,8 +17,8 @@ export async function GET(req: NextRequest) {
     .from("platform_connections")
     .select("*")
     .eq("platform", "twitter")
-    .not("refresh_token_encrypted", "is", null)
-    .lte("expires_at", twoHoursFromNow);
+    .not("refresh_token", "is", null)
+    .lte("token_expires_at", twoHoursFromNow);
 
   if (!connections || connections.length === 0) {
     return NextResponse.json({ message: "No tokens to refresh" });

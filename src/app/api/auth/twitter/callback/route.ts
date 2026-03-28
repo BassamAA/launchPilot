@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthorizedSite, getUser, getSupabaseAdminClient } from "@/lib/supabase";
-import { encryptSecret } from "@/lib/crypto";
 import { getTwitterCallbackUrl } from "@/lib/publishing";
 import { hasTwitterOAuthEnv } from "@/lib/twitter-auth";
 import { logStructured } from "@/lib/observability";
@@ -45,29 +44,41 @@ export async function GET(req: NextRequest) {
     );
   }
 
+  const twitterClientId = process.env.TWITTER_CLIENT_ID!.trim();
+  const twitterClientSecret = (process.env.TWITTER_CLIENT_SECRET || "").trim();
+
+  // Build token request — confidential client uses Basic auth, public client uses body only
+  const tokenHeaders: Record<string, string> = {
+    "Content-Type": "application/x-www-form-urlencoded",
+  };
+  if (twitterClientSecret) {
+    tokenHeaders["Authorization"] = `Basic ${Buffer.from(
+      `${twitterClientId}:${twitterClientSecret}`
+    ).toString("base64")}`;
+  }
+
+  const tokenBody = new URLSearchParams({
+    grant_type: "authorization_code",
+    code,
+    redirect_uri: getTwitterCallbackUrl(),
+    code_verifier: codeVerifier,
+    client_id: twitterClientId,
+  });
+
   // Exchange code for tokens
   const tokenRes = await fetch("https://api.twitter.com/2/oauth2/token", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      Authorization: `Basic ${Buffer.from(
-        `${process.env.TWITTER_CLIENT_ID}:${process.env.TWITTER_CLIENT_SECRET}`
-      ).toString("base64")}`,
-    },
-    body: new URLSearchParams({
-      grant_type: "authorization_code",
-      code,
-      redirect_uri: getTwitterCallbackUrl(),
-      code_verifier: codeVerifier,
-      client_id: process.env.TWITTER_CLIENT_ID!,
-    }),
+    headers: tokenHeaders,
+    body: tokenBody,
   });
 
   if (!tokenRes.ok) {
     const errBody = await tokenRes.text();
     logStructured("error", "twitter_token_exchange_failed", { siteId, status: tokenRes.status, body: errBody });
+    // Pass the raw Twitter error so it's visible in the UI banner
+    const twitterError = encodeURIComponent(errBody.slice(0, 200));
     return NextResponse.redirect(
-      `${appOrigin}/sites/${siteId}/settings?tab=connections&error=twitter_token`
+      `${appOrigin}/sites/${siteId}/settings?tab=connections&error=twitter_token&twitter_error=${twitterError}`
     );
   }
 
@@ -84,24 +95,35 @@ export async function GET(req: NextRequest) {
     : null;
 
   const supabase = getSupabaseAdminClient();
-  await supabase.from("platform_connections").upsert(
+  const { error: upsertError } = await supabase.from("platform_connections").upsert(
     {
       site_id: site.id,
       platform: "twitter",
-      access_token_encrypted: encryptSecret(tokens.access_token),
-      refresh_token_encrypted: encryptSecret(tokens.refresh_token || null),
-      expires_at: expiresAt,
-      platform_user_id: twitterUser?.id || null,
-      platform_username: twitterUser?.username ? `@${twitterUser.username}` : null,
-      metadata_json: {
-        scopes: tokens.scope ? tokens.scope.split(" ") : [],
-        scope_string: tokens.scope || null,
-      },
+      access_token: tokens.access_token,
+      refresh_token: tokens.refresh_token || null,
+      token_expires_at: expiresAt,
+      account_id: twitterUser?.id || null,
+      account_name: twitterUser?.username ? `@${twitterUser.username}` : null,
+      scopes: tokens.scope ? tokens.scope.split(" ") : [],
       connected_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     },
     { onConflict: "site_id,platform" }
   );
+
+  if (upsertError) {
+    logStructured("error", "twitter_connection_save_failed", {
+      siteId: site.id,
+      error: upsertError.message,
+      code: upsertError.code,
+    });
+    const errRedirect = NextResponse.redirect(
+      `${appOrigin}/sites/${site.id}/settings?tab=connections&error=twitter_save_failed`
+    );
+    errRedirect.cookies.delete("tw_code_verifier");
+    errRedirect.cookies.delete("tw_state");
+    return errRedirect;
+  }
 
   const redirect = NextResponse.redirect(
     `${appOrigin}/sites/${site.id}/settings?tab=connections&connected=twitter`
