@@ -160,11 +160,7 @@ function StrategyCard({
     setTimeout(() => setCopied(false), 1800);
   }
 
-  function tweet() {
-    const url = `https://x.com/intent/tweet?text=${encodeURIComponent(entry.content.slice(0, 280))}`;
-    window.open(url, "_blank");
-    onToggleDone();
-  }
+  const tweetUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(entry.content.slice(0, 280))}`;
 
   return (
     <div className={`rounded-xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 transition-opacity ${done ? "opacity-40" : ""}`}>
@@ -188,14 +184,16 @@ function StrategyCard({
       </p>
 
       <div className="border-t border-gray-50 dark:border-gray-700/50 px-4 py-2 flex items-center gap-3 flex-wrap">
-        {/* Open in platform — for twitter always show, for others show if connected */}
         {entry.platform === "twitter" && !done && (
-          <button
-            onClick={tweet}
+          <a
+            href={tweetUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={onToggleDone}
             className="text-xs font-semibold bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-3 py-1.5 rounded-lg hover:bg-gray-700 dark:hover:bg-gray-100 transition-colors"
           >
-            𝕏 Open in X
-          </button>
+            𝕏 Post on X
+          </a>
         )}
 
         {!done && (
@@ -217,15 +215,19 @@ function StrategyCard({
 
 // ─── Platform intent helpers ──────────────────────────────────────────────────
 
+function isTwitterChannel(channel: string) {
+  return channel === "tweet" || channel === "twitter";
+}
+
 function platformIntentUrl(channel: string, text: string): string | null {
-  if (channel === "tweet") return `https://x.com/intent/tweet?text=${encodeURIComponent(text.slice(0, 280))}`;
+  if (isTwitterChannel(channel)) return `https://x.com/intent/tweet?text=${encodeURIComponent(text.slice(0, 280))}`;
   if (channel === "linkedin") return `https://www.linkedin.com/feed/`;
   if (channel === "instagram") return `https://www.instagram.com/`;
   return null;
 }
 
 function publishLabel(channel: string): string {
-  if (channel === "tweet") return "𝕏 Open in X";
+  if (isTwitterChannel(channel)) return "𝕏 Post on X";
   if (channel === "linkedin") return "Post on LinkedIn";
   if (channel === "instagram") return "Post on Instagram";
   if (channel === "blog") return "Publish Post";
@@ -233,7 +235,7 @@ function publishLabel(channel: string): string {
 }
 
 function publishStyle(channel: string): string {
-  if (channel === "tweet") return "bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-700 dark:hover:bg-gray-100";
+  if (isTwitterChannel(channel)) return "bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-700 dark:hover:bg-gray-100";
   if (channel === "linkedin") return "bg-blue-600 text-white hover:bg-blue-700";
   if (channel === "instagram") return "bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600";
   return "bg-brand-500 text-white hover:bg-brand-600";
@@ -294,31 +296,21 @@ function ContentCard({ initItem, siteId }: { initItem: ScheduledContentItem; sit
     if (ok) await refetch();
   }
 
-  async function publish() {
-    const currentBody = (editing && editedBody !== item.body ? editedBody : item.body) ?? "";
-    const intentUrl = platformIntentUrl(item.channel, currentBody);
-
-    // Open the platform in a new tab (with text pre-filled where possible)
-    if (intentUrl) {
-      // For LinkedIn/Instagram, copy text first so user can paste
-      if (item.channel !== "tweet") {
-        try { navigator.clipboard.writeText(currentBody); } catch {}
-      }
-      window.open(intentUrl, "_blank");
-    }
-
-    // Mark as published in the DB
+  function markPublished(editedBodyValue?: string) {
     const body: Record<string, unknown> = { content_item_id: item.id, intent: true };
-    if (editing && editedBody !== item.body) body.edited_body = editedBody;
-    const { ok } = await callApi("publish", body);
-    if (ok) {
-      setEditing(false);
-      setItem((prev) => ({
-        ...prev,
-        status: "published",
-        body: (body.edited_body as string | undefined) ?? prev.body,
-      }));
-    }
+    if (editedBodyValue !== undefined) body.edited_body = editedBodyValue;
+    // Fire and forget — don't block navigation
+    fetch("/api/publish", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    }).catch(() => {});
+    setEditing(false);
+    setItem((prev) => ({
+      ...prev,
+      status: "published",
+      body: editedBodyValue ?? prev.body,
+    }));
   }
 
   async function reject() {
@@ -387,20 +379,60 @@ function ContentCard({ initItem, siteId }: { initItem: ScheduledContentItem; sit
           </button>
         )}
 
-        {/* Publish — always shown when there's body and not published */}
-        {hasBody && !isPublished && (
-          <button
-            onClick={publish}
-            disabled={!!loading}
-            className={`text-xs font-semibold px-3 py-1.5 rounded-lg disabled:opacity-50 transition-colors ${publishStyle(item.channel)}`}
-          >
-            {loading === "publish"
-              ? "Publishing…"
-              : editing
-              ? `Save & ${publishLabel(item.channel)}`
-              : publishLabel(item.channel)}
-          </button>
-        )}
+        {/* Publish — link for social platforms, button for blog/others */}
+        {hasBody && !isPublished && (() => {
+          const currentBody = editing ? editedBody : (item.body ?? "");
+          const intentUrl = platformIntentUrl(item.channel, currentBody);
+          const label = editing ? `Save & ${publishLabel(item.channel)}` : publishLabel(item.channel);
+          const style = `text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors ${publishStyle(item.channel)}`;
+
+          if (intentUrl) {
+            // For LinkedIn/Instagram: copy text to clipboard so user can paste
+            const needsCopy = !isTwitterChannel(item.channel);
+            return (
+              <a
+                href={intentUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => {
+                  if (needsCopy) {
+                    try { navigator.clipboard.writeText(currentBody); } catch {}
+                  }
+                  markPublished(editing ? editedBody : undefined);
+                }}
+                className={style}
+              >
+                {label}
+              </a>
+            );
+          }
+
+          // Blog / fallback — use async API publish
+          return (
+            <button
+              onClick={async () => {
+                setLoading("publish");
+                const body: Record<string, unknown> = { content_item_id: item.id };
+                if (editing) body.edited_body = editedBody;
+                try {
+                  const res = await fetch("/api/publish", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(body),
+                  });
+                  const data = await res.json();
+                  if (res.ok) markPublished(editing ? editedBody : undefined);
+                  else setError(data.error || "Failed");
+                } catch { setError("Failed"); }
+                finally { setLoading(null); }
+              }}
+              disabled={!!loading}
+              className={`${style} disabled:opacity-50`}
+            >
+              {loading === "publish" ? "Publishing…" : label}
+            </button>
+          );
+        })()}
 
         {/* Edit toggle */}
         {hasBody && !isPublished && (
