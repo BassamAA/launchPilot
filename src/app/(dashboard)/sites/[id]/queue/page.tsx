@@ -278,7 +278,7 @@ export default function QueuePage() {
   const fetchQueue = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/sites/${siteId}/queue?status=draft&limit=50`);
+      const res = await fetch(`/api/sites/${siteId}/queue?status=draft&limit=50&exclude_channel=blog`);
       if (res.ok) {
         const data = await res.json();
         setItems(data.items || []);

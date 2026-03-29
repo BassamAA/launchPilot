@@ -30,6 +30,9 @@ export async function GET(
 
     if (channel) query = query.eq("channel", channel);
 
+    const excludeChannel = searchParams.get("exclude_channel");
+    if (excludeChannel) query = query.neq("channel", excludeChannel);
+
     const { data: items, count, error } = await query;
     if (error) throw error;
 
