@@ -59,7 +59,7 @@ function buildSourcesJson(inputs: SourceInputs, merged: MergedAnalysis) {
   };
 }
 
-async function generateBriefFromMergedAnalysis(merged: MergedAnalysis) {
+async function generateBriefFromMergedAnalysis(merged: MergedAnalysis, goal?: string) {
   const result = await callClaude<MarketingBrief>({
     model: "sonnet",
     systemPrompt:
@@ -83,7 +83,7 @@ ${JSON.stringify(merged.sources.linkedin, null, 2)}
 ### Merged Business Signals
 ${JSON.stringify(merged.merged, null, 2)}
 
-Based on ALL available signals, generate a marketing brief. If multiple sources conflict, prefer the richest source.
+${goal ? `## User's Stated Goal\n"${goal}"\nThis is what the user wants to achieve. Shape the positioning, recommended_channels, and content_angles to serve this goal specifically.\n` : ""}Based on ALL available signals, generate a marketing brief. If multiple sources conflict, prefer the richest source.
 
 Return JSON with this exact structure:
 {
@@ -132,7 +132,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = parsed.data as AnalyzeRequest;
-    const { url, site_id } = body;
+    const { url, site_id, goal } = body;
     const sources: SourceInputs =
       body.sources && Object.values(body.sources).some(Boolean)
         ? body.sources
@@ -227,7 +227,7 @@ export async function POST(req: NextRequest) {
 
     const primaryUrl = buildPrimaryUrl(sources, merged);
     const sourcesJson = buildSourcesJson(sources, merged);
-    const result = await generateBriefFromMergedAnalysis(merged);
+    const result = await generateBriefFromMergedAnalysis(merged, goal);
     const businessProfile = buildBusinessProfile(merged, result.data);
 
     await supabase

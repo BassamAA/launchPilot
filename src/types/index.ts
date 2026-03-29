@@ -320,6 +320,7 @@ export interface AnalyzeRequest {
     linkedin_manual?: Record<string, string>;
   };
   site_id?: string;
+  goal?: string;
 }
 
 export interface AnalyzeResponse {

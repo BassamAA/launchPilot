@@ -2,336 +2,371 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button, Input, Card, Textarea } from "@/components/ui";
-import { AnalysisProgress, ProgressStep } from "@/components/sites/AnalysisProgress";
-import { MarketingBriefCard } from "@/components/sites/MarketingBriefCard";
-import { MarketingBrief } from "@/types";
-import { useToast } from "@/components/ui/Toast";
-import {
-  RocketLaunchIcon,
-  SparklesIcon,
-  BeakerIcon,
-} from "@heroicons/react/24/solid";
+import { Spinner } from "@/components/ui";
 import { BRAND_NAME } from "@/lib/brand";
 
-type Step = "input" | "analyzing" | "brief";
+type Step = "input" | "analyzing" | "profile";
+
+interface Profile {
+  product_name: string;
+  one_liner: string;
+  target_customer: string;
+  pain_point: string;
+  value_proposition: string;
+  positioning: string;
+  recommended_channels: { channel: string; priority: number }[];
+  goal?: string;
+}
+
+const GOAL_PRESETS = [
+  { id: "customers", label: "Get more customers", icon: "💰" },
+  { id: "following", label: "Grow my social following", icon: "📈" },
+  { id: "brand", label: "Build my personal brand", icon: "⭐" },
+  { id: "influencer", label: "Become an influencer", icon: "🎯" },
+  { id: "other", label: "Something else", icon: "✏️" },
+];
+
+const SOCIAL_CHANNELS = [
+  { key: "website", label: "Website", placeholder: "https://yoursite.com" },
+  { key: "twitter", label: "Twitter / X", placeholder: "https://x.com/yourhandle  or  @yourhandle" },
+  { key: "instagram", label: "Instagram", placeholder: "https://instagram.com/yourhandle  or  @yourhandle" },
+  { key: "linkedin", label: "LinkedIn", placeholder: "https://linkedin.com/in/yourprofile" },
+];
+
+const ANALYZING_MESSAGES = [
+  "Reading your pages…",
+  "Understanding your audience…",
+  "Figuring out what makes you different…",
+  "Building your profile…",
+  "Almost there…",
+];
 
 export default function NewSitePage() {
   const router = useRouter();
-  const { toast } = useToast();
 
-  const [url, setUrl] = useState("");
-  const [twitter, setTwitter] = useState("");
-  const [instagram, setInstagram] = useState("");
-  const [linkedin, setLinkedin] = useState("");
-  const [instagramBusinessType, setInstagramBusinessType] = useState("");
-  const [instagramAudience, setInstagramAudience] = useState("");
-  const [instagramOffering, setInstagramOffering] = useState("");
-  const [linkedinHeadline, setLinkedinHeadline] = useState("");
-  const [linkedinAbout, setLinkedinAbout] = useState("");
-  const [linkedinIndustry, setLinkedinIndustry] = useState("");
+  const [urls, setUrls] = useState<Record<string, string>>({
+    website: "", twitter: "", instagram: "", linkedin: "",
+  });
+  const [goalPreset, setGoalPreset] = useState<string>("");
+  const [goalText, setGoalText] = useState("");
+  const [niche, setNiche] = useState("");
   const [step, setStep] = useState<Step>("input");
-  const [analysisStep, setAnalysisStep] = useState(0);
-  const [progressSteps, setProgressSteps] = useState<ProgressStep[]>([]);
-  const [brief, setBrief] = useState<MarketingBrief | null>(null);
-  const [siteId, setSiteId] = useState<string>("");
-  const [sourcesJson, setSourcesJson] = useState<Record<string, unknown> | null>(null);
+  const [analyzingMsg, setAnalyzingMsg] = useState(0);
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [editing, setEditing] = useState<keyof Profile | null>(null);
+  const [siteId, setSiteId] = useState("");
   const [error, setError] = useState("");
   const [confirmLoading, setConfirmLoading] = useState(false);
-  const [demoLoading, setDemoLoading] = useState(false);
 
-  function buildSteps() {
-    const steps: ProgressStep[] = [];
-    if (url.trim()) steps.push({ id: "website", label: "Analyzing website...", status: "pending" });
-    if (twitter.trim()) steps.push({ id: "twitter", label: "Analyzing Twitter/X...", status: "pending" });
-    if (instagram.trim()) steps.push({ id: "instagram", label: "Analyzing Instagram...", status: "pending" });
-    if (linkedin.trim()) steps.push({ id: "linkedin", label: "Analyzing LinkedIn...", status: "pending" });
-    steps.push({ id: "merge", label: "Merging business insights...", status: "pending" });
-    steps.push({ id: "brief", label: "Generating your unified marketing brief...", status: "pending" });
-    return steps;
-  }
+  const hasAnyUrl = Object.values(urls).some((v) => v.trim().length > 0);
+  const finalGoal = goalPreset === "influencer" && niche
+    ? `Become an influencer in ${niche}`
+    : goalPreset === "other" && goalText
+    ? goalText
+    : GOAL_PRESETS.find((p) => p.id === goalPreset)?.label ?? goalText;
 
-  async function handleAnalyze() {
-    const sources = {
-      website: url.trim() || undefined,
-      twitter: twitter.trim() || undefined,
-      instagram: instagram.trim() || undefined,
-      linkedin: linkedin.trim() || undefined,
-      instagram_manual:
-        instagram.trim() && (instagramBusinessType || instagramAudience || instagramOffering)
-          ? {
-              businessType: instagramBusinessType,
-              targetAudience: instagramAudience,
-              mainOffering: instagramOffering,
-            }
-          : undefined,
-      linkedin_manual:
-        linkedin.trim() && (linkedinHeadline || linkedinAbout || linkedinIndustry)
-          ? {
-              headline: linkedinHeadline,
-              aboutText: linkedinAbout,
-              industry: linkedinIndustry,
-            }
-          : undefined,
-    };
-
-    if (!Object.values(sources).some((value) => {
-      if (typeof value === "string") return value.trim().length > 0;
-      return false;
-    })) return;
-
+  async function analyze() {
+    if (!hasAnyUrl) return;
     setError("");
     setStep("analyzing");
-    setAnalysisStep(0);
-    const steps = buildSteps();
-    setProgressSteps(steps);
 
-    const stepTimings = steps.map((_, index) => 800 + index * 1300);
-    const timers = stepTimings.map((delay, i) =>
-      setTimeout(() => setAnalysisStep(i + 1), delay)
-    );
+    // Cycle through messages
+    const interval = setInterval(() => {
+      setAnalyzingMsg((n) => (n + 1) % ANALYZING_MESSAGES.length);
+    }, 2200);
 
     try {
+      const sources: Record<string, string> = {};
+      if (urls.website.trim()) sources.website = urls.website.trim();
+      if (urls.twitter.trim()) sources.twitter = urls.twitter.trim().replace("@", "");
+      if (urls.instagram.trim()) sources.instagram = urls.instagram.trim().replace("@", "");
+      if (urls.linkedin.trim()) sources.linkedin = urls.linkedin.trim();
+
       const res = await fetch("/api/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sources, url: url.trim() || undefined }),
+        body: JSON.stringify({
+          sources: { ...sources },
+          url: urls.website.trim() || undefined,
+          goal: finalGoal || undefined,
+        }),
       });
 
-      timers.forEach(clearTimeout);
-      setAnalysisStep(6);
-
+      clearInterval(interval);
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error || "Analysis failed. Please try again.");
+        setError(data.error || "Something went wrong. Try again.");
         setStep("input");
         return;
       }
 
-      setBrief(data.brief);
+      setProfile({ ...data.brief, goal: finalGoal || data.brief.one_liner });
       setSiteId(data.site_id);
-      setSourcesJson(data.sources_json || null);
-      setStep("brief");
+      setStep("profile");
     } catch {
-      timers.forEach(clearTimeout);
-      setError("Network error. Please check your connection and try again.");
+      clearInterval(interval);
+      setError("Network error. Check your connection and try again.");
       setStep("input");
     }
   }
 
-  async function handleDemo() {
-    setDemoLoading(true);
-    try {
-      const res = await fetch("/api/demo", { method: "POST" });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-      toast("Demo site loaded! Explore the full experience.", "success");
-      router.push(`/sites/${data.site_id}`);
-    } catch {
-      toast("Couldn't load demo. Try analyzing a real URL.", "error");
-    } finally {
-      setDemoLoading(false);
-    }
-  }
-
-  async function handleConfirmBrief(confirmedBrief: MarketingBrief) {
+  async function confirm() {
+    if (!profile || !siteId) return;
     setConfirmLoading(true);
     try {
       const res = await fetch(`/api/sites/${siteId}/confirm-brief`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ brief: confirmedBrief }),
+        body: JSON.stringify({ brief: profile }),
       });
-      if (!res.ok) throw new Error("Failed");
-      toast("Brief confirmed! Generating your plan…", "success");
-      router.push(`/sites/${siteId}`);
+      if (!res.ok) throw new Error();
+      router.push(`/sites/${siteId}/social`);
     } catch {
-      toast("Failed to confirm brief. Try again.", "error");
+      setError("Failed to save. Try again.");
       setConfirmLoading(false);
     }
   }
 
-  return (
-    <div className="max-w-2xl mx-auto">
-      {step === "input" && (
+  function updateProfile(key: keyof Profile, value: string) {
+    setProfile((p) => p ? { ...p, [key]: value } : p);
+  }
+
+  // ── INPUT STEP ───────────────────────────────────────────────────────────────
+
+  if (step === "input") {
+    return (
+      <div className="max-w-lg mx-auto py-8 space-y-8">
         <div className="text-center">
-          <div className="w-16 h-16 rounded-2xl bg-brand-50 flex items-center justify-center mx-auto mb-6">
-            <RocketLaunchIcon className="w-8 h-8 text-brand-500" />
-          </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-3">Add your site</h1>
-          <p className="text-gray-500 mb-10 leading-relaxed">
-            Tell {BRAND_NAME} where your business lives online. Add any combination of website,
-            Twitter, Instagram, or LinkedIn and {BRAND_NAME} will merge the signals into one strategy.
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            Where are you online?
+          </h1>
+          <p className="mt-2 text-gray-500 dark:text-gray-400">
+            Paste any pages you have — {BRAND_NAME} will read them and build your marketing plan
           </p>
+        </div>
 
-          <Card padding="lg">
-            <div className="space-y-4">
-              <Input
-                label="Website URL"
-                type="url"
-                placeholder="https://yourproduct.com"
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
-                autoFocus
-                helper="Optional, but still the richest source when available."
+        {/* URL inputs */}
+        <div className="space-y-3">
+          {SOCIAL_CHANNELS.map(({ key, label, placeholder }) => (
+            <div key={key}>
+              <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">{label}</label>
+              <input
+                type="text"
+                placeholder={placeholder}
+                value={urls[key]}
+                onChange={(e) => setUrls((prev) => ({ ...prev, [key]: e.target.value }))}
+                className="w-full rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-300 dark:focus:ring-brand-600 transition"
               />
+            </div>
+          ))}
+          <p className="text-xs text-gray-400 dark:text-gray-500 pt-1">
+            You don&apos;t need all of them — even just one is enough to get started
+          </p>
+        </div>
 
-              <Input
-                label="Twitter / X handle"
-                placeholder="@yourhandle"
-                value={twitter}
-                onChange={(e) => setTwitter(e.target.value)}
-              />
-
-              <div className="space-y-3 rounded-xl border border-gray-100 bg-gray-50 p-4">
-                <Input
-                  label="Instagram handle"
-                  placeholder="@yourhandle"
-                  value={instagram}
-                  onChange={(e) => setInstagram(e.target.value)}
-                  helper="Profile-level public data only. Add optional context below if your profile is sparse."
-                />
-                {instagram.trim() && (
-                  <div className="grid gap-3 md:grid-cols-3">
-                    <Input
-                      label="Business type"
-                      placeholder="creator, ecommerce, local..."
-                      value={instagramBusinessType}
-                      onChange={(e) => setInstagramBusinessType(e.target.value)}
-                    />
-                    <Input
-                      label="Target audience"
-                      placeholder="Who you sell to"
-                      value={instagramAudience}
-                      onChange={(e) => setInstagramAudience(e.target.value)}
-                    />
-                    <Input
-                      label="Main offering"
-                      placeholder="What you sell"
-                      value={instagramOffering}
-                      onChange={(e) => setInstagramOffering(e.target.value)}
-                    />
-                  </div>
-                )}
-              </div>
-
-              <div className="space-y-3 rounded-xl border border-gray-100 bg-gray-50 p-4">
-                <Input
-                  label="LinkedIn URL"
-                  placeholder="https://linkedin.com/company/example"
-                  value={linkedin}
-                  onChange={(e) => setLinkedin(e.target.value)}
-                  helper="Company page or personal profile URL."
-                />
-                {linkedin.trim() && (
-                  <div className="grid gap-3">
-                    <Input
-                      label="Headline"
-                      placeholder="Optional fallback if LinkedIn blocks the fetch"
-                      value={linkedinHeadline}
-                      onChange={(e) => setLinkedinHeadline(e.target.value)}
-                    />
-                    <Input
-                      label="Industry"
-                      placeholder="Optional"
-                      value={linkedinIndustry}
-                      onChange={(e) => setLinkedinIndustry(e.target.value)}
-                    />
-                    <Textarea
-                      label="About text"
-                      placeholder="Optional fallback summary"
-                      value={linkedinAbout}
-                      onChange={(e) => setLinkedinAbout(e.target.value)}
-                    />
-                  </div>
-                )}
-              </div>
-
-              {error && (
-                <div className="bg-red-50 border border-red-100 text-red-600 text-sm rounded-lg px-4 py-3">
-                  {error}
-                </div>
-              )}
-
-              <Button
-                className="w-full"
-                size="lg"
-                onClick={handleAnalyze}
-                disabled={!url.trim() && !twitter.trim() && !instagram.trim() && !linkedin.trim()}
+        {/* Goal */}
+        <div>
+          <p className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">
+            What do you want to achieve?
+          </p>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+            {GOAL_PRESETS.map((g) => (
+              <button
+                key={g.id}
+                onClick={() => setGoalPreset(goalPreset === g.id ? "" : g.id)}
+                className={`flex flex-col items-start gap-1 rounded-xl border px-3 py-2.5 text-left text-sm transition-all ${
+                  goalPreset === g.id
+                    ? "border-brand-400 bg-brand-50 dark:bg-brand-900/20 text-brand-700 dark:text-brand-300 font-semibold"
+                    : "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:border-brand-200 hover:bg-brand-50/50"
+                }`}
               >
-                <SparklesIcon className="w-5 h-5" />
-                Analyze my business
-              </Button>
-            </div>
+                <span>{g.icon}</span>
+                <span>{g.label}</span>
+              </button>
+            ))}
+          </div>
 
-            {/* Demo option */}
-            <div className="mt-6 pt-5 border-t border-gray-100">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-700">Want to explore first?</p>
-                  <p className="text-xs text-gray-400 mt-0.5">
-                    Load a pre-analyzed demo site and see the full experience immediately.
-                  </p>
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleDemo}
-                  loading={demoLoading}
-                >
-                  <BeakerIcon className="w-4 h-4" />
-                  Try demo
-                </Button>
-              </div>
-            </div>
-          </Card>
+          {goalPreset === "influencer" && (
+            <input
+              type="text"
+              placeholder="Which niche? e.g. fitness, personal finance, cooking..."
+              value={niche}
+              onChange={(e) => setNiche(e.target.value)}
+              className="mt-3 w-full rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-300 transition"
+              autoFocus
+            />
+          )}
 
-          <p className="mt-6 text-sm text-gray-400">
-            Analysis takes 30–60 seconds · Your data stays private
+          {goalPreset === "other" && (
+            <input
+              type="text"
+              placeholder="Describe your goal..."
+              value={goalText}
+              onChange={(e) => setGoalText(e.target.value)}
+              className="mt-3 w-full rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-300 transition"
+              autoFocus
+            />
+          )}
+        </div>
+
+        {error && (
+          <p className="text-sm text-red-500 text-center">{error}</p>
+        )}
+
+        <button
+          onClick={analyze}
+          disabled={!hasAnyUrl}
+          className="w-full rounded-xl bg-brand-500 text-white font-bold py-3.5 text-base hover:bg-brand-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+        >
+          Analyze my pages →
+        </button>
+      </div>
+    );
+  }
+
+  // ── ANALYZING STEP ───────────────────────────────────────────────────────────
+
+  if (step === "analyzing") {
+    return (
+      <div className="max-w-sm mx-auto py-20 flex flex-col items-center gap-6 text-center">
+        <Spinner />
+        <div>
+          <p className="text-lg font-semibold text-gray-900 dark:text-white">
+            {ANALYZING_MESSAGES[analyzingMsg]}
+          </p>
+          <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">
+            Usually takes 20–40 seconds
           </p>
         </div>
-      )}
+      </div>
+    );
+  }
 
-      {step === "analyzing" && (
-        <div className="flex flex-col items-center py-8 space-y-6">
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-card p-8 max-w-md w-full animate-slide-up">
-            <div className="mb-6">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-brand-50 text-brand-600 rounded-full text-xs font-semibold mb-4">
-                <div className="w-2 h-2 rounded-full bg-brand-500 animate-pulse" />
-                Analyzing
-              </div>
-              <h2 className="text-xl font-bold text-gray-900 mb-1">{BRAND_NAME} is building your business profile</h2>
-              <p className="text-sm text-gray-500">
-                Website, social signals, and profile context are being merged into one strategy-ready brief.
+  // ── PROFILE STEP ─────────────────────────────────────────────────────────────
+
+  if (step === "profile" && profile) {
+    const displayFields: { key: keyof Profile; label: string; multiline?: boolean }[] = [
+      { key: "product_name", label: "Your name / brand" },
+      { key: "one_liner", label: "What you do", multiline: true },
+      { key: "target_customer", label: "Who you help", multiline: true },
+      { key: "goal", label: "Your goal", multiline: true },
+      { key: "value_proposition", label: "Why people choose you", multiline: true },
+    ];
+
+    const topChannels = (profile.recommended_channels ?? [])
+      .sort((a, b) => a.priority - b.priority)
+      .slice(0, 3)
+      .map((c) => c.channel)
+      .filter((c) => c !== "blog");
+
+    return (
+      <div className="max-w-lg mx-auto py-8 space-y-6">
+        <div>
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 text-xs font-semibold rounded-full mb-4">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+            Analysis complete
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+            Here&apos;s what we know about you
+          </h1>
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            Read through and correct anything that&apos;s off — this shapes everything we generate
+          </p>
+        </div>
+
+        {/* Profile fields */}
+        <div className="space-y-3">
+          {displayFields.map(({ key, label, multiline }) => (
+            <div
+              key={key}
+              onClick={() => setEditing(editing === key ? null : key)}
+              className="group rounded-xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-3 cursor-pointer hover:border-brand-200 dark:hover:border-brand-700 transition-colors"
+            >
+              <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-1">
+                {label}
               </p>
+              {editing === key ? (
+                multiline ? (
+                  <textarea
+                    value={profile[key] as string}
+                    onChange={(e) => updateProfile(key, e.target.value)}
+                    onClick={(e) => e.stopPropagation()}
+                    rows={3}
+                    autoFocus
+                    className="w-full bg-transparent text-sm text-gray-900 dark:text-gray-100 resize-none focus:outline-none leading-relaxed"
+                  />
+                ) : (
+                  <input
+                    type="text"
+                    value={profile[key] as string}
+                    onChange={(e) => updateProfile(key, e.target.value)}
+                    onClick={(e) => e.stopPropagation()}
+                    autoFocus
+                    className="w-full bg-transparent text-sm text-gray-900 dark:text-gray-100 focus:outline-none"
+                  />
+                )
+              ) : (
+                <p className="text-sm text-gray-800 dark:text-gray-200 leading-relaxed">
+                  {(profile[key] as string) || <span className="text-gray-400 italic">Not specified</span>}
+                </p>
+              )}
+              {editing !== key && (
+                <p className="text-xs text-gray-300 dark:text-gray-600 group-hover:text-brand-400 transition-colors mt-1">
+                  Click to edit
+                </p>
+              )}
             </div>
-            <AnalysisProgress steps={progressSteps} currentStep={analysisStep} />
-          </div>
-          <p className="text-sm text-gray-400 animate-pulse-soft">
-            Hang tight — {BRAND_NAME} is merging your online presence into one business profile…
-          </p>
+          ))}
         </div>
-      )}
 
-      {step === "brief" && brief && (
-        <div className="animate-slide-up">
-          <div className="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-xl">
-            <p className="text-sm font-semibold text-emerald-800">
-              ✨ Analysis complete!
+        {/* Focus channels */}
+        {topChannels.length > 0 && (
+          <div className="rounded-xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-3">
+            <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-2">
+              We&apos;ll focus your plan on
             </p>
-            <p className="text-xs text-emerald-700 mt-0.5">
-              Review your marketing brief below. Edit anything that needs tweaking, then confirm to generate your 30-day plan.
-            </p>
+            <div className="flex gap-2 flex-wrap">
+              {topChannels.map((ch) => (
+                <span
+                  key={ch}
+                  className="px-3 py-1 rounded-full bg-brand-50 dark:bg-brand-900/20 text-brand-700 dark:text-brand-300 text-sm font-semibold capitalize"
+                >
+                  {ch === "twitter" ? "Twitter / X" : ch}
+                </span>
+              ))}
+            </div>
           </div>
-          <MarketingBriefCard
-            brief={brief}
-            onConfirm={handleConfirmBrief}
-            loading={confirmLoading}
-            sourcesJson={sourcesJson || undefined}
-          />
-        </div>
-      )}
-    </div>
-  );
+        )}
+
+        {error && (
+          <p className="text-sm text-red-500">{error}</p>
+        )}
+
+        <button
+          onClick={confirm}
+          disabled={confirmLoading}
+          className="w-full rounded-xl bg-brand-500 text-white font-bold py-3.5 text-base hover:bg-brand-600 disabled:opacity-60 transition-colors flex items-center justify-center gap-2"
+        >
+          {confirmLoading ? (
+            <>
+              <Spinner />
+              Building your plan…
+            </>
+          ) : (
+            "Looks right — build my plan →"
+          )}
+        </button>
+
+        <button
+          onClick={() => setStep("input")}
+          className="w-full text-sm text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+        >
+          ← Go back and re-analyze
+        </button>
+      </div>
+    );
+  }
+
+  return null;
 }
