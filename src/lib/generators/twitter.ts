@@ -31,24 +31,46 @@ export async function generateTweetBatch(
 Target reader: ${brief.target_customer}
 Core pain: ${brief.pain_point}
 Positioning: ${brief.positioning}
+Value prop: ${brief.value_proposition}
 ${guidance ? `\nContent intelligence:\n${guidance}\n` : ""}
 
+These tweets need to feel like they came from an account people would actually follow on X: sharp, readable, opinionated, concrete, and written by someone in the arena.
+
 Mix these formats evenly:
-- pain_point: Name the exact frustration your reader feels. Be specific — use numbers, situations, or recognizable moments. Not "it's hard to do X" — more like "you've shipped 3 products and none has 100 users yet."
-- product_tip: One concrete thing ${brief.product_name} does, shown through a specific use case. Lead with the outcome.
-- social_proof: Real-feeling milestone or outcome. "X users did Y" or "I've been tracking Z and here's what happened." Avoid generic "we're growing" tweets.
-- engagement_question: Ask something that makes your exact reader think "yes, I've wondered that too." Not broad polls — specific, niche questions.
-- mini_thread: A 3-tweet thread. Tweet 1 is a hook with a bold claim. Tweets 2-3 deliver on it with specifics.
+- pain_point: Name a specific frustration, bottleneck, or embarrassing moment the audience recognizes immediately.
+- product_tip: Teach one useful tactic or workflow, with the product appearing only if it naturally strengthens the point.
+- social_proof: Use believable evidence, a concrete observation, or a before/after change. Avoid fake hype.
+- engagement_question: Ask a narrow, informed question that attracts the right replies from the right people.
+- mini_thread: A 3-tweet thread where tweet 1 makes a claim or opens a loop, and tweets 2-3 cash it out with substance.
 
 Hard rules:
 - Every tweet under 280 characters (threads: each part under 250)
-- Write like a real founder, not a brand account — first person, casual, occasional imperfection
+- Write like a real founder or operator, not a content marketer
+- Make the first line carry the weight. The opening phrase should create recognition, tension, curiosity, or stakes
+- Prioritize clarity and punch over completeness. One idea per tweet
+- Use simple sentence shapes and clean rhythm. X rewards readability at a glance
 - Never start with: "Did you know", "Introducing", "Excited to share", "As a founder", "Hot take:", "Thread:"
 - No more than 1 hashtag per tweet — and only if it genuinely fits (most should have zero)
-- Maximum 2 tweets should directly mention ${brief.product_name} by name — the rest build audience
+- Maximum 2 tweets should directly mention ${brief.product_name} by name — the rest should build audience affinity and trust
 - Never use: revolutionize, game-changer, leverage, seamlessly, cutting-edge, empower, unlock, supercharge, transformative
 - Vary the opening word of every tweet — no two tweets should start the same way
-- Use specific numbers and details from the product brief instead of vague claims
+- Use specific numbers, roles, moments, objections, or details instead of vague claims
+- Avoid sounding polished. Slight edge is fine; empty hype is not
+- At least 30% of the set should be strong enough to earn replies, not just passive likes
+- At least 30% of the set should teach, reframe, or reveal something useful in under 280 characters
+- When using line breaks, use them intentionally for pacing, not decoration
+
+What strong X posts do:
+- Make one sharp point fast
+- Sound like a person who learned something the hard way
+- Use contrast, specificity, and tension
+- Reward the reader quickly
+
+What weak X posts do:
+- Read like mini blog posts
+- Say obvious things every founder has already seen
+- Mention the product too early
+- Try to sound profound without saying anything concrete
 
 Return JSON:
 {

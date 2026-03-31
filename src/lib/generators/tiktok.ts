@@ -28,6 +28,8 @@ export async function generateTikTokScripts(
 
 Viewer: ${brief.target_customer}
 Their pain: ${brief.pain_point}
+Value prop: ${brief.value_proposition}
+Positioning: ${brief.positioning}
 ${guidance ? `\nContent intelligence:\n${guidance}\n` : ""}
 
 Structure for each script:
@@ -40,18 +42,22 @@ Structure for each script:
 
 - Problem (3–15 sec): Make them feel seen. Get specific about the exact situation they're in — the late nights, the posts that got no engagement, the feeling of building in a vacuum. No solutions yet.
 
-- Solution (15–45 sec): Show how ${brief.product_name} actually fixes it. Walk through what happens. Be concrete — don't say "it analyzes your site," say "you paste your URL and 30 seconds later you have a marketing brief that knows your product better than your pitch deck."
+- Solution (15–45 sec): Show what changes and what the viewer would actually see, do, or get. Be visual and procedural. Don't say "it analyzes your site" when you can say "you paste your URL, it pulls the product angle, then drafts 10 posts you can actually ship."
 
 - CTA (last 3–5 sec): Simple. "Link in bio." "Try it free." Don't oversell.
 
 Hard rules:
 - 30–60 seconds total (120–200 spoken words at natural talking pace)
-- Write how people ACTUALLY talk, not how they write — contractions, incomplete thoughts, filler moments
+- Write how people actually talk on camera — contractions, fragments, small resets, natural emphasis
 - No "Hey guys!" opener — ever
 - Don't use "game-changer", "revolutionize", "seamlessly", or corporate vocabulary
 - The hook should work even if someone never watches past 3 seconds
 - Suggest 2–3 on-screen text overlays (the big bold text that appears during the video)
 - Make each script feel like a different creator made it
+- Every script should have at least 3 visual beats so it does not become a talking-head monologue
+- Make the story feel native to short-form video, not like an ad read chopped into timestamps
+- Do not rely on generic "3 tips" format unless it is unusually specific
+- Build for retention: each section should make the next one feel earned
 
 Return JSON:
 {

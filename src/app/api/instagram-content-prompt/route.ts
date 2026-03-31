@@ -18,7 +18,7 @@ async function generateImagePrompt(
   brief: MarketingBrief,
   businessProfile: BusinessProfile | null
 ): Promise<string> {
-  const systemPrompt = `You are a creative director who specializes in writing image generation prompts for Midjourney and DALL-E. Your prompts are specific, detailed, and produce scroll-stopping Instagram content. You understand composition, lighting, color theory, and what performs on Instagram.
+  const systemPrompt = `You are a creative director who writes image prompts for social content that actually earns attention. You understand composition, hierarchy, contrast, product storytelling, and what feels premium rather than generic on Instagram.
 
 You MUST respond with ONLY the prompt text — no markdown, no explanation, no preamble. Just the image prompt.`;
 
@@ -37,6 +37,8 @@ Requirements:
 - Include: subject description, style, lighting, mood, color palette, composition
 - The image must be relevant to the post topic and appeal to the target audience
 - Style should match the brand voice and feel professional
+- Prioritize a strong focal point, visual tension, and a concept that would stop someone mid-scroll
+- Avoid generic stock-photo aesthetics, cheesy startup clichés, floating UI-on-gradient tropes, and overstuffed compositions
 - Include "--ar 1:1" at the end for Midjourney
 
 Generate a single, complete image prompt ready to paste into Midjourney or DALL-E.`;
@@ -57,7 +59,7 @@ async function generateReelPrompt(
   brief: MarketingBrief,
   businessProfile: BusinessProfile | null
 ): Promise<string> {
-  const systemPrompt = `You are a video content strategist and scriptwriter who specializes in Instagram Reels for founder-led brands. You know that the first 1-3 seconds determine everything, that hooks must stop the scroll, and that Reels need a clear structure: hook → value → CTA.
+  const systemPrompt = `You are a short-form video strategist and scriptwriter for founder-led brands. You write Instagram Reels that feel native to the platform: fast hook, visual movement, specific payoff, and no ad-speak. You know the first 1-3 seconds decide whether the viewer stays.
 
 You MUST respond with ONLY the reel concept and script — no preamble, no markdown headers outside the structure below.`;
 
@@ -95,7 +97,14 @@ AUDIO RECOMMENDATION:
 [Trending sound type or original voiceover guidance]
 
 CTA:
-[Exact words for the final call to action]`;
+[Exact words for the final call to action]
+
+Quality bar:
+- Make the hook specific and native to the target audience's pain, not broad motivational fluff
+- Build in at least 3 visual beats so the Reel can cut between screens, gestures, b-roll, or text moments
+- The script should sound like a smart creator or founder talking, not a landing page read aloud
+- Avoid filler like "hey guys", "in today's video", and "let me show you"
+- Make the payoff concrete: what the viewer learns, sees, or realizes by the end`;
 
   const result = await callClaude<string>({
     model: "sonnet",
@@ -114,7 +123,7 @@ async function generateInfluencerBrief(
   businessProfile: BusinessProfile | null,
   influencerStyle: string | undefined
 ): Promise<string> {
-  const systemPrompt = `You are a brand partnerships manager who writes clear, professional influencer briefs that give creators everything they need to make great content while staying on-brand. Your briefs are detailed but not restrictive — you give direction, not a script.
+  const systemPrompt = `You are a brand partnerships manager who writes creator briefs that are clear, commercially useful, and respectful of the creator's craft. Your briefs give strong direction without killing the creator's voice.
 
 You MUST respond with ONLY the brief document — no preamble, no meta-commentary.`;
 
@@ -156,7 +165,7 @@ KEY MESSAGES
 [3-5 must-communicate points — what the audience needs to walk away believing]
 
 TALKING POINTS
-[Specific angles, phrases, and stories that resonate with the audience]
+[Specific angles, phrases, objections, scenes, and stories that resonate with the audience]
 
 DOS AND DON'TS
 [Clear guidance on brand voice, prohibited claims, competitor mentions]
@@ -174,7 +183,9 @@ COMPENSATION
 [Placeholder — to be agreed separately]
 
 NEXT STEPS
-[What the influencer should do after receiving this brief]`;
+[What the influencer should do after receiving this brief]
+
+Make the brief practical enough that a strong creator could immediately turn it into a good post without asking basic follow-up questions.`;
 
   const result = await callClaude<string>({
     model: "sonnet",

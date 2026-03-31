@@ -251,7 +251,7 @@ export interface ContentMetadata {
   publish_state?: "draft" | "scheduled" | "ready_to_publish" | "campaign_draft" | "ready_to_submit" | "ready_to_post" | "external_blog_pending";
   publish_error?: string;
   publish_error_at?: string;
-  published_via?: "twitter" | "hosted_blog" | "manual" | "resend";
+  published_via?: "twitter" | "linkedin" | "hosted_blog" | "manual" | "resend";
   scheduled_for_publish?: string;
   meta_description?: string;
   seo_keyword?: string;

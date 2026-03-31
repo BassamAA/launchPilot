@@ -1,6 +1,7 @@
 import crypto from "crypto";
 import { MarketingBrief, ContentChannel, ContentItem, ContentMetadata, ContentPatternSnapshot } from "@/types";
 import { generateBlogPost } from "./blog";
+import { generateLinkedInPostBatch } from "./linkedin";
 import { generateTweetBatch } from "./twitter";
 import { generateRedditDrafts } from "./reddit";
 import { generateColdEmailTemplates } from "./email";
@@ -16,7 +17,7 @@ import { tagContentItem } from "@/lib/tagging";
 type SupabaseAdminClient = ReturnType<typeof getSupabaseAdminClient>;
 
 function supportsVariants(channel: ContentChannel) {
-  return ["blog", "twitter", "reddit", "email", "tiktok"].includes(channel);
+  return ["blog", "twitter", "linkedin", "reddit", "email", "tiktok"].includes(channel);
 }
 
 function buildVariantInstruction(
@@ -80,6 +81,22 @@ async function generateBodyAndMetadata(
       if (tweet) {
         generatedBody = tweet.thread_tweets ? tweet.thread_tweets.join("\n\n---\n\n") : tweet.body;
         metadata = { ...metadata, tweet_type: tweet.type, char_count: tweet.char_count };
+      }
+      break;
+    }
+
+    case "linkedin": {
+      const posts = await generateLinkedInPostBatch(brief, 1, guidance || undefined);
+      const post = posts[0];
+      if (post) {
+        generatedBody = post.body;
+        metadata = {
+          ...metadata,
+          linkedin_post_type: post.type,
+          char_count: post.char_count,
+          hook: post.hook,
+          cta: post.cta,
+        };
       }
       break;
     }
