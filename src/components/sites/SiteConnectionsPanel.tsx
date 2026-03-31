@@ -303,17 +303,17 @@ export function SiteConnectionsPanel({
         </div>
       </Card>
 
-      <Card padding="md" className="space-y-4">
+      <Card padding="md" className="space-y-4 border-brand-200 bg-brand-50/40">
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-lg font-bold text-gray-900">Tracking Snippets</h2>
+              <h2 className="text-lg font-bold text-gray-900">Recommended next step: install tracking</h2>
               <Badge variant={pixelUrl ? "success" : "warning"}>
                 {pixelUrl ? "Ready" : "Unavailable"}
               </Badge>
             </div>
-            <p className="text-sm text-gray-500 mt-1">
-              Use the conversion pixel for signups and the product event helper for activation and revenue events.
+            <p className="text-sm text-gray-600 mt-1">
+              This is what makes {BRAND_NAME} credible: clicks, signups, activation, and revenue tied back to the content that created them.
             </p>
           </div>
         </div>
@@ -341,13 +341,13 @@ export function SiteConnectionsPanel({
         <div className="flex items-start justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-lg font-bold text-gray-900">Blog</h2>
+              <h2 className="text-lg font-bold text-gray-900">Blog publishing</h2>
               <Badge variant={blogMode === "hosted" ? "success" : "info"}>
-                {blogMode === "hosted" ? `Hosted by ${BRAND_NAME}` : "External blog"}
+                {blogMode === "hosted" ? `Hosted by ${BRAND_NAME}` : "External setup"}
               </Badge>
             </div>
             <p className="text-sm text-gray-500 mt-1">
-              Hosted blog publishing works now. External blog connections are saved, but the publish API is still marked coming soon.
+              Best current path: publish to the built-in hosted blog immediately. External blog settings can be saved for later, but hosted mode is the working path today.
             </p>
           </div>
           {blog && (
@@ -387,7 +387,7 @@ export function SiteConnectionsPanel({
             />
             <span className="font-semibold text-gray-900">External blog API</span>
             <p className="mt-1 text-sm text-gray-500">
-              Save your WordPress, Ghost, or custom API details now. Publish integration is coming soon.
+              Save your WordPress, Ghost, or custom API details now if you want to prepare ahead. This is setup storage, not the primary publishing path yet.
             </p>
           </label>
         </div>
@@ -417,7 +417,7 @@ export function SiteConnectionsPanel({
 
         <div className="flex items-center justify-between">
           <p className="text-sm text-gray-500">
-            Hosted mode publishes immediately. External mode stores config only.
+            Hosted mode is production-ready now. External mode is optional prep work.
           </p>
           <Button onClick={handleSaveBlog} loading={savingBlog}>
             Save blog settings
@@ -469,7 +469,7 @@ export function SiteConnectionsPanel({
               {email ? <Badge variant="success">Configured</Badge> : <Badge variant="warning">Not configured</Badge>}
             </div>
             <p className="text-sm text-gray-500 mt-1">
-              Approved email items move into a campaign review flow. Use a {BRAND_NAME} sender for testing or save your own domain details.
+              Approved email items move into a campaign review flow. Use the default {BRAND_NAME} sender to test fast, then switch to your own domain once you trust the workflow.
             </p>
           </div>
           {email && (
