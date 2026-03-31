@@ -114,14 +114,30 @@ export default function NewSitePage() {
   async function confirm() {
     if (!profile || !siteId) return;
     setConfirmLoading(true);
+    setError("");
+
     try {
       const res = await fetch(`/api/sites/${siteId}/confirm-brief`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ brief: profile }),
       });
-      if (!res.ok) throw new Error();
-      router.push(`/sites/${siteId}/social`);
+      if (!res.ok) throw new Error("confirm_failed");
+
+      const planRes = await fetch(`/api/generate-plan`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ site_id: siteId }),
+      });
+
+      if (planRes.ok || planRes.status === 409) {
+        router.push(`/sites/${siteId}/plan`);
+        return;
+      }
+
+      const planData = await planRes.json().catch(() => null);
+      setError(planData?.error || "Your brief was saved, but we couldn't generate the plan yet. You can retry from the Plan page.");
+      router.push(`/sites/${siteId}/plan`);
     } catch {
       setError("Failed to save. Try again.");
       setConfirmLoading(false);
@@ -351,7 +367,7 @@ export default function NewSitePage() {
           {confirmLoading ? (
             <>
               <Spinner />
-              Building your plan…
+              Saving brief and building your plan…
             </>
           ) : (
             "Looks right — build my plan →"
