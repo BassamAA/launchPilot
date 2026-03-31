@@ -368,7 +368,7 @@ export default function OnboardingPage() {
       const planRes = await fetch(`/api/generate-plan`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ site_id: siteId }),
+        body: JSON.stringify({ site_id: siteId, starter_content_count: 3 }),
       });
 
       if (planRes.ok || planRes.status === 409) {

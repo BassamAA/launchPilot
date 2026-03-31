@@ -11,13 +11,14 @@ import { getAuthorizedSite, getUser, getSupabaseAdminClient } from "@/lib/supaba
 import { seedGrowthExperimentsFromStrategy } from "@/lib/growth";
 import { generateMarketingPlan } from "@/lib/generators/plan";
 import { GeneratePlanRequest, GrowthSurface } from "@/types";
+import { generateAndSaveContentItem } from "@/lib/generators/content";
 
 export async function POST(req: NextRequest) {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    const { site_id }: GeneratePlanRequest = await req.json();
+    const { site_id, starter_content_count }: GeneratePlanRequest & { starter_content_count?: number } = await req.json();
     if (!site_id) return NextResponse.json({ error: "site_id required" }, { status: 400 });
 
     const authorizedSite = await getAuthorizedSite(site_id);
@@ -150,12 +151,42 @@ export async function POST(req: NextRequest) {
 
     await seedGrowthExperimentsFromStrategy(site_id, site.brief_json, strategy, supabase);
 
+    const requestedStarterCount = Number.isFinite(starter_content_count)
+      ? Math.max(0, Math.min(Number(starter_content_count), 5))
+      : 0;
+
+    let starterGenerated = 0;
+    let starterFailed = 0;
+
+    if (requestedStarterCount > 0) {
+      const starterCandidates = contentItems
+        .filter((item) => ["blog", "twitter", "linkedin", "email", "reddit", "directory"].includes(item.channel))
+        .slice(0, requestedStarterCount);
+
+      const { data: starterRows } = await supabase
+        .from("content_items")
+        .select("id")
+        .eq("plan_id", planId)
+        .in(
+          "title",
+          starterCandidates.map((item) => item.title)
+        )
+        .order("scheduled_date", { ascending: true });
+
+      for (const row of starterRows || []) {
+        const result = await generateAndSaveContentItem(row.id, supabase);
+        if (result.success) starterGenerated += 1;
+        else starterFailed += 1;
+        await new Promise((resolve) => setTimeout(resolve, 250));
+      }
+    }
+
     // Log activity
     await supabase.from("activity_log").insert({
       site_id,
       action: "plan_generated",
-      description: `Growth strategy and 30-day execution plan generated with ${items.length} action items`,
-      metadata_json: { plan_id: planId, item_count: items.length },
+      description: `Growth strategy and 30-day execution plan generated with ${items.length} action items${starterGenerated > 0 ? ` and ${starterGenerated} starter content pieces` : ""}`,
+      metadata_json: { plan_id: planId, item_count: items.length, starter_generated: starterGenerated, starter_failed: starterFailed },
     });
 
     // Fire-and-forget plan-ready notification
@@ -170,7 +201,12 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    return NextResponse.json({ plan_id: planId, item_count: items.length });
+    return NextResponse.json({
+      plan_id: planId,
+      item_count: items.length,
+      starter_generated: starterGenerated,
+      starter_failed: starterFailed,
+    });
   } catch (error) {
     logRouteError("api_generate_plan_failed", error);
     return NextResponse.json(
