@@ -116,39 +116,45 @@ export function Sidebar({ sites, pendingCountBySite = {} }: SidebarProps) {
 
           {sitesOpen && (
             <div className="mt-1 space-y-0.5">
-              {sites.map((site) => {
-                const sitePending = pendingCountBySite[site.id] || 0;
-                return (
-                  <Link
-                    key={site.id}
-                    href={`/sites/${site.id}`}
-                    className={cn(
-                      "flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors",
-                      site.id === activeSiteId
-                        ? "bg-brand-50 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300 font-medium"
-                        : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white"
-                    )}
-                  >
-                    <div
+              {sites.length === 0 ? (
+                <div className="px-3 py-2 text-sm text-gray-400 dark:text-gray-500">
+                  No sites yet.
+                </div>
+              ) : (
+                sites.map((site) => {
+                  const sitePending = pendingCountBySite[site.id] || 0;
+                  return (
+                    <Link
+                      key={site.id}
+                      href={`/sites/${site.id}`}
                       className={cn(
-                        "w-2 h-2 rounded-full flex-shrink-0",
-                        site.status === "active" && "bg-emerald-400",
-                        site.status === "analyzing" && "bg-amber-400 animate-pulse",
-                        site.status === "error" && "bg-red-400",
-                        site.status === "paused" && "bg-gray-300"
+                        "flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors",
+                        site.id === activeSiteId
+                          ? "bg-brand-50 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300 font-medium"
+                          : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white"
                       )}
-                    />
-                    <span className="truncate flex-1">
-                      {site.name && site.name !== "" ? site.name : getSiteHostname(site)}
-                    </span>
-                    {sitePending > 0 && (
-                      <span className="ml-auto min-w-[1.25rem] h-5 px-1 flex items-center justify-center rounded-full bg-amber-400 text-white text-xs font-bold leading-none flex-shrink-0">
-                        {sitePending > 99 ? "99+" : sitePending}
+                    >
+                      <div
+                        className={cn(
+                          "w-2 h-2 rounded-full flex-shrink-0",
+                          site.status === "active" && "bg-emerald-400",
+                          site.status === "analyzing" && "bg-amber-400 animate-pulse",
+                          site.status === "error" && "bg-red-400",
+                          site.status === "paused" && "bg-gray-300"
+                        )}
+                      />
+                      <span className="truncate flex-1">
+                        {site.name && site.name !== "" ? site.name : getSiteHostname(site)}
                       </span>
-                    )}
-                  </Link>
-                );
-              })}
+                      {sitePending > 0 && (
+                        <span className="ml-auto min-w-[1.25rem] h-5 px-1 flex items-center justify-center rounded-full bg-amber-400 text-white text-xs font-bold leading-none flex-shrink-0">
+                          {sitePending > 99 ? "99+" : sitePending}
+                        </span>
+                      )}
+                    </Link>
+                  );
+                })
+              )}
 
               <Link
                 href="/sites/new"

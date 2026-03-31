@@ -1,8 +1,10 @@
 import Link from "next/link";
+import Script from "next/script";
 import { Button } from "@/components/ui";
 import { HeroDemo } from "@/components/landing/HeroDemo";
 import { PRICING_PLANS } from "@/lib/stripe";
 import { BRAND_APP_HOST, BRAND_NAME, BRAND_SUPPORT_EMAIL } from "@/lib/brand";
+import { buildFaqJsonLd, buildWebPageJsonLd, marketingPages } from "@/lib/seo";
 import {
   RocketLaunchIcon,
   DocumentTextIcon,
@@ -79,8 +81,22 @@ const FAQS = [
 ];
 
 export default function LandingPage() {
+  const faqJsonLd = buildFaqJsonLd(FAQS);
+  const pageJsonLd = buildWebPageJsonLd({
+    title: `${BRAND_NAME} — AI Marketing Autopilot for Developers`,
+    description:
+      `Paste your URL and ${BRAND_NAME} analyzes your site, builds a marketing strategy, generates content, and executes across SEO, social, Reddit, and directories.`,
+    path: "/",
+  });
+
   return (
     <div className="min-h-screen bg-white">
+      <Script id="homepage-jsonld" type="application/ld+json">
+        {JSON.stringify(pageJsonLd)}
+      </Script>
+      <Script id="homepage-faq-jsonld" type="application/ld+json">
+        {JSON.stringify(faqJsonLd)}
+      </Script>
       {/* Nav */}
       <nav className="fixed top-0 inset-x-0 z-50 border-b border-gray-100 bg-white/90 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
@@ -247,12 +263,49 @@ export default function LandingPage() {
           <p className="text-brand-100 text-lg leading-relaxed max-w-2xl mx-auto mb-8">
             This blog post, the tweet that brought you here, the LinkedIn post — all generated and published automatically by the same system you're about to use. Every day, with no human intervention.
           </p>
+          <div className="grid gap-4 text-left sm:grid-cols-3 mb-8">
+            {[
+              "Hosted blog pages can rank and compound over time.",
+              "Tracked links tie content to clicks, signups, and revenue.",
+              "Higher-risk channels stay in review instead of posting blindly.",
+            ].map((proof) => (
+              <div key={proof} className="rounded-2xl bg-white/10 px-4 py-4 text-sm leading-6 text-white/90 ring-1 ring-white/15">
+                {proof}
+              </div>
+            ))}
+          </div>
           <a
             href={`/blog/breakthroughpilot`}
             className="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-brand-700 font-semibold rounded-lg text-sm hover:bg-brand-50 transition-colors"
           >
             Read the live blog →
           </a>
+        </div>
+      </section>
+
+      {/* SEO landing pages */}
+      <section className="py-24 px-6 bg-gray-50">
+        <div className="max-w-6xl mx-auto">
+          <div className="mb-12 text-center">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">Built for how founders actually search</h2>
+            <p className="text-lg text-gray-500 max-w-3xl mx-auto">
+              We are not relying on one homepage to do all the work. These pages target high-intent founder problems and explain the product in plain English.
+            </p>
+          </div>
+          <div className="grid gap-6 md:grid-cols-3">
+            {marketingPages.map((page) => (
+              <Link
+                key={page.slug}
+                href={`/${page.slug}`}
+                className="rounded-3xl border border-gray-100 bg-white p-7 shadow-card transition hover:-translate-y-0.5 hover:shadow-card-hover"
+              >
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-brand-600">{page.eyebrow}</p>
+                <h3 className="mt-4 text-2xl font-bold text-gray-900">{page.title}</h3>
+                <p className="mt-4 text-sm leading-6 text-gray-600">{page.description}</p>
+                <p className="mt-6 text-sm font-semibold text-brand-600">Read page →</p>
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -324,6 +377,32 @@ export default function LandingPage() {
                 <p className="text-gray-500 leading-relaxed">{faq.a}</p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Why this converts better than a generic AI tool */}
+      <section className="py-24 px-6">
+        <div className="max-w-6xl mx-auto grid gap-8 lg:grid-cols-2">
+          <div className="rounded-3xl border border-red-100 bg-red-50 p-8">
+            <p className="text-sm font-semibold uppercase tracking-[0.22em] text-red-700">The weak approach</p>
+            <h2 className="mt-4 text-3xl font-bold text-gray-900">Prompting ChatGPT every time you need marketing</h2>
+            <ul className="mt-6 space-y-3 text-sm leading-6 text-gray-700">
+              <li>• You start from scratch every time.</li>
+              <li>• There is no persistent strategy across channels.</li>
+              <li>• Publishing and approvals live somewhere else.</li>
+              <li>• You rarely connect content to actual conversions.</li>
+            </ul>
+          </div>
+          <div className="rounded-3xl border border-emerald-100 bg-emerald-50 p-8">
+            <p className="text-sm font-semibold uppercase tracking-[0.22em] text-emerald-700">The stronger approach</p>
+            <h2 className="mt-4 text-3xl font-bold text-gray-900">Using {BRAND_NAME} as a growth operating system</h2>
+            <ul className="mt-6 space-y-3 text-sm leading-6 text-gray-700">
+              <li>• Your live product becomes the source of truth.</li>
+              <li>• The app builds strategy before it writes content.</li>
+              <li>• Publishing, review, tracking, and iteration stay in one loop.</li>
+              <li>• You can see what content creates clicks, signups, activation, and revenue.</li>
+            </ul>
           </div>
         </div>
       </section>
