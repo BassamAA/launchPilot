@@ -5,6 +5,8 @@ const PUBLIC_EXACT_PATHS = [
   "/forgot-password",
   "/privacy",
   "/terms",
+  "/robots.txt",
+  "/sitemap.xml",
   "/api/stripe/webhook",
   "/api/webhooks/resend",
   "/api/track",
@@ -14,7 +16,16 @@ const PUBLIC_EXACT_PATHS = [
   "/api/health",
 ];
 
-const PUBLIC_PREFIXES = ["/auth", "/api/cron", "/go", "/pixel", "/blog"];
+const PUBLIC_PREFIXES = [
+  "/auth",
+  "/api/cron",
+  "/go",
+  "/pixel",
+  "/blog",
+  "/ai-marketing-for-indie-hackers",
+  "/startup-marketing-without-hiring-a-team",
+  "/chatgpt-for-marketing-vs-breakthroughpilot",
+];
 
 export function isPublicPath(pathname: string) {
   return (
