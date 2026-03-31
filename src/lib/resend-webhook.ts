@@ -24,7 +24,7 @@ function parseSignatureHeader(header: string | null) {
 export function verifyResendWebhookSignature(body: string, headers: Headers) {
   const secret = process.env.RESEND_WEBHOOK_SECRET;
   if (!secret) {
-    return { ok: process.env.NODE_ENV !== "production", reason: "missing_secret" as const };
+    return { ok: false, reason: "missing_secret" as const };
   }
 
   const id = headers.get("svix-id");
