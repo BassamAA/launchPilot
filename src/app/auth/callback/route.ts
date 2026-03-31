@@ -4,6 +4,7 @@ import { getSupabaseServerClient, getSupabaseAdminClient } from "@/lib/supabase"
 export async function GET(req: NextRequest) {
   const { searchParams, origin } = new URL(req.url);
   const code = searchParams.get("code");
+  const prefillUrl = searchParams.get("url")?.trim();
 
   if (code) {
     const supabase = getSupabaseServerClient();
@@ -20,8 +21,13 @@ export async function GET(req: NextRequest) {
         .single();
 
       if (!existingProfile) {
-        // New user — send to onboarding to collect company name + timezone
-        return NextResponse.redirect(`${origin}/onboarding`);
+        const onboardingUrl = new URL(`${origin}/onboarding`);
+        if (prefillUrl) onboardingUrl.searchParams.set("url", prefillUrl);
+        return NextResponse.redirect(onboardingUrl);
+      }
+
+      if (prefillUrl) {
+        return NextResponse.redirect(`${origin}/sites/new?prefill=${encodeURIComponent(prefillUrl)}`);
       }
 
       // Existing user — go straight to dashboard

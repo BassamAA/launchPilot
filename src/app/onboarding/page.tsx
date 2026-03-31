@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { RocketLaunchIcon } from "@heroicons/react/24/solid";
 import { BRAND_NAME } from "@/lib/brand";
 import { AnalysisProgress, ProgressStep } from "@/components/sites/AnalysisProgress";
@@ -203,11 +203,13 @@ function PlatformCard({
 
 export default function OnboardingPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const prefillUrl = searchParams.get("url") || "";
 
   // Step 1 — Business
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
   const [companyName, setCompanyName] = useState("");
-  const [website, setWebsite] = useState("");
+  const [website, setWebsite] = useState(prefillUrl);
   const [description, setDescription] = useState("");
   const [targetAudience, setTargetAudience] = useState("");
   const [timezone, setTimezone] = useState("UTC");
@@ -362,7 +364,19 @@ export default function OnboardingPage() {
         body: JSON.stringify({ brief: confirmedBrief }),
       });
       if (!res.ok) throw new Error("Failed");
-      router.push(`/sites/${siteId}/social`);
+
+      const planRes = await fetch(`/api/generate-plan`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ site_id: siteId }),
+      });
+
+      if (planRes.ok || planRes.status === 409) {
+        router.push(`/sites/${siteId}/plan`);
+        return;
+      }
+
+      router.push(`/sites/${siteId}/plan`);
     } catch {
       setConfirmLoading(false);
     }
