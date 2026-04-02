@@ -1,0 +1,21 @@
+{
+  "expo": {
+    "name": "LaunchPilot",
+    "slug": "launchpilot-mobile",
+    "scheme": "launchpilot",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "plugins": ["expo-router"],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {},
+    "web": {
+      "bundler": "metro"
+    }
+  }
+}
