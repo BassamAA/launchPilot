@@ -20,25 +20,25 @@ interface Profile {
 
 const GOAL_PRESETS = [
   { id: "customers", label: "Get more customers", icon: "💰" },
-  { id: "following", label: "Grow my social following", icon: "📈" },
-  { id: "brand", label: "Build my personal brand", icon: "⭐" },
-  { id: "influencer", label: "Become an influencer", icon: "🎯" },
+  { id: "following", label: "Grow my audience", icon: "📈" },
+  { id: "brand", label: "Build founder authority", icon: "⭐" },
+  { id: "launch", label: "Prepare for a launch", icon: "🚀" },
   { id: "other", label: "Something else", icon: "✏️" },
 ];
 
 const SOCIAL_CHANNELS = [
-  { key: "website", label: "Website", placeholder: "https://yoursite.com" },
-  { key: "twitter", label: "Twitter / X", placeholder: "https://x.com/yourhandle  or  @yourhandle" },
-  { key: "instagram", label: "Instagram", placeholder: "https://instagram.com/yourhandle  or  @yourhandle" },
+  { key: "website", label: "Website", placeholder: "https://yoursaas.com" },
+  { key: "twitter", label: "Twitter / X", placeholder: "https://x.com/yourhandle or @yourhandle" },
   { key: "linkedin", label: "LinkedIn", placeholder: "https://linkedin.com/in/yourprofile" },
+  { key: "instagram", label: "Instagram", placeholder: "Optional — only if it matters to your product" },
 ];
 
 const ANALYZING_MESSAGES = [
-  "Reading your pages…",
-  "Understanding your audience…",
-  "Figuring out what makes you different…",
-  "Building your profile…",
-  "Almost there…",
+  "Reading your site…",
+  "Understanding your product and customer…",
+  "Figuring out your strongest positioning…",
+  "Choosing the best channels to start with…",
+  "Building your first distribution plan…",
 ];
 
 export default function NewSitePage() {
@@ -49,7 +49,6 @@ export default function NewSitePage() {
   });
   const [goalPreset, setGoalPreset] = useState<string>("");
   const [goalText, setGoalText] = useState("");
-  const [niche, setNiche] = useState("");
   const [step, setStep] = useState<Step>("input");
   const [analyzingMsg, setAnalyzingMsg] = useState(0);
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -59,9 +58,7 @@ export default function NewSitePage() {
   const [confirmLoading, setConfirmLoading] = useState(false);
 
   const hasAnyUrl = Object.values(urls).some((v) => v.trim().length > 0);
-  const finalGoal = goalPreset === "influencer" && niche
-    ? `Become an influencer in ${niche}`
-    : goalPreset === "other" && goalText
+  const finalGoal = goalPreset === "other"
     ? goalText
     : GOAL_PRESETS.find((p) => p.id === goalPreset)?.label ?? goalText;
 
@@ -70,7 +67,6 @@ export default function NewSitePage() {
     setError("");
     setStep("analyzing");
 
-    // Cycle through messages
     const interval = setInterval(() => {
       setAnalyzingMsg((n) => (n + 1) % ANALYZING_MESSAGES.length);
     }, 2200);
@@ -136,7 +132,7 @@ export default function NewSitePage() {
       }
 
       const planData = await planRes.json().catch(() => null);
-      setError(planData?.error || "Your brief was saved, but we couldn't generate the plan yet. You can retry from the Plan page.");
+      setError(planData?.error || "Your brief was saved, but the plan did not finish generating yet. You can retry from the Plan page.");
       router.push(`/sites/${siteId}/plan`);
     } catch {
       setError("Failed to save. Try again.");
@@ -148,21 +144,18 @@ export default function NewSitePage() {
     setProfile((p) => p ? { ...p, [key]: value } : p);
   }
 
-  // ── INPUT STEP ───────────────────────────────────────────────────────────────
-
   if (step === "input") {
     return (
       <div className="max-w-lg mx-auto py-8 space-y-8">
         <div className="text-center">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            Where are you online?
+            Turn your product into a distribution plan
           </h1>
           <p className="mt-2 text-gray-500 dark:text-gray-400">
-            Paste any pages you have — {BRAND_NAME} will read them and build your marketing plan
+            Paste your website and any relevant profiles. {BRAND_NAME} will build your positioning, channel priorities, and first execution plan.
           </p>
         </div>
 
-        {/* URL inputs */}
         <div className="space-y-3">
           {SOCIAL_CHANNELS.map(({ key, label, placeholder }) => (
             <div key={key}>
@@ -177,14 +170,13 @@ export default function NewSitePage() {
             </div>
           ))}
           <p className="text-xs text-gray-400 dark:text-gray-500 pt-1">
-            You don&apos;t need all of them — even just one is enough to get started
+            Best results come from a website URL. Social links help, but they are optional.
           </p>
         </div>
 
-        {/* Goal */}
         <div>
           <p className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">
-            What do you want to achieve?
+            What matters most right now?
           </p>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
             {GOAL_PRESETS.map((g) => (
@@ -202,17 +194,6 @@ export default function NewSitePage() {
               </button>
             ))}
           </div>
-
-          {goalPreset === "influencer" && (
-            <input
-              type="text"
-              placeholder="Which niche? e.g. fitness, personal finance, cooking..."
-              value={niche}
-              onChange={(e) => setNiche(e.target.value)}
-              className="mt-3 w-full rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-300 transition"
-              autoFocus
-            />
-          )}
 
           {goalPreset === "other" && (
             <input
@@ -235,13 +216,11 @@ export default function NewSitePage() {
           disabled={!hasAnyUrl}
           className="w-full rounded-xl bg-brand-500 text-white font-bold py-3.5 text-base hover:bg-brand-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         >
-          Analyze my pages →
+          Build my strategy →
         </button>
       </div>
     );
   }
-
-  // ── ANALYZING STEP ───────────────────────────────────────────────────────────
 
   if (step === "analyzing") {
     return (
@@ -259,15 +238,13 @@ export default function NewSitePage() {
     );
   }
 
-  // ── PROFILE STEP ─────────────────────────────────────────────────────────────
-
   if (step === "profile" && profile) {
     const displayFields: { key: keyof Profile; label: string; multiline?: boolean }[] = [
-      { key: "product_name", label: "Your name / brand" },
+      { key: "product_name", label: "Product / brand" },
       { key: "one_liner", label: "What you do", multiline: true },
       { key: "target_customer", label: "Who you help", multiline: true },
-      { key: "goal", label: "Your goal", multiline: true },
-      { key: "value_proposition", label: "Why people choose you", multiline: true },
+      { key: "goal", label: "Current goal", multiline: true },
+      { key: "value_proposition", label: "Why someone should care", multiline: true },
     ];
 
     const topChannels = (profile.recommended_channels ?? [])
@@ -281,17 +258,16 @@ export default function NewSitePage() {
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 text-xs font-semibold rounded-full mb-4">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-            Analysis complete
+            Strategy draft ready
           </div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Here&apos;s what we know about you
+            Sanity-check this before we build the plan
           </h1>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Read through and correct anything that&apos;s off — this shapes everything we generate
+            Fix anything that feels off. This shapes the plan, the drafts, and the queue.
           </p>
         </div>
 
-        {/* Profile fields */}
         <div className="space-y-3">
           {displayFields.map(({ key, label, multiline }) => (
             <div
@@ -336,11 +312,10 @@ export default function NewSitePage() {
           ))}
         </div>
 
-        {/* Focus channels */}
         {topChannels.length > 0 && (
           <div className="rounded-xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-3">
             <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-2">
-              We&apos;ll focus your plan on
+              Likely best channels to start with
             </p>
             <div className="flex gap-2 flex-wrap">
               {topChannels.map((ch) => (

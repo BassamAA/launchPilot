@@ -13,7 +13,6 @@ export function getStripe(): Stripe {
   return _stripe;
 }
 
-// Alias for convenience
 export const stripe = new Proxy({} as Stripe, {
   get(_, prop) {
     return (getStripe() as unknown as Record<string | symbol, unknown>)[prop];
@@ -25,19 +24,19 @@ export const PRICING_PLANS: PricingPlan[] = [
     id: "starter",
     name: "Solo",
     price: 49,
-    description: "One product, full marketing stack",
+    description: "One product, one focused distribution workflow",
     features: [
       "1 site",
-      "All channels — blog, Twitter, Reddit, email, TikTok, directories",
-      "30 content pieces/month",
-      "AI-generated 30-day plan",
-      "Approval queue",
-      "Performance tracking",
+      "30-day strategy and channel plan",
+      "Starter drafts for blog, X, LinkedIn, email, and launch surfaces",
+      "30 content pieces / month",
+      "Queue-based review and publishing workflow",
+      "Basic performance tracking",
     ],
     limits: {
       sites: 1,
       content_per_month: 30,
-      channels: ["blog", "twitter", "reddit", "email", "tiktok", "directory"],
+      channels: ["blog", "twitter", "linkedin", "email", "directory"],
     },
     stripe_price_id: process.env.STRIPE_STARTER_PRICE_ID || "price_starter",
   },
@@ -45,20 +44,20 @@ export const PRICING_PLANS: PricingPlan[] = [
     id: "growth",
     name: "Pro",
     price: 149,
-    description: "For founders who are serious about distribution",
+    description: "For founders who want a serious distribution system",
     features: [
       "5 sites",
-      "All channels",
-      "Unlimited content",
-      "A/B content experiments",
-      "Pattern intelligence — learns what converts",
+      "Expanded content generation across core channels",
+      "Unlimited content generation",
+      "Queue + approval workflow",
       "Auto-approve low-risk channels",
-      "Weekly performance reports",
+      "Weekly performance reporting",
+      "Pattern intelligence and growth experiments",
     ],
     limits: {
       sites: 5,
       content_per_month: Infinity,
-      channels: ["blog", "twitter", "reddit", "email", "tiktok", "directory"],
+      channels: ["blog", "twitter", "linkedin", "email", "directory", "reddit"],
     },
     stripe_price_id: process.env.STRIPE_GROWTH_PRICE_ID || "price_growth",
     highlighted: true,
@@ -67,20 +66,20 @@ export const PRICING_PLANS: PricingPlan[] = [
     id: "agency",
     name: "Scale",
     price: 499,
-    description: "For teams running marketing across multiple products",
+    description: "For teams running multiple products and workflows",
     features: [
       "Unlimited sites",
-      "All channels",
-      "Unlimited content",
+      "Unlimited content generation",
+      "Multi-site queue and publishing workflow",
       "10 team seats",
-      "API access",
       "Priority generation queue",
       "Dedicated onboarding",
+      "API access when enabled",
     ],
     limits: {
       sites: Infinity,
       content_per_month: Infinity,
-      channels: ["blog", "twitter", "reddit", "email", "tiktok", "directory"],
+      channels: ["blog", "twitter", "linkedin", "email", "directory", "reddit"],
     },
     stripe_price_id: process.env.STRIPE_AGENCY_PRICE_ID || "price_agency",
   },

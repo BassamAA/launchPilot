@@ -39,8 +39,8 @@ export default async function SiteSettingsPage({
             <h1 className="text-2xl font-bold text-gray-900">{site.name} Settings</h1>
             <Badge variant="info">Connections</Badge>
           </div>
-          <p className="text-sm text-gray-500 mt-1">
-            Configure Twitter, LinkedIn, hosted blog behavior, and email delivery for this site.
+          <p className="text-sm text-gray-500 mt-1 max-w-2xl">
+            Connect the channels you actually plan to use first. You do not need everything wired up on day one to start generating drafts and shipping from the queue.
           </p>
         </div>
       </div>
@@ -68,7 +68,6 @@ export default async function SiteSettingsPage({
         sourcesJson={(site.sources_json || null) as Record<string, unknown> | null}
       />
 
-      {/* Danger zone */}
       <div className="rounded-xl border border-red-100 bg-red-50/40 p-6">
         <h2 className="font-bold text-red-900 mb-1">Danger Zone</h2>
         <p className="text-sm text-red-700 mb-4">

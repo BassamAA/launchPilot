@@ -57,11 +57,11 @@ function SignupForm() {
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Check your email</h1>
           <p className="text-gray-500 leading-relaxed">
             We sent a confirmation link to <strong>{email}</strong>.
-            <br />Click it to activate your account and start marketing.
+            <br />Click it to activate your account and start building your plan.
           </p>
           {prefillUrl && (
             <div className="mt-4 p-3 bg-brand-50 rounded-lg text-sm text-brand-700">
-              After confirming, we'll analyze{" "}
+              After confirming, we&apos;ll analyze{" "}
               <span className="font-mono font-medium">{prefillUrl}</span> immediately.
             </div>
           )}
@@ -80,9 +80,12 @@ function SignupForm() {
         <h1 className="text-2xl font-bold text-gray-900 mb-2">
           {prefillUrl ? "Create your account" : "Start your free trial"}
         </h1>
+        <p className="text-sm text-gray-500">
+          Build your first strategy, queue, and publishing workflow before worrying about full automation.
+        </p>
         {prefillUrl && (
-          <p className="text-sm text-gray-500">
-            We'll analyze{" "}
+          <p className="text-sm text-gray-500 mt-3">
+            We&apos;ll analyze{" "}
             <span className="font-mono text-brand-600">{prefillUrl}</span> right after signup.
           </p>
         )}
@@ -126,7 +129,7 @@ function SignupForm() {
         )}
 
         <Button type="submit" className="w-full" size="lg" loading={loading}>
-          Create account — it's free
+          Create account — it&apos;s free
         </Button>
       </form>
 

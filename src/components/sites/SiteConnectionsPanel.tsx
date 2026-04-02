@@ -54,6 +54,12 @@ export function SiteConnectionsPanel({
   const [autoApproveChannels, setAutoApproveChannels] = useState<ContentChannel[]>(
     (onboarding?.auto_approve_channels || []) as ContentChannel[]
   );
+  const [manualPostNotificationsEnabled, setManualPostNotificationsEnabled] = useState(
+    onboarding?.manual_post_notifications_enabled ?? false
+  );
+  const [manualPostChannel, setManualPostChannel] = useState<"email" | "sms" | "whatsapp">(
+    onboarding?.manual_post_channel || "email"
+  );
   const [savingAutoApprove, setSavingAutoApprove] = useState(false);
   const twitter = useMemo(
     () => connections.find((connection) => connection.platform === "twitter"),
@@ -82,6 +88,7 @@ export function SiteConnectionsPanel({
   const [fromEmail, setFromEmail] = useState<string>("");
   const [savingBlog, setSavingBlog] = useState(false);
   const [savingEmail, setSavingEmail] = useState(false);
+  const [savingManualPost, setSavingManualPost] = useState(false);
   const [disconnecting, setDisconnecting] = useState<null | "twitter" | "linkedin" | "email" | "blog_external">(null);
   const appOrigin = (appUrl || "").replace(/\/$/, "") || "http://localhost:3000";
   const pixelUrl = site.public_tracking_key
@@ -168,6 +175,28 @@ export function SiteConnectionsPanel({
       toast("Failed to save auto-approve settings.", "error");
     } finally {
       setSavingAutoApprove(false);
+    }
+  }
+
+  async function handleSaveManualPostNotifications() {
+    setSavingManualPost(true);
+    try {
+      const next: SiteOnboardingState = {
+        ...(onboarding || {}),
+        manual_post_notifications_enabled: manualPostNotificationsEnabled,
+        manual_post_channel: manualPostChannel,
+      };
+      const res = await fetch(`/api/sites/${site.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ onboarding_json: next }),
+      });
+      if (!res.ok) throw new Error("Failed to save");
+      toast("Manual post notifications saved.", "success");
+    } catch {
+      toast("Failed to save manual post notifications.", "error");
+    } finally {
+      setSavingManualPost(false);
     }
   }
 
@@ -421,6 +450,57 @@ export function SiteConnectionsPanel({
           </p>
           <Button onClick={handleSaveBlog} loading={savingBlog}>
             Save blog settings
+          </Button>
+        </div>
+      </Card>
+
+      <Card padding="md" className="space-y-4">
+        <div>
+          <h2 className="text-lg font-bold text-gray-900">Manual posting notifications</h2>
+          <p className="text-sm text-gray-500 mt-1">
+            If direct social posting is not available or you prefer manual control, {BRAND_NAME} can send you ready-to-post content by notification so you can paste it into the target app yourself.
+          </p>
+        </div>
+        <div className="space-y-3">
+          <label className="flex items-start gap-3 rounded-xl border border-gray-200 p-4 cursor-pointer hover:bg-gray-50 transition-colors">
+            <input
+              type="checkbox"
+              className="mt-0.5"
+              checked={manualPostNotificationsEnabled}
+              onChange={() => setManualPostNotificationsEnabled((value) => !value)}
+            />
+            <div>
+              <p className="text-sm font-semibold text-gray-900">Send ready-to-post alerts</p>
+              <p className="text-sm text-gray-500 mt-0.5">Email is implemented now. SMS and WhatsApp can be added next without changing this workflow.</p>
+            </div>
+          </label>
+
+          <div className="grid gap-4 md:grid-cols-3">
+            {[
+              { value: "email", label: "Email", helper: "Implemented now" },
+              { value: "sms", label: "SMS", helper: "Planned" },
+              { value: "whatsapp", label: "WhatsApp", helper: "Planned" },
+            ].map((option) => (
+              <label key={option.value} className="rounded-xl border border-gray-200 p-4">
+                <input
+                  type="radio"
+                  name="manual-post-channel"
+                  className="mr-2"
+                  checked={manualPostChannel === option.value}
+                  onChange={() => setManualPostChannel(option.value as "email" | "sms" | "whatsapp")}
+                />
+                <span className="font-semibold text-gray-900">{option.label}</span>
+                <p className="mt-1 text-sm text-gray-500">{option.helper}</p>
+              </label>
+            ))}
+          </div>
+        </div>
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-gray-500">
+            Best for manual posting workflows where you still want LaunchPilot generating and reminding.
+          </p>
+          <Button onClick={handleSaveManualPostNotifications} loading={savingManualPost}>
+            Save notification workflow
           </Button>
         </div>
       </Card>

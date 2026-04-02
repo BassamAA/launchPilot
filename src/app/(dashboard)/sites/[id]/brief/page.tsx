@@ -20,8 +20,14 @@ export default function BriefPage() {
   useEffect(() => {
     fetch(`/api/sites/${siteId}`)
       .then((r) => r.json())
-      .then((data) => { setSite(data); setLoading(false); })
-      .catch(() => { setError("Failed to load brief. Please refresh."); setLoading(false); });
+      .then((data) => {
+        setSite(data);
+        setLoading(false);
+      })
+      .catch(() => {
+        setError("Failed to load brief. Please refresh.");
+        setLoading(false);
+      });
   }, [siteId]);
 
   async function handleConfirm(brief: MarketingBrief) {
@@ -34,7 +40,7 @@ export default function BriefPage() {
         body: JSON.stringify({ brief }),
       });
       if (!res.ok) throw new Error("Failed to confirm brief");
-      router.push(`/sites/${siteId}`);
+      router.push(`/sites/${siteId}/plan`);
     } catch {
       setError("Failed to save. Please try again.");
       setConfirming(false);
@@ -53,13 +59,9 @@ export default function BriefPage() {
     return (
       <EmptyState
         icon={<DocumentTextIcon className="w-16 h-16" />}
-        title="Couldn't load brief"
+        title="Couldn&apos;t load brief"
         description={error}
-        action={
-          <Button onClick={() => window.location.reload()}>
-            Try again
-          </Button>
-        }
+        action={<Button onClick={() => window.location.reload()}>Try again</Button>}
       />
     );
   }
@@ -70,22 +72,27 @@ export default function BriefPage() {
         icon={<DocumentTextIcon className="w-16 h-16" />}
         title="No brief yet"
         description="Analyze your site first to generate a marketing brief."
-        action={
-          <Button onClick={() => router.push(`/sites/${siteId}`)}>
-            Back to dashboard
-          </Button>
-        }
+        action={<Button onClick={() => router.push(`/sites/${siteId}`)}>Back to dashboard</Button>}
       />
     );
   }
 
   return (
-    <div className="max-w-3xl">
+    <div className="max-w-3xl space-y-6">
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-brand-600">Brief</p>
+        <h1 className="mt-2 text-2xl font-bold text-gray-900">Confirm the strategy foundation</h1>
+        <p className="mt-2 text-sm text-gray-500 max-w-2xl">
+          This brief shapes your plan, drafts, and queue. Fix anything clearly wrong, then confirm it and move forward.
+        </p>
+      </div>
+
       {error && (
-        <div className="mb-4 bg-red-50 border border-red-100 text-red-600 text-sm rounded-lg px-4 py-3">
+        <div className="bg-red-50 border border-red-100 text-red-600 text-sm rounded-lg px-4 py-3">
           {error}
         </div>
       )}
+
       <MarketingBriefCard
         brief={site.brief_json}
         onConfirm={handleConfirm}
@@ -93,10 +100,11 @@ export default function BriefPage() {
         loading={confirming}
         sourcesJson={site.sources_json}
       />
+
       {site.brief_confirmed && (
-        <div className="mt-6 flex justify-end">
-          <Button onClick={() => router.push(`/sites/${siteId}`)} size="lg">
-            Go to your dashboard <ArrowRightIcon className="w-4 h-4" />
+        <div className="mt-2 flex justify-end">
+          <Button onClick={() => router.push(`/sites/${siteId}/plan`)} size="lg">
+            Continue to plan <ArrowRightIcon className="w-4 h-4" />
           </Button>
         </div>
       )}

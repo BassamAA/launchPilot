@@ -15,26 +15,26 @@ const inter = Inter({
 export const metadata: Metadata = {
   metadataBase: new URL(BRAND_MARKETING_URL),
   title: {
-    default: `${BRAND_NAME} — AI Marketing Autopilot for Developers`,
+    default: `${BRAND_NAME} — Distribution system for indie SaaS founders`,
     template: `%s | ${BRAND_NAME}`,
   },
   description:
-    `Paste your URL and ${BRAND_NAME} analyzes your site, builds a marketing strategy, generates content, and executes across SEO, social, Reddit, and directories.`,
+    `Paste your SaaS URL and ${BRAND_NAME} turns it into a 30-day distribution plan, ready-to-review drafts, and a simple publishing workflow.`,
   keywords: defaultMarketingKeywords,
   alternates: {
     canonical: "/",
   },
   openGraph: {
     type: "website",
-    title: `${BRAND_NAME} — AI Marketing Autopilot`,
-    description: `Your product is live. Where are your customers? ${BRAND_NAME} markets it for you.`,
+    title: `${BRAND_NAME} — Distribution system for founders`,
+    description: `Your product is live. ${BRAND_NAME} helps you turn it into a repeatable distribution workflow.`,
     siteName: BRAND_NAME,
     url: BRAND_MARKETING_URL,
   },
   twitter: {
     card: "summary_large_image",
-    title: `${BRAND_NAME} — AI Marketing Autopilot`,
-    description: "Paste your URL. Get customers. No marketing experience needed.",
+    title: `${BRAND_NAME} — Distribution system for founders`,
+    description: "Paste your URL. Get a plan, drafts, and a workflow that actually ships.",
   },
 };
 

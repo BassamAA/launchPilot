@@ -111,3 +111,34 @@ export async function getAuthorizedContentItem(contentItemId: string) {
 
   return data ?? null;
 }
+
+
+export async function getUserFromBearerToken(authHeader?: string | null) {
+  if (!authHeader || !authHeader.startsWith("Bearer ")) return null;
+  const token = authHeader.slice("Bearer ".length).trim();
+  if (!token) return null;
+
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      global: {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+      },
+    }
+  );
+
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser(token);
+
+  if (error || !user) return null;
+  return user;
+}

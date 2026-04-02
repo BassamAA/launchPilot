@@ -30,7 +30,7 @@ export default async function ContentPage({ params }: { params: { id: string } }
       <div>
         <h1 className="text-2xl font-bold text-gray-900">All Content</h1>
         <p className="mt-1 text-sm text-gray-500">
-          Published content, manual publishing tools, and campaign workflows for this site.
+          Browse everything for this site here. Posting and completion now happen in Queue.
         </p>
       </div>
 

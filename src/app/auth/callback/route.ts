@@ -13,7 +13,6 @@ export async function GET(req: NextRequest) {
     if (!error && data.user) {
       const admin = getSupabaseAdminClient();
 
-      // Check if user profile exists
       const { data: existingProfile } = await admin
         .from("user_profiles")
         .select("id")
@@ -30,7 +29,6 @@ export async function GET(req: NextRequest) {
         return NextResponse.redirect(`${origin}/sites/new?prefill=${encodeURIComponent(prefillUrl)}`);
       }
 
-      // Existing user — go straight to dashboard
       return NextResponse.redirect(`${origin}/dashboard`);
     }
   }

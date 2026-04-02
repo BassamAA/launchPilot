@@ -131,3 +131,55 @@ export async function sendPatternInsightEmail(opts: {
 ${button("See what changed →", `${APP_URL}/sites/${opts.siteId}/performance`)}`),
   });
 }
+
+export async function sendReadyToPostEmail(opts: {
+  to: string;
+  siteName: string;
+  siteId: string;
+  items: Array<{
+    title: string;
+    channel: string;
+    body: string;
+    queueUrl?: string | null;
+  }>;
+}) {
+  if (!opts.items.length) return;
+
+  const count = opts.items.length;
+  const subject =
+    count === 1
+      ? `${opts.siteName}: 1 piece ready to post`
+      : `${opts.siteName}: ${count} pieces ready to post`;
+
+  const itemsHtml = opts.items
+    .slice(0, 3)
+    .map(
+      (item) => `
+<div style="margin:0 0 16px;padding:16px;border:1px solid #e5e7eb;border-radius:12px;background:#f9fafb;">
+  <p style="margin:0 0 6px;font-size:12px;font-weight:700;color:#6366f1;letter-spacing:0.04em;text-transform:uppercase;">${item.channel}</p>
+  <p style="margin:0 0 10px;font-size:15px;font-weight:600;color:#111827;">${item.title}</p>
+  <pre style="margin:0;white-space:pre-wrap;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;line-height:1.5;color:#374151;">${escapeHtml(item.body)}</pre>
+</div>`
+    )
+    .join("");
+
+  await send({
+    to: opts.to,
+    subject,
+    html: emailShell(`
+<h2 style="margin:0 0 12px;font-size:20px;font-weight:700;color:#111827;">Manual posting reminder</h2>
+<p style="margin:0 0 16px;font-size:15px;color:#374151;">${BRAND_NAME} prepared ${count} piece${count === 1 ? "" : "s"} for <strong>${opts.siteName}</strong>. Copy the content below and post it in the relevant app, or open the queue to edit and mark it done after posting.</p>
+${itemsHtml}
+${button("Open posting inbox →", `${APP_URL}/sites/${opts.siteId}/queue`)}
+<p style="margin:20px 0 0;font-size:13px;color:#6b7280;">This mode is meant for manual distribution when direct API posting is unavailable or not trusted yet.</p>`),
+  });
+}
+
+function escapeHtml(value: string) {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/\"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}

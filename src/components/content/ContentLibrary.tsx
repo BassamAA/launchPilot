@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { BRAND_NAME } from "@/lib/brand";
 import { getPersonaChannelOrder } from "@/lib/onboarding";
-import { Badge, Button, Input, Card, cn } from "@/components/ui";
+import { Badge, Button, Card, cn } from "@/components/ui";
 import { useToast } from "@/components/ui/Toast";
 import { CHANNEL_CONFIG } from "@/components/content/ContentCard";
 import { ContentChannel, ContentItem, ContentMetadata, ContentStatus, OnboardingPersona } from "@/types";
@@ -26,9 +26,7 @@ interface ContentLibraryProps {
 
 export function ContentLibrary({ siteId, items: initialItems, persona }: ContentLibraryProps) {
   const { toast } = useToast();
-  const [items, setItems] = useState(initialItems);
-  const [loadingId, setLoadingId] = useState<string | null>(null);
-  const [urlInputs, setUrlInputs] = useState<Record<string, string>>({});
+  const [items] = useState(initialItems);
 
   const grouped = useMemo(
     () =>
@@ -40,81 +38,15 @@ export function ContentLibrary({ siteId, items: initialItems, persona }: Content
       }, {} as Record<ContentChannel, ContentItem[]>),
     [items]
   );
+
   const orderedChannels = useMemo(() => {
     const preferred = getPersonaChannelOrder(persona);
-    return Object.keys(grouped)
-      .sort((a, b) => preferred.indexOf(a as ContentChannel) - preferred.indexOf(b as ContentChannel));
+    return Object.keys(grouped).sort((a, b) => preferred.indexOf(a as ContentChannel) - preferred.indexOf(b as ContentChannel));
   }, [grouped, persona]);
 
   async function copy(text: string) {
     await navigator.clipboard.writeText(text);
     toast("Copied to clipboard.", "success");
-  }
-
-  async function publishNow(item: ContentItem) {
-    setLoadingId(item.id);
-    try {
-      const route = item.channel === "twitter" ? "/api/twitter/publish" : "/api/publish";
-      const res = await fetch(route, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content_item_id: item.id }),
-      });
-      const payload = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        toast(payload.error || "Publish failed.", "error");
-        return;
-      }
-
-      setItems((current) =>
-        current.map((candidate) =>
-          candidate.id === item.id
-            ? {
-                ...candidate,
-                status: "published",
-                published_url: payload.published_url || candidate.published_url,
-              }
-            : candidate
-        )
-      );
-      toast("Published successfully.", "success");
-    } finally {
-      setLoadingId(null);
-    }
-  }
-
-  async function markManual(item: ContentItem, label: "posted" | "submitted") {
-    setLoadingId(item.id);
-    try {
-      const res = await fetch("/api/publish", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          content_item_id: item.id,
-          published_url: urlInputs[item.id] || null,
-        }),
-      });
-      const payload = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        toast(payload.error || `Failed to mark as ${label}.`, "error");
-        return;
-      }
-
-      setItems((current) =>
-        current.map((candidate) =>
-          candidate.id === item.id
-            ? {
-                ...candidate,
-                status: "published",
-                published_url: payload.published_url || urlInputs[item.id] || candidate.published_url,
-              }
-            : candidate
-        )
-      );
-      toast(`Marked as ${label}.`, "success");
-    } finally {
-      setLoadingId(null);
-    }
   }
 
   if (items.length === 0) {
@@ -153,14 +85,7 @@ export function ContentLibrary({ siteId, items: initialItems, persona }: Content
             <div className="space-y-4">
               {channelItems.map((item) => {
                 const metadata = (item.metadata_json || {}) as ContentMetadata;
-                const isManualTwitter = item.channel === "twitter" && item.status === "approved" && metadata.publish_state === "ready_to_publish";
                 const isEmailCampaign = item.channel === "email" && item.status === "approved";
-                const isDirectoryReady = item.channel === "directory" && item.status === "approved";
-                const isRedditReady = item.channel === "reddit" && item.status === "approved";
-                const externalUrl =
-                  item.channel === "reddit"
-                    ? (metadata.subreddit_url as string | undefined)
-                    : (metadata.submission_url as string | undefined);
 
                 return (
                   <Card key={item.id} padding="md" className="space-y-4">
@@ -200,7 +125,7 @@ export function ContentLibrary({ siteId, items: initialItems, persona }: Content
 
                     <div className="flex flex-wrap gap-2">
                       {item.body && (
-                        <Button variant="outline" size="sm" onClick={() => copy(item.body)}>
+                        <Button variant="outline" size="sm" onClick={() => copy(item.body!)}>
                           <ClipboardDocumentIcon className="h-4 w-4" />
                           Copy
                         </Button>
@@ -215,19 +140,13 @@ export function ContentLibrary({ siteId, items: initialItems, persona }: Content
                         </a>
                       )}
 
-                      {isManualTwitter && (
-                        <Button size="sm" onClick={() => publishNow(item)} loading={loadingId === item.id}>
-                          Publish Now
-                        </Button>
-                      )}
-
                       {isEmailCampaign && (
                         <Link href={`/sites/${siteId}/email/${item.id}`}>
                           <Button size="sm">Open campaign</Button>
                         </Link>
                       )}
 
-                      {isRedditReady && metadata.target_thread_url && (
+                      {metadata.target_thread_url && (
                         <a href={String(metadata.target_thread_url)} target="_blank" rel="noreferrer">
                           <Button variant="outline" size="sm">
                             <ArrowTopRightOnSquareIcon className="h-4 w-4" />
@@ -236,35 +155,16 @@ export function ContentLibrary({ siteId, items: initialItems, persona }: Content
                         </a>
                       )}
 
-                      {(isDirectoryReady || isRedditReady) && externalUrl && (
-                        <a href={externalUrl} target="_blank" rel="noreferrer">
-                          <Button variant="outline" size="sm">
-                            <ArrowTopRightOnSquareIcon className="h-4 w-4" />
-                            {item.channel === "reddit" ? "Open in Reddit" : "Open submission page"}
-                          </Button>
-                        </a>
+                      {item.status !== "published" && item.channel !== "email" && (
+                        <Link href={`/sites/${siteId}/queue`}>
+                          <Button size="sm">Open in Queue</Button>
+                        </Link>
                       )}
                     </div>
 
-                    {(isDirectoryReady || isRedditReady) && (
-                      <div className="flex flex-col gap-3 border-t border-gray-100 pt-4 md:flex-row md:items-end">
-                        <div className="flex-1">
-                          <Input
-                            label={item.channel === "reddit" ? "Reddit URL" : "Listing URL"}
-                            value={urlInputs[item.id] || ""}
-                            onChange={(event) =>
-                              setUrlInputs((current) => ({ ...current, [item.id]: event.target.value }))
-                            }
-                            placeholder={item.channel === "reddit" ? "https://reddit.com/..." : "https://directory.com/listing"}
-                          />
-                        </div>
-                        <Button
-                          size="sm"
-                          onClick={() => markManual(item, item.channel === "reddit" ? "posted" : "submitted")}
-                          loading={loadingId === item.id}
-                        >
-                          {item.channel === "reddit" ? "Mark as Posted" : "Mark as Submitted"}
-                        </Button>
+                    {item.status !== "published" && item.channel !== "email" && (
+                      <div className="border-t border-gray-100 pt-4 text-xs text-gray-500">
+                        Posting is handled in Queue so there’s one place for approve / post / mark-complete.
                       </div>
                     )}
                   </Card>

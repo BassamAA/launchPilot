@@ -30,7 +30,7 @@ export function AutopilotPanel({ siteId, autopilotEnabled, twitterConnected, lin
       if (!res.ok) throw new Error("Failed");
       setEnabled(next);
       toast(
-        next ? "Autopilot enabled — content will publish automatically." : "Autopilot paused.",
+        next ? "Autopilot enabled for supported low-risk workflows." : "Autopilot paused.",
         "success"
       );
       router.refresh();
@@ -47,7 +47,6 @@ export function AutopilotPanel({ siteId, autopilotEnabled, twitterConnected, lin
         ? "border-brand-300 dark:border-brand-700 bg-brand-50/40 dark:bg-brand-900/20"
         : "border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800"
     }`}>
-      {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-start gap-3">
           <div className={`mt-0.5 w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
@@ -65,12 +64,11 @@ export function AutopilotPanel({ siteId, autopilotEnabled, twitterConnected, lin
               )}
             </div>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-              Generate, approve, and publish content automatically — no queue needed.
+              Optional automation for supported workflows. The default operating model is still strategy → queue → review → publish.
             </p>
           </div>
         </div>
 
-        {/* Toggle */}
         <button
           onClick={toggle}
           disabled={saving}
@@ -88,25 +86,21 @@ export function AutopilotPanel({ siteId, autopilotEnabled, twitterConnected, lin
         </button>
       </div>
 
-      {/* What autopilot does */}
       <div className="mt-5 space-y-2">
         {[
-          { label: "Generates content bodies daily (6am UTC)", done: true },
-          {
-            label: `Publishes blog posts automatically`,
-            done: true,
-          },
+          { label: "Generates scheduled content bodies", done: true },
+          { label: "Publishes hosted blog posts automatically", done: true },
           {
             label: twitterConnected
-              ? "Tweets automatically (Twitter connected)"
-              : "Tweets automatically — connect Twitter to activate",
+              ? "Can publish X posts when the connection is healthy"
+              : "X automation needs a connected Twitter account",
             done: twitterConnected,
             warn: !twitterConnected,
           },
           {
             label: linkedinConnected
-              ? "LinkedIn posts automatically (LinkedIn connected)"
-              : "LinkedIn posts automatically — connect LinkedIn to activate",
+              ? "Can publish LinkedIn posts when the connection is healthy"
+              : "LinkedIn automation needs a connected LinkedIn account",
             done: linkedinConnected,
             warn: !linkedinConnected,
           },
@@ -128,16 +122,12 @@ export function AutopilotPanel({ siteId, autopilotEnabled, twitterConnected, lin
         ))}
       </div>
 
-      {/* Info note */}
-      {enabled && (
-        <div className="mt-4 flex items-start gap-2 text-xs text-brand-700 dark:text-brand-300 bg-brand-50 dark:bg-brand-900/30 rounded-lg px-3 py-2">
-          <InformationCircleIcon className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
-          <span>
-            Content respects scheduled dates — future-dated items queue automatically and publish when the date arrives.
-            Reddit and email still require manual review.
-          </span>
-        </div>
-      )}
+      <div className="mt-4 flex items-start gap-2 text-xs text-brand-700 dark:text-brand-300 bg-brand-50 dark:bg-brand-900/30 rounded-lg px-3 py-2">
+        <InformationCircleIcon className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
+        <span>
+          Keep expectations realistic: higher-risk workflows should stay in review. Reddit and email still require manual handling, and automation should only be enabled once you trust the outputs.
+        </span>
+      </div>
     </div>
   );
 }

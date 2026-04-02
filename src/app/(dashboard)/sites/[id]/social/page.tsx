@@ -1,12 +1,10 @@
 import { notFound, redirect } from "next/navigation";
+import Link from "next/link";
 import { GenerateStrategyButton } from "@/components/social/GenerateStrategyButton";
 import { SocialCalendar, ScheduledContentItem } from "@/components/social/SocialCalendar";
-import {
-  InstagramStrategy,
-  LinkedInStrategy,
-  TwitterStrategy,
-} from "@/lib/generators/instagram";
+import { HandoffCard } from "@/components/social/HandoffCard";
 import { normalizeSocialStrategyState } from "@/lib/social-strategy";
+import { getChannelHandoff } from "@/lib/channel-publishing";
 import { getSupabaseServerClient, getUser } from "@/lib/supabase";
 import { SocialStrategyState } from "@/types";
 
@@ -30,7 +28,7 @@ export default async function SocialStrategyPage({ params }: { params: { id: str
       .single(),
     supabase
       .from("content_items")
-      .select("id, channel, title, body, status, scheduled_date")
+      .select("id, channel, title, body, status, scheduled_date, metadata_json")
       .eq("site_id", params.id)
       .not("scheduled_date", "is", null)
       .neq("channel", "blog")
@@ -47,18 +45,31 @@ export default async function SocialStrategyPage({ params }: { params: { id: str
 
   const hasAnyStrategy = Object.keys(strategies).length > 0;
   const missingPlatforms = PLATFORMS.filter((p) => !strategies[p.key]);
+  const firstDraft = (contentItems || []).find((item) => item.body && item.channel !== "blog");
+  const handoff = firstDraft ? getChannelHandoff(firstDraft.channel, firstDraft.body || "", firstDraft.metadata_json as never) : null;
 
   return (
     <div className="max-w-2xl space-y-6">
-      {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Posting Calendar</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Social strategy + handoff</h1>
         <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-          What to post, where, and when — organized by platform
+          Plan here. Execute from Queue or use direct social handoff when a draft is ready.
         </p>
       </div>
 
-      {/* No brief yet */}
+      <div className="rounded-xl border border-brand-100 bg-brand-50/40 p-4 text-sm text-gray-700">
+        <div className="flex items-center justify-between gap-4 flex-wrap">
+          <span>Queue is still the source of truth for review. Handoff is the fast path for posting into native apps.</span>
+          <Link href={`/sites/${params.id}/queue`} className="text-sm font-semibold text-brand-600 hover:underline">
+            Open Queue →
+          </Link>
+        </div>
+      </div>
+
+      {handoff && firstDraft?.body && (
+        <HandoffCard handoff={handoff} text={firstDraft.body} />
+      )}
+
       {!site.brief_json && (
         <div className="rounded-xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 p-8 text-center">
           <p className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Set up your profile first</p>
@@ -74,7 +85,6 @@ export default async function SocialStrategyPage({ params }: { params: { id: str
         </div>
       )}
 
-      {/* Calendar — grouped by platform */}
       {(hasAnyStrategy || (contentItems && contentItems.length > 0)) && (
         <SocialCalendar
           strategies={strategies}
@@ -83,7 +93,6 @@ export default async function SocialStrategyPage({ params }: { params: { id: str
         />
       )}
 
-      {/* Generate missing platforms */}
       {site.brief_json && missingPlatforms.length > 0 && (
         <div className="space-y-2">
           <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500">

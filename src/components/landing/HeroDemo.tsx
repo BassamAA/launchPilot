@@ -25,7 +25,7 @@ export function HeroDemo() {
         </div>
         <input
           type="url"
-          placeholder="https://yourproduct.com"
+          placeholder="https://your-saas.com"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
           className={cn(
@@ -40,7 +40,7 @@ export function HeroDemo() {
         className="flex items-center justify-center gap-2 px-8 py-5 bg-brand-500 text-white text-base font-semibold rounded-xl shadow-brand hover:bg-brand-600 transition-colors whitespace-nowrap"
       >
         <SparklesIcon className="w-5 h-5" />
-        Analyze free
+        Build my plan
         <ArrowRightIcon className="w-5 h-5" />
       </button>
     </form>

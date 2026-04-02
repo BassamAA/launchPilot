@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { logRouteError, logStructured } from "@/lib/observability";
-import { sendWeeklyDigestEmail, sendPerformanceReportEmail } from "@/lib/notifications";
+import { sendWeeklyDigestEmail, sendPerformanceReportEmail, sendReadyToPostEmail } from "@/lib/notifications";
 import { getSupabaseAdminClient } from "@/lib/supabase";
 
 export async function GET(req: NextRequest) {
@@ -31,7 +31,11 @@ export async function GET(req: NextRequest) {
 
     for (const site of sites) {
       // Check if notifications are disabled for this site
-      const onboarding = site.onboarding_json as { notifications_enabled?: boolean } | null;
+      const onboarding = site.onboarding_json as {
+        notifications_enabled?: boolean;
+        manual_post_notifications_enabled?: boolean;
+        manual_post_channel?: "email" | "sms" | "whatsapp";
+      } | null;
       if (onboarding?.notifications_enabled === false) continue;
 
       try {
@@ -64,6 +68,15 @@ export async function GET(req: NextRequest) {
           .eq("site_id", site.id)
           .eq("status", "draft")
           .neq("body", "");
+
+        const { data: readyToPostItems } = await supabase
+          .from("content_items")
+          .select("id, title, channel, body, updated_at")
+          .eq("site_id", site.id)
+          .eq("status", "draft")
+          .neq("body", "")
+          .order("updated_at", { ascending: false })
+          .limit(3);
 
         // Published this week
         const { count: publishedThisWeek } = await supabase
@@ -101,6 +114,26 @@ export async function GET(req: NextRequest) {
           lastWeekClicks > 0
             ? Math.round(((thisWeekClicks - lastWeekClicks) / lastWeekClicks) * 100)
             : null;
+
+        // Send manual posting alert if the user wants notifications for ready-to-post items
+        if (
+          onboarding?.manual_post_notifications_enabled &&
+          (onboarding?.manual_post_channel || "email") === "email" &&
+          (readyToPostItems || []).length > 0
+        ) {
+          await sendReadyToPostEmail({
+            to: email,
+            siteName: site.name,
+            siteId: site.id,
+            items: (readyToPostItems || []).map((item) => ({
+              title: item.title || `${item.channel} content`,
+              channel: item.channel,
+              body: item.body || "",
+              queueUrl: null,
+            })),
+          });
+          emailsSent++;
+        }
 
         // Send digest (includes pending approval + performance summary)
         if ((pendingApproval || 0) > 0 || (publishedThisWeek || 0) > 0) {

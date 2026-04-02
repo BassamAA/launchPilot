@@ -77,13 +77,13 @@ export function BusinessProfilePanel({
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <div className="flex items-center gap-2">
-            <h2 className="text-lg font-bold text-gray-900">Business Profile</h2>
+            <h2 className="text-lg font-bold text-gray-900">Business profile</h2>
             <Badge variant={sourceHealth.goodEnough ? "success" : "warning"}>
               {sourceHealth.goodEnough ? "Strategy-ready" : "Needs enrichment"}
             </Badge>
           </div>
-          <p className="text-sm text-gray-500 mt-1">
-            Manual enrichment for weaker social-only businesses. {BRAND_NAME} uses this profile in surfaces, planning, and future strategy.
+          <p className="text-sm text-gray-500 mt-1 max-w-2xl">
+            This is your fallback source of truth. If the website analysis missed something important, fix it here so {BRAND_NAME} generates better plans and drafts.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -108,6 +108,10 @@ export function BusinessProfilePanel({
           ))}
         </div>
       )}
+
+      <div className="rounded-xl border border-brand-100 bg-brand-50/50 p-4 text-sm text-gray-700">
+        Best use: fix audience, offer, or monetization details if the generated brief feels slightly off. Do not over-edit this unless the analysis is genuinely wrong.
+      </div>
 
       <div className="grid gap-4 md:grid-cols-2">
         <div>

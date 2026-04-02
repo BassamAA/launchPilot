@@ -660,6 +660,10 @@ export interface SiteOnboardingState {
   auto_approve_channels?: ContentChannel[];
   /** Whether to send LaunchPilot notification emails for this site */
   notifications_enabled?: boolean;
+  /** Preferred manual-post notification channel. Email is implemented first; SMS/WhatsApp can follow. */
+  manual_post_channel?: "email" | "sms" | "whatsapp";
+  /** Whether to send ready-to-post/manual-publishing nudges for this site */
+  manual_post_notifications_enabled?: boolean;
 }
 
 export interface ActivationDefinition {

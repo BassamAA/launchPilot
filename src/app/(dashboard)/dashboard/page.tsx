@@ -87,7 +87,6 @@ export default async function DashboardPage() {
     };
   }
 
-  // Aggregate content stats across all sites
   let stats = { generated: 0, approved: 0, published: 0 };
   if (allSites.length > 0) {
     const siteIds = allSites.map((s) => s.id);
@@ -105,7 +104,6 @@ export default async function DashboardPage() {
 
   const firstName = profile.name?.split(" ")[0] || user.email?.split("@")[0] || "there";
 
-  // Empty state
   if (allSites.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
@@ -113,11 +111,10 @@ export default async function DashboardPage() {
           <RocketLaunchIcon className="w-10 h-10 text-brand-500" />
         </div>
         <h1 className="text-3xl font-bold text-gray-900 mb-3">
-          Hey {firstName}, let's get your first customers.
+          Hey {firstName}, let&apos;s build your distribution system.
         </h1>
         <p className="text-gray-500 text-lg max-w-md mb-10 leading-relaxed">
-          Paste your site URL and {BRAND_NAME} will analyze it, identify your ideal customer,
-          and generate a complete 30-day marketing plan.
+          Paste your product URL and {BRAND_NAME} will analyze it, build a 30-day plan, generate starter drafts, and give you a queue to actually ship from.
         </p>
         <Link
           href="/sites/new"
@@ -126,7 +123,7 @@ export default async function DashboardPage() {
           <SparklesIcon className="w-5 h-5" />
           Analyze my first site
         </Link>
-        <p className="mt-4 text-sm text-gray-400">Takes about 30 seconds · No technical setup</p>
+        <p className="mt-4 text-sm text-gray-400">Strategy first · Queue-driven workflow · No technical setup</p>
       </div>
     );
   }
@@ -142,13 +139,12 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-8">
-      {/* Heading */}
       <div>
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
           Welcome back, {firstName}
         </h1>
         <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
-          Here's your marketing operation overview.
+          Here&apos;s the current state of your distribution workflow.
         </p>
       </div>
 
@@ -170,7 +166,7 @@ export default async function DashboardPage() {
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-brand-600">Quick wins</p>
             <h2 className="mt-3 text-lg font-bold text-gray-900">What to do next</h2>
             <p className="mt-2 text-sm leading-6 text-gray-500">
-              The app already has enough context to suggest the highest-leverage next moves for your primary site.
+              The app already has enough context to point you toward the highest-leverage next moves on your primary site.
             </p>
             <div className="mt-5 space-y-3">
               {dashboardChecklist.quickWins.map((win) => (
@@ -183,11 +179,10 @@ export default async function DashboardPage() {
         </div>
       )}
 
-      {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
           { label: "Sites", value: allSites.length, color: "text-brand-600" },
-          { label: "Content Generated", value: stats.generated, color: "text-gray-900" },
+          { label: "Drafts generated", value: stats.generated, color: "text-gray-900" },
           { label: "Approved", value: stats.approved, color: "text-emerald-600" },
           { label: "Published", value: stats.published, color: "text-sky-600" },
         ].map((stat) => (
@@ -198,7 +193,6 @@ export default async function DashboardPage() {
         ))}
       </div>
 
-      {/* Sites */}
       <div>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-base font-semibold text-gray-900 dark:text-white">Your sites</h2>

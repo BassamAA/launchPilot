@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { Badge, Card, EmptyState, Spinner } from "@/components/ui";
@@ -271,7 +272,10 @@ export default function PerformancePage() {
 
         {!data.attribution.trackingInstalled && (
           <div className="mt-4 rounded-xl border border-amber-100 bg-amber-50 p-4 text-sm text-amber-900">
-            Install the {BRAND_NAME} conversion pixel from the site settings page to connect clicks to signups.
+            <p>Install the {BRAND_NAME} conversion pixel from the site settings page to connect clicks to signups.</p>
+            <Link href={`/sites/${siteId}/settings`} className="mt-3 inline-flex text-sm font-semibold text-amber-900 underline underline-offset-4">
+              Open tracking setup →
+            </Link>
           </div>
         )}
       </Card>
@@ -486,7 +490,23 @@ export default function PerformancePage() {
       <Card padding="md">
         <h2 className="font-bold text-gray-900 text-sm">Top Converting Content</h2>
         {data.attribution.topConvertingContent.length === 0 ? (
-          <p className="mt-4 text-sm text-gray-400">No tracked clicks or signups yet.</p>
+          <div className="mt-4 rounded-xl border border-dashed border-gray-200 bg-gray-50 p-5">
+            <p className="text-sm text-gray-600">No tracked clicks or signups yet.</p>
+            <div className="mt-3 flex flex-wrap gap-3">
+              {!data.attribution.trackingInstalled ? (
+                <Link href={`/sites/${siteId}/settings`} className="text-sm font-semibold text-brand-600 hover:underline">
+                  Install tracking first →
+                </Link>
+              ) : (
+                <Link href={`/sites/${siteId}/queue`} className="text-sm font-semibold text-brand-600 hover:underline">
+                  Approve and publish content →
+                </Link>
+              )}
+              <Link href={`/sites/${siteId}/plan`} className="text-sm font-semibold text-gray-600 hover:underline">
+                Review current plan
+              </Link>
+            </div>
+          </div>
         ) : (
           <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             {data.attribution.topConvertingContent.slice(0, 6).map((item) => (
@@ -514,7 +534,17 @@ export default function PerformancePage() {
       <Card padding="md">
         <h2 className="font-bold text-gray-900 text-sm">Top Performing Content</h2>
         {data.topContent.length === 0 ? (
-          <p className="mt-4 text-sm text-gray-400">No published content has performance data yet.</p>
+          <div className="mt-4 rounded-xl border border-dashed border-gray-200 bg-gray-50 p-5">
+            <p className="text-sm text-gray-600">No published content has performance data yet.</p>
+            <div className="mt-3 flex flex-wrap gap-3">
+              <Link href={`/sites/${siteId}/queue`} className="text-sm font-semibold text-brand-600 hover:underline">
+                Open approval queue →
+              </Link>
+              <Link href={`/sites/${siteId}/content`} className="text-sm font-semibold text-gray-600 hover:underline">
+                Review all content
+              </Link>
+            </div>
+          </div>
         ) : (
           <div className="mt-4 overflow-x-auto">
             <table className="min-w-full text-sm">

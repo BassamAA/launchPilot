@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import Link from "next/link";
 import { useParams } from "next/navigation";
 import { Button, Badge, Card, Spinner, EmptyState, cn } from "@/components/ui";
 import { useToast } from "@/components/ui/Toast";
@@ -10,9 +11,9 @@ import {
   CalendarIcon,
   ListBulletIcon,
   BoltIcon,
-  CheckIcon,
   ClockIcon,
   XMarkIcon,
+  ArrowRightIcon,
 } from "@heroicons/react/24/outline";
 import { CheckCircleIcon } from "@heroicons/react/24/solid";
 
@@ -25,6 +26,7 @@ const CHANNEL_DOT: Record<string, string> = {
   email: "bg-violet-400",
   tiktok: "bg-pink-400",
   directory: "bg-indigo-400",
+  linkedin: "bg-blue-400",
 };
 
 const CHANNEL_BADGE: Record<string, string> = {
@@ -34,6 +36,7 @@ const CHANNEL_BADGE: Record<string, string> = {
   email: "bg-violet-50 text-violet-700",
   tiktok: "bg-pink-50 text-pink-700",
   directory: "bg-indigo-50 text-indigo-700",
+  linkedin: "bg-blue-50 text-blue-700",
 };
 
 const STATUS_CONFIG: Record<ContentStatus, { icon: React.ReactNode; label: string; class: string }> = {
@@ -117,8 +120,12 @@ export default function PlanPage() {
     }
   }, [siteId]);
 
-  useEffect(() => { fetchPlan(); }, [fetchPlan]);
-  useEffect(() => { fetchGrowth(); }, [fetchGrowth]);
+  useEffect(() => {
+    fetchPlan();
+  }, [fetchPlan]);
+  useEffect(() => {
+    fetchGrowth();
+  }, [fetchGrowth]);
 
   async function handleGeneratePlan() {
     setGenerating(true);
@@ -133,7 +140,6 @@ export default function PlanPage() {
         toast(`Plan created with ${data.item_count} action items`, "success");
         await fetchPlan();
       } else if (res.status === 409) {
-        // Plan already exists for this month
         toast("A plan already exists for this month", "info");
         await fetchPlan();
       } else {
@@ -148,7 +154,7 @@ export default function PlanPage() {
     if (!plan) return;
     const needsContent = items.filter((i) => !i.body);
     if (needsContent.length === 0) {
-      toast("All content already generated!", "info");
+      toast("All content is already generated.", "info");
       return;
     }
 
@@ -194,7 +200,6 @@ export default function PlanPage() {
     }
   }
 
-  // Group items by week
   const byWeek: Record<number, ContentItem[]> = {};
   items.forEach((item) => {
     const week = (item.metadata_json as { week?: number })?.week || 1;
@@ -210,10 +215,18 @@ export default function PlanPage() {
   const growthLoops = strategy?.growth_loops || [];
   const channelTheses = strategy?.channel_theses || [];
 
-  // Summary counts
   const withContent = items.filter((i) => i.body).length;
   const noContent = items.filter((i) => !i.body).length;
   const approved = items.filter((i) => ["approved", "published"].includes(i.status)).length;
+  const published = items.filter((i) => i.status === "published").length;
+  const nextAction =
+    noContent > 0
+      ? `Generate the ${noContent} remaining draft${noContent === 1 ? "" : "s"} so the queue has something to ship.`
+      : approved > published
+      ? `You already have ${approved - published} approved item${approved - published === 1 ? "" : "s"}. Move to Queue and publish them.`
+      : items.length > 0
+      ? "Open Queue and start reviewing what should ship first."
+      : "Generate or rebuild the plan to create your first execution items.";
 
   if (loading) {
     return (
@@ -228,16 +241,16 @@ export default function PlanPage() {
       <div className="max-w-lg mx-auto">
         <EmptyState
           icon={<CalendarIcon className="w-16 h-16" />}
-          title={plan ? "Your last strategy run didn’t finish" : "Generate your growth strategy"}
+          title={plan ? "Your last strategy run didn’t finish" : "Generate your 30-day plan"}
           description={
             plan
-              ? `${BRAND_NAME} found an incomplete strategy draft for this month. Generate again to rebuild the growth thesis and the full 30-day execution layer.`
-              : `${BRAND_NAME} will generate a broader growth strategy first, then turn it into a concrete 30-day execution plan with content and publishing actions.`
+              ? `${BRAND_NAME} found an incomplete strategy draft for this month. Generate again to rebuild the plan and create the execution items.`
+              : `${BRAND_NAME} will analyze your product, generate a 30-day distribution plan, and create the items you can review and publish.`
           }
           action={
             <Button size="lg" onClick={handleGeneratePlan} loading={generating}>
               <BoltIcon className="w-5 h-5" />
-              {generating ? "Generating…" : plan ? "Rebuild Plan" : "Generate Plan"}
+              {generating ? "Generating…" : plan ? "Rebuild plan" : "Generate plan"}
             </Button>
           }
         />
@@ -252,18 +265,15 @@ export default function PlanPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-start justify-between flex-wrap gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Growth Strategy + 30-Day Execution</h1>
-          {strategy?.overview && (
-            <p className="text-sm text-gray-500 mt-1 max-w-2xl leading-relaxed">
-              {strategy.overview}
-            </p>
-          )}
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-brand-600">Plan</p>
+          <h1 className="mt-2 text-2xl font-bold text-gray-900">Your 30-day distribution plan</h1>
+          <p className="mt-2 text-sm text-gray-500 max-w-2xl leading-relaxed">
+            This page is for deciding what to do. The queue is where you review drafts, approve them, and actually publish.
+          </p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
-          {/* View toggle */}
           <div className="flex border border-gray-200 rounded-lg overflow-hidden">
             <button
               onClick={() => setView("list")}
@@ -287,40 +297,73 @@ export default function PlanPage() {
             </button>
           </div>
 
-          <Button variant="secondary" size="sm" onClick={handleReprioritize} loading={reprioritizing}>
-            <BoltIcon className="w-4 h-4" />
-            {reprioritizing ? "Reprioritizing…" : "Re-prioritize"}
-          </Button>
-
-          {noContent > 0 && (
-            <Button onClick={handleBulkGenerate} loading={bulkGenerating} size="sm">
-              <BoltIcon className="w-4 h-4" />
-              {bulkGenerating
-                ? bulkProgress
-                  ? `Generating ${bulkProgress.done}/${bulkProgress.total}…`
-                  : "Generating…"
-                : `Generate ${noContent} pieces`}
+          <Link href={`/sites/${siteId}/queue`}>
+            <Button size="sm">
+              Open queue
+              <ArrowRightIcon className="w-4 h-4" />
             </Button>
-          )}
+          </Link>
         </div>
       </div>
 
-      {/* Strategic frame */}
+      <Card padding="md" className="border-brand-200 bg-brand-50/40">
+        <div className="flex items-start justify-between gap-4 flex-wrap">
+          <div>
+            <p className="text-xs uppercase tracking-wide text-brand-600 font-semibold">Next best action</p>
+            <p className="mt-2 text-sm font-semibold text-gray-900 leading-relaxed">{nextAction}</p>
+            {strategy?.overview && (
+              <p className="mt-2 text-sm text-gray-600 max-w-3xl leading-relaxed">{strategy.overview}</p>
+            )}
+          </div>
+          <div className="flex gap-2 flex-wrap">
+            {noContent > 0 && (
+              <Button onClick={handleBulkGenerate} loading={bulkGenerating} size="sm">
+                <BoltIcon className="w-4 h-4" />
+                {bulkGenerating
+                  ? bulkProgress
+                    ? `Generating ${bulkProgress.done}/${bulkProgress.total}…`
+                    : "Generating…"
+                  : `Generate ${noContent} draft${noContent === 1 ? "" : "s"}`}
+              </Button>
+            )}
+            <Button variant="secondary" size="sm" onClick={handleReprioritize} loading={reprioritizing}>
+              <BoltIcon className="w-4 h-4" />
+              {reprioritizing ? "Reprioritizing…" : "Re-prioritize"}
+            </Button>
+          </div>
+        </div>
+      </Card>
+
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {[
+          { label: "Plan items", value: items.length, helper: "total actions" },
+          { label: "Drafts ready", value: withContent, helper: "content generated" },
+          { label: "Approved", value: approved, helper: "ready or published" },
+          { label: "Needs drafts", value: noContent, helper: "not generated yet" },
+        ].map((stat) => (
+          <Card key={stat.label} padding="md">
+            <p className="text-xs uppercase tracking-wide text-gray-400">{stat.label}</p>
+            <p className="mt-2 text-2xl font-bold text-gray-900">{stat.value}</p>
+            <p className="mt-1 text-xs text-gray-500">{stat.helper}</p>
+          </Card>
+        ))}
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <Card padding="md">
-          <p className="text-xs uppercase tracking-wide text-gray-400">North Star</p>
+          <p className="text-xs uppercase tracking-wide text-gray-400">North star</p>
           <p className="mt-2 text-sm font-semibold text-gray-900 leading-relaxed">
             {strategy?.north_star_goal || "Turn distribution into compounding user growth."}
           </p>
         </Card>
         <Card padding="md">
-          <p className="text-xs uppercase tracking-wide text-gray-400">Acquisition Wedge</p>
+          <p className="text-xs uppercase tracking-wide text-gray-400">Acquisition wedge</p>
           <p className="mt-2 text-sm font-semibold text-gray-900 leading-relaxed">
             {strategy?.acquisition_wedge || "Find the sharpest demand pocket and own it before broadening."}
           </p>
         </Card>
         <Card padding="md">
-          <p className="text-xs uppercase tracking-wide text-gray-400">Growth Thesis</p>
+          <p className="text-xs uppercase tracking-wide text-gray-400">Growth thesis</p>
           <p className="mt-2 text-sm font-semibold text-gray-900 leading-relaxed">
             {strategy?.growth_thesis || strategy?.overview}
           </p>
@@ -330,7 +373,7 @@ export default function PlanPage() {
       {(strategicBets.length > 0 || risks.length > 0) && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <Card padding="md">
-            <p className="text-xs uppercase tracking-wide text-gray-400">Strategic Bets</p>
+            <p className="text-xs uppercase tracking-wide text-gray-400">Strategic bets</p>
             <div className="mt-3 space-y-2">
               {strategicBets.length > 0 ? strategicBets.map((bet) => (
                 <div key={bet} className="rounded-xl border border-brand-100 bg-brand-50/50 px-3 py-2 text-sm text-brand-900">
@@ -343,7 +386,7 @@ export default function PlanPage() {
           </Card>
 
           <Card padding="md">
-            <p className="text-xs uppercase tracking-wide text-gray-400">Constraints To Watch</p>
+            <p className="text-xs uppercase tracking-wide text-gray-400">Constraints to watch</p>
             <div className="mt-3 space-y-2">
               {risks.length > 0 ? risks.map((risk) => (
                 <div key={risk} className="rounded-xl border border-amber-100 bg-amber-50/60 px-3 py-2 text-sm text-amber-900">
@@ -360,7 +403,7 @@ export default function PlanPage() {
       {(growthLoops.length > 0 || channelTheses.length > 0) && (
         <div className="grid grid-cols-1 xl:grid-cols-5 gap-4">
           <Card padding="md" className="xl:col-span-3">
-            <p className="text-xs uppercase tracking-wide text-gray-400">Compounding Loops</p>
+            <p className="text-xs uppercase tracking-wide text-gray-400">Compounding loops</p>
             <div className="mt-3 space-y-3">
               {growthLoops.length > 0 ? growthLoops.map((loop) => (
                 <div key={loop.name} className="rounded-2xl border border-gray-100 p-4">
@@ -378,7 +421,7 @@ export default function PlanPage() {
           </Card>
 
           <Card padding="md" className="xl:col-span-2">
-            <p className="text-xs uppercase tracking-wide text-gray-400">Channel Theses</p>
+            <p className="text-xs uppercase tracking-wide text-gray-400">Channel theses</p>
             <div className="mt-3 space-y-3">
               {channelTheses.length > 0 ? channelTheses.map((thesis) => (
                 <div key={`${thesis.channel}-${thesis.rationale}`} className="rounded-2xl border border-gray-100 p-4">
@@ -406,7 +449,7 @@ export default function PlanPage() {
       <div className="grid grid-cols-1 xl:grid-cols-5 gap-4">
         <Card padding="md" className="xl:col-span-3">
           <div className="flex items-center justify-between gap-3">
-            <p className="text-xs uppercase tracking-wide text-gray-400">Active Growth Bets</p>
+            <p className="text-xs uppercase tracking-wide text-gray-400">Active growth bets</p>
             {growthSummary && (
               <div className="flex items-center gap-2 text-xs text-gray-500">
                 <span>{growthSummary.published} published</span>
@@ -452,13 +495,13 @@ export default function PlanPage() {
                 )}
               </div>
             )) : (
-              <p className="text-sm text-gray-400">Generate or rebuild a plan to seed the first set of growth bets.</p>
+              <p className="text-sm text-gray-400">Generate or rebuild a plan to seed the first set of growth bets. Then use Queue to work through the actual execution.</p>
             )}
           </div>
         </Card>
 
         <Card padding="md" className="xl:col-span-2">
-          <p className="text-xs uppercase tracking-wide text-gray-400">Recent Signals</p>
+          <p className="text-xs uppercase tracking-wide text-gray-400">Recent signals</p>
           <div className="mt-3 space-y-3">
             {growthLoading ? (
               <div className="py-6 flex justify-center">
@@ -482,7 +525,7 @@ export default function PlanPage() {
                 </p>
               </div>
             )) : (
-              <p className="text-sm text-gray-400">Signals will show up here as publishing and delivery actions happen.</p>
+              <p className="text-sm text-gray-400">Signals show what happened after execution. They become useful after content actually gets shipped from the queue.</p>
             )}
           </div>
           {growthSummary?.topChannels?.length ? (
@@ -503,38 +546,6 @@ export default function PlanPage() {
         </Card>
       </div>
 
-      {/* Progress bar */}
-      {items.length > 0 && (
-        <div className="bg-white border border-gray-100 rounded-xl p-4 shadow-card">
-          <div className="flex items-center justify-between text-sm mb-2">
-            <span className="font-medium text-gray-700">Plan progress</span>
-            <span className="text-gray-400">
-              {approved}/{items.length} approved
-            </span>
-          </div>
-          <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-brand-500 rounded-full transition-all duration-500"
-              style={{ width: `${items.length ? (approved / items.length) * 100 : 0}%` }}
-            />
-          </div>
-          <div className="flex items-center gap-4 mt-3 flex-wrap">
-            {[
-              { label: "Total actions", value: items.length, color: "text-gray-600" },
-              { label: "Content ready", value: withContent, color: "text-brand-600" },
-              { label: "Approved", value: approved, color: "text-emerald-600" },
-              { label: "Needs content", value: noContent, color: "text-amber-600" },
-            ].map(({ label, value, color }) => (
-              <div key={label} className="text-center">
-                <p className={`text-lg font-bold ${color}`}>{value}</p>
-                <p className="text-xs text-gray-400">{label}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Channel legend */}
       <div className="flex flex-wrap gap-3">
         {Object.entries(CHANNEL_DOT).map(([channel, dot]) => (
           <div key={channel} className="flex items-center gap-1.5 text-xs text-gray-500">
@@ -544,7 +555,6 @@ export default function PlanPage() {
         ))}
       </div>
 
-      {/* List view */}
       {view === "list" && (
         <div className="space-y-8">
           {[1, 2, 3, 4].map((week) => {
@@ -579,7 +589,6 @@ export default function PlanPage() {
                         key={item.id}
                         className="bg-white border border-gray-100 rounded-xl p-4 flex items-center gap-4 shadow-card hover:shadow-card-hover transition-all"
                       >
-                        {/* Channel dot */}
                         <div
                           className={cn(
                             "w-1.5 h-12 rounded-full flex-shrink-0",
@@ -587,7 +596,6 @@ export default function PlanPage() {
                           )}
                         />
 
-                        {/* Content info */}
                         <div className="flex-1 min-w-0">
                           <p className="font-medium text-gray-900 text-sm truncate">
                             {item.title}
@@ -612,11 +620,10 @@ export default function PlanPage() {
                           </div>
                         </div>
 
-                        {/* Status */}
                         <div className="flex items-center gap-2 flex-shrink-0">
                           {!item.body && (
                             <span className="text-xs text-amber-500 font-medium">
-                              No content
+                              Needs draft
                             </span>
                           )}
                           {item.body && (
@@ -644,7 +651,6 @@ export default function PlanPage() {
         </div>
       )}
 
-      {/* Calendar view */}
       {view === "calendar" && (
         <CalendarView items={items} />
       )}
@@ -652,10 +658,7 @@ export default function PlanPage() {
   );
 }
 
-// ─── Calendar View ────────────────────────────────────────────────────
-
 function CalendarView({ items }: { items: ContentItem[] }) {
-  // Index items by date
   const byDate: Record<string, ContentItem[]> = {};
   items.forEach((item) => {
     if (!item.scheduled_date) return;
@@ -701,70 +704,70 @@ function CalendarView({ items }: { items: ContentItem[] }) {
               </h3>
             </div>
             <div className="overflow-x-auto">
-          <div className="grid grid-cols-7 min-w-[420px]">
-              {DAYS.map((d) => (
-                <div
-                  key={`${year}-${month}-${d}`}
-                  className="p-2 text-center text-xs font-semibold text-gray-400 border-b border-gray-50"
-                >
-                  {d}
-                </div>
-              ))}
-              {Array.from({ length: startPadding }).map((_, i) => (
-                <div
-                  key={`${year}-${month}-pad-${i}`}
-                  className="min-h-[80px] p-2 border-b border-r border-gray-50 bg-gray-50/30"
-                />
-              ))}
-              {Array.from({ length: daysInMonth }).map((_, i) => {
-                const day = i + 1;
-                const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-                const dayItems = byDate[dateStr] || [];
-                const isToday =
-                  year === today.getFullYear() &&
-                  month === today.getMonth() &&
-                  day === today.getDate();
-
-                return (
+              <div className="grid grid-cols-7 min-w-[420px]">
+                {DAYS.map((d) => (
                   <div
-                    key={dateStr}
-                    className={cn(
-                      "min-h-[80px] p-2 border-b border-r border-gray-50",
-                      isToday && "bg-brand-50/30"
-                    )}
+                    key={`${year}-${month}-${d}`}
+                    className="p-2 text-center text-xs font-semibold text-gray-400 border-b border-gray-50"
                   >
+                    {d}
+                  </div>
+                ))}
+                {Array.from({ length: startPadding }).map((_, i) => (
+                  <div
+                    key={`${year}-${month}-pad-${i}`}
+                    className="min-h-[80px] p-2 border-b border-r border-gray-50 bg-gray-50/30"
+                  />
+                ))}
+                {Array.from({ length: daysInMonth }).map((_, i) => {
+                  const day = i + 1;
+                  const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+                  const dayItems = byDate[dateStr] || [];
+                  const isToday =
+                    year === today.getFullYear() &&
+                    month === today.getMonth() &&
+                    day === today.getDate();
+
+                  return (
                     <div
+                      key={dateStr}
                       className={cn(
-                        "text-xs font-semibold w-6 h-6 flex items-center justify-center rounded-full mb-1",
-                        isToday ? "bg-brand-500 text-white" : "text-gray-500"
+                        "min-h-[80px] p-2 border-b border-r border-gray-50",
+                        isToday && "bg-brand-50/30"
                       )}
                     >
-                      {day}
+                      <div
+                        className={cn(
+                          "text-xs font-semibold w-6 h-6 flex items-center justify-center rounded-full mb-1",
+                          isToday ? "bg-brand-500 text-white" : "text-gray-500"
+                        )}
+                      >
+                        {day}
+                      </div>
+                      <div className="space-y-0.5">
+                        {dayItems.slice(0, 3).map((item) => (
+                          <div
+                            key={item.id}
+                            className={cn(
+                              "text-xs px-1.5 py-0.5 rounded font-medium truncate",
+                              CHANNEL_BADGE[item.channel] || "bg-gray-100 text-gray-600"
+                            )}
+                            title={item.title}
+                          >
+                            {item.title.slice(0, 20)}{item.title.length > 20 ? "…" : ""}
+                          </div>
+                        ))}
+                        {dayItems.length > 3 && (
+                          <div className="text-xs text-gray-400 pl-1.5">
+                            +{dayItems.length - 3} more
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    <div className="space-y-0.5">
-                      {dayItems.slice(0, 3).map((item) => (
-                        <div
-                          key={item.id}
-                          className={cn(
-                            "text-xs px-1.5 py-0.5 rounded font-medium truncate",
-                            CHANNEL_BADGE[item.channel] || "bg-gray-100 text-gray-600"
-                          )}
-                          title={item.title}
-                        >
-                          {item.title.slice(0, 20)}{item.title.length > 20 ? "…" : ""}
-                        </div>
-                      ))}
-                      {dayItems.length > 3 && (
-                        <div className="text-xs text-gray-400 pl-1.5">
-                          +{dayItems.length - 3} more
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
-          </div>
           </Card>
         );
       })}

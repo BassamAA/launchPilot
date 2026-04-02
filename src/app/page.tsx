@@ -23,10 +23,10 @@ import {
 const CHANNELS = [
   { icon: MagnifyingGlassIcon, label: "SEO Blog Posts", color: "text-emerald-600 bg-emerald-50" },
   { icon: ChatBubbleLeftRightIcon, label: "Twitter / X", color: "text-sky-600 bg-sky-50" },
-  { icon: GlobeAltIcon, label: "Reddit", color: "text-orange-600 bg-orange-50" },
   { icon: BriefcaseIcon, label: "LinkedIn", color: "text-blue-600 bg-blue-50" },
   { icon: EnvelopeIcon, label: "Email", color: "text-violet-600 bg-violet-50" },
   { icon: BuildingStorefrontIcon, label: "Directories", color: "text-indigo-600 bg-indigo-50" },
+  { icon: GlobeAltIcon, label: "Launch surfaces", color: "text-orange-600 bg-orange-50" },
 ];
 
 const STEPS = [
@@ -35,57 +35,57 @@ const STEPS = [
     icon: GlobeAltIcon,
     title: "Paste Your URL",
     description:
-      `Drop your live site URL. ${BRAND_NAME} crawls it, reads every word, and figures out exactly what you've built and who needs it.`,
+      `Drop your live SaaS URL. ${BRAND_NAME} crawls it, reads the positioning, and figures out what you built, who it is for, and where distribution should start.`,
   },
   {
     number: "02",
     icon: DocumentTextIcon,
     title: "Review Your Plan",
     description:
-      "Get a complete marketing brief, a 30-day action plan, and all the content pre-written — blog posts, tweets, LinkedIn posts, Reddit drafts, cold emails, and directory submissions.",
+      "Get a sharp marketing brief, a 30-day distribution plan, and starter drafts for the channels that matter most first.",
   },
   {
     number: "03",
     icon: BoltIcon,
-    title: "Turn On Autopilot",
+    title: "Ship Through The Queue",
     description:
-      `Connect your accounts, flip the Autopilot switch, and walk away. ${BRAND_NAME} generates, schedules, and publishes content every day — without you touching it again.`,
+      `Review, edit, approve, and publish from one workflow. Automation can layer in later, but the first win is consistent execution.`,
   },
 ];
 
 const FAQS = [
   {
     q: "Do I need any marketing experience?",
-    a: `None. ${BRAND_NAME} is built for developers and founders who know how to build but have never done marketing. It handles the strategy, the writing, and the execution planning.`,
+    a: `No. ${BRAND_NAME} is built for technical founders who know how to build products but do not want to invent their distribution strategy from scratch every week.`,
   },
   {
     q: "Will it post without my permission?",
-    a: `By default, you review everything in the approval queue before it goes live. If you want full automation, turn on Autopilot — ${BRAND_NAME} will generate and publish blog posts, tweets, and LinkedIn posts daily on its own. Reddit drafts always require manual review regardless.`,
+    a: `By default, no. ${BRAND_NAME} is queue-first. You review drafts before they ship, and only enable automation after the workflow is dialed in.`,
   },
   {
     q: "What if I don't like the generated content?",
-    a: `Edit it inline in the approval queue. Or reject it and request a regeneration. Every content card has an edit button — it's your voice, ${BRAND_NAME} just does the first draft.`,
+    a: `Edit it in the queue, reject it, or regenerate it. The goal is not to replace your judgment — it is to give you a much better starting point and a repeatable workflow.`,
   },
   {
     q: "How is this different from just using ChatGPT?",
-    a: `ChatGPT writes when you ask it to. ${BRAND_NAME} analyzes your site, builds a multi-channel strategy tailored to your specific product and audience, generates all content with that context, schedules it, and tracks what gets published. It's an execution engine, not a chat interface.`,
+    a: `ChatGPT gives you isolated outputs. ${BRAND_NAME} turns your product into an operating system for distribution: brief, plan, drafts, queue, publishing workflow, and performance context — all tied to the same site.`,
   },
   {
     q: "Can I use this for multiple products?",
-    a: "Yes — Growth and Agency plans support multiple sites. Each site gets its own marketing brief, 30-day plan, and content queue. Completely independent operations.",
+    a: "Yes — paid plans support multiple sites. Each site gets its own brief, plan, queue, and performance context.",
   },
   {
-    q: "Does it work for already-launched products too?",
-    a: `Absolutely. Whether you launched yesterday or a year ago with no traction, ${BRAND_NAME} builds you a fresh marketing operation from scratch.`,
+    q: "Who is this best for right now?",
+    a: `${BRAND_NAME} is best suited today for indie SaaS founders, solo technical founders, and micro-SaaS builders who need consistent distribution more than vague AI copy.`,
   },
 ];
 
 export default function LandingPage() {
   const faqJsonLd = buildFaqJsonLd(FAQS);
   const pageJsonLd = buildWebPageJsonLd({
-    title: `${BRAND_NAME} — AI Marketing Autopilot for Developers`,
+    title: `${BRAND_NAME} — Distribution system for indie SaaS founders`,
     description:
-      `Paste your URL and ${BRAND_NAME} analyzes your site, builds a marketing strategy, generates content, and executes across SEO, social, Reddit, and directories.`,
+      `Paste your SaaS URL and ${BRAND_NAME} turns it into a 30-day distribution plan, ready-to-review drafts, and a simple publishing workflow.`,
     path: "/",
   });
 
@@ -97,7 +97,6 @@ export default function LandingPage() {
       <Script id="homepage-faq-jsonld" type="application/ld+json">
         {JSON.stringify(faqJsonLd)}
       </Script>
-      {/* Nav */}
       <nav className="fixed top-0 inset-x-0 z-50 border-b border-gray-100 bg-white/90 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
@@ -123,34 +122,31 @@ export default function LandingPage() {
         </div>
       </nav>
 
-      {/* Hero */}
       <section className="pt-32 pb-24 px-6">
         <div className="max-w-5xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-brand-50 text-brand-700 rounded-full text-sm font-medium mb-6">
             <span className="w-2 h-2 rounded-full bg-brand-500 animate-pulse" />
-            AI-powered marketing for indie hackers
+            Distribution system for indie SaaS founders
           </div>
 
           <h1 className="text-4xl sm:text-6xl md:text-8xl font-bold text-gray-900 leading-[1.05] tracking-tight mb-4">
             Your product is live.{" "}
-            <span className="text-brand-500">Where are your customers?</span>
+            <span className="text-brand-500">Now build distribution that compounds.</span>
           </h1>
 
           <p className="text-xl text-gray-500 max-w-2xl mx-auto mb-8 leading-relaxed">
-            Paste your URL. Get a complete marketing strategy, all content written, and publishing on autopilot across blog, Twitter, LinkedIn, Reddit, and directories — every single day, without touching it again.
+            Paste your SaaS URL. Get a sharp marketing brief, a 30-day distribution plan, and ready-to-review drafts for blog, X, LinkedIn, email, and launch surfaces.
           </p>
 
-          {/* Interactive hero input */}
           <div className="mb-5">
             <HeroDemo />
           </div>
 
           <p className="text-sm text-gray-400">
-            7-day free trial · No credit card · Analysis in 30 seconds
+            7-day free trial · No credit card · Strategy first, automation second
           </p>
         </div>
 
-        {/* Hero mockup */}
         <div className="max-w-6xl mx-auto mt-16 rounded-2xl border border-gray-200 shadow-2xl overflow-hidden bg-gray-50">
           <div className="bg-gray-800 h-9 flex items-center px-4 gap-2">
             <div className="w-3 h-3 rounded-full bg-red-400" />
@@ -174,10 +170,10 @@ export default function LandingPage() {
             </div>
             <div className="space-y-3">
               {[
-                { channel: "✍️ Blog", title: "Why Freelancers Hate Invoicing (And How to Fix It)", status: "Approved", statusColor: "text-emerald-600 bg-emerald-50" },
-                { channel: "𝕏 Twitter", title: "Hot take: your landing page is probably for you, not...", status: "Pending", statusColor: "text-amber-600 bg-amber-50" },
-                { channel: "🔴 Reddit", title: "r/freelance — comment on 'what invoicing tools do you use'", status: "Pending", statusColor: "text-amber-600 bg-amber-50" },
-                { channel: "📋 Directory", title: "Product Hunt submission — ready to copy/paste", status: "Ready", statusColor: "text-brand-600 bg-brand-50" },
+                { channel: "✍️ Blog", title: "Why technical founders underinvest in distribution", status: "Approved", statusColor: "text-emerald-600 bg-emerald-50" },
+                { channel: "𝕏 Twitter", title: "You do not need more startup advice. You need consistent...", status: "Pending", statusColor: "text-amber-600 bg-amber-50" },
+                { channel: "💼 LinkedIn", title: "A founder update that explains the product in plain English", status: "Pending", statusColor: "text-amber-600 bg-amber-50" },
+                { channel: "📋 Directory", title: "Launch directory submission — ready to copy/paste", status: "Ready", statusColor: "text-brand-600 bg-brand-50" },
               ].map((item) => (
                 <div key={item.title} className="bg-white rounded-xl border border-gray-100 shadow-card p-4 flex items-center gap-3">
                   <span className="text-lg w-8 flex-shrink-0">{item.channel.split(" ")[0]}</span>
@@ -189,7 +185,7 @@ export default function LandingPage() {
                     {item.status}
                   </span>
                   <button className="hidden sm:block px-3 py-1.5 bg-brand-500 text-white text-xs font-medium rounded-lg flex-shrink-0">
-                    Approve
+                    Review
                   </button>
                 </div>
               ))}
@@ -198,15 +194,14 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* How it works */}
       <section id="how-it-works" className="py-24 px-6 bg-gray-50">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              From URL to customers in minutes
+              From product URL to execution plan in minutes
             </h2>
             <p className="text-lg text-gray-500">
-              No onboarding forms. No strategy decks. Just paste and go.
+              Start with strategy, then move into drafts, review, publishing, and learning.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -228,16 +223,14 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Channels */}
       <section id="channels" className="py-24 px-6">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              Every channel, one platform
+              One place to plan, draft, and publish
             </h2>
             <p className="text-lg text-gray-500 max-w-2xl mx-auto">
-              {BRAND_NAME} generates platform-native content for every major marketing channel.
-              Not generic copy — tailored to your product, your customer, and each platform's culture.
+              {BRAND_NAME} starts with the channels founders can actually sustain. Strategy comes first. Drafts and publishing follow.
             </p>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -253,7 +246,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Built in public proof */}
       <section className="py-16 px-6 bg-brand-500">
         <div className="max-w-4xl mx-auto text-center">
           <p className="text-brand-100 text-sm font-semibold uppercase tracking-widest mb-4">Built in public</p>
@@ -261,7 +253,7 @@ export default function LandingPage() {
             {BRAND_NAME} markets itself using {BRAND_NAME}.
           </h2>
           <p className="text-brand-100 text-lg leading-relaxed max-w-2xl mx-auto mb-8">
-            This blog post, the tweet that brought you here, the LinkedIn post — all generated and published automatically by the same system you're about to use. Every day, with no human intervention.
+            The blog, launch pages, and founder distribution engine are all being built with the same system. The goal is not fake autonomy. The goal is a repeatable publishing loop that compounds.
           </p>
           <div className="grid gap-4 text-left sm:grid-cols-3 mb-8">
             {[
@@ -283,13 +275,12 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* SEO landing pages */}
       <section className="py-24 px-6 bg-gray-50">
         <div className="max-w-6xl mx-auto">
           <div className="mb-12 text-center">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Built for how founders actually search</h2>
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">Built for technical founders who need consistency</h2>
             <p className="text-lg text-gray-500 max-w-3xl mx-auto">
-              We are not relying on one homepage to do all the work. These pages target high-intent founder problems and explain the product in plain English.
+              Most founders do not need more vague AI copy. They need positioning, channel priorities, ready drafts, and a queue that helps them actually ship.
             </p>
           </div>
           <div className="grid gap-6 md:grid-cols-3">
@@ -309,15 +300,14 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Pricing */}
       <section id="pricing" className="py-24 px-6">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              Simple pricing, serious results
+              Simple pricing, serious execution
             </h2>
             <p className="text-lg text-gray-500">
-              7-day free trial on Growth. No credit card required.
+              Start with strategy and execution support. Add automation once the loop is working.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -364,7 +354,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* FAQ */}
       <section id="faq" className="py-24 px-6 bg-gray-50">
         <div className="max-w-3xl mx-auto">
           <h2 className="text-4xl font-bold text-gray-900 text-center mb-16">
@@ -381,7 +370,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Why this converts better than a generic AI tool */}
       <section className="py-24 px-6">
         <div className="max-w-6xl mx-auto grid gap-8 lg:grid-cols-2">
           <div className="rounded-3xl border border-red-100 bg-red-50 p-8">
@@ -396,27 +384,25 @@ export default function LandingPage() {
           </div>
           <div className="rounded-3xl border border-emerald-100 bg-emerald-50 p-8">
             <p className="text-sm font-semibold uppercase tracking-[0.22em] text-emerald-700">The stronger approach</p>
-            <h2 className="mt-4 text-3xl font-bold text-gray-900">Using {BRAND_NAME} as a growth operating system</h2>
+            <h2 className="mt-4 text-3xl font-bold text-gray-900">Using {BRAND_NAME} as a distribution operating system</h2>
             <ul className="mt-6 space-y-3 text-sm leading-6 text-gray-700">
               <li>• Your live product becomes the source of truth.</li>
               <li>• The app builds strategy before it writes content.</li>
-              <li>• Publishing, review, tracking, and iteration stay in one loop.</li>
+              <li>• Drafts, review, publishing, tracking, and iteration stay in one loop.</li>
               <li>• You can see what content creates clicks, signups, activation, and revenue.</li>
             </ul>
           </div>
         </div>
       </section>
 
-      {/* CTA */}
       <section className="py-24 px-6">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-            Your next customer is out there.<br />
-            <span className="text-brand-500">Go find them.</span>
+            Your product already exists.<br />
+            <span className="text-brand-500">Your distribution system should too.</span>
           </h2>
           <p className="text-lg text-gray-500 mb-10">
-            Paste your URL. Get your marketing plan in minutes.
-            Start publishing this week.
+            Paste your URL. Get a clear plan, generate starter drafts, and start shipping this week.
           </p>
           <Link href="/signup">
             <Button size="lg" className="px-10 py-4 text-base">
@@ -427,7 +413,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Footer */}
       <footer className="border-t border-gray-100 py-12 px-6">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2.5">

@@ -11,11 +11,12 @@ import {
   QueueListIcon,
   ChartBarIcon,
   SparklesIcon,
-  Cog6ToothIcon,
   LinkIcon,
   PlusCircleIcon,
   ChevronDownIcon,
   RocketLaunchIcon,
+  FolderIcon,
+  ChatBubbleLeftRightIcon,
 } from "@heroicons/react/24/outline";
 import { useState } from "react";
 
@@ -28,13 +29,12 @@ export function Sidebar({ sites, pendingCountBySite = {} }: SidebarProps) {
   const pathname = usePathname();
   const [sitesOpen, setSitesOpen] = useState(true);
 
-  // Extract current site ID from pathname: /sites/[id]/...
   const siteMatch = pathname.match(/^\/sites\/([^/]+)/);
   const currentSiteId = siteMatch ? siteMatch[1] : null;
-  // Exclude "new" from being treated as a site ID
   const activeSiteId = currentSiteId === "new" ? null : currentSiteId;
 
   const currentSite = sites.find((s) => s.id === activeSiteId);
+
   function getSiteHostname(site: Site): string {
     try {
       const url = site.url.startsWith("http") ? site.url : `https://${site.url}`;
@@ -53,24 +53,34 @@ export function Sidebar({ sites, pendingCountBySite = {} }: SidebarProps) {
           exact: true,
         },
         {
-          label: "Calendar",
-          href: `/sites/${activeSiteId}/social`,
-          icon: <SparklesIcon className="w-4 h-4" />,
+          label: "Operator",
+          href: `/sites/${activeSiteId}/operator`,
+          icon: <ChatBubbleLeftRightIcon className="w-4 h-4" />,
         },
         {
-          label: "Review & Publish",
+          label: "Plan",
+          href: `/sites/${activeSiteId}/plan`,
+          icon: <CalendarIcon className="w-4 h-4" />,
+        },
+        {
+          label: "Queue",
           href: `/sites/${activeSiteId}/queue`,
           icon: <QueueListIcon className="w-4 h-4" />,
         },
         {
-          label: "Content Plan",
-          href: `/sites/${activeSiteId}/plan`,
-          icon: <CalendarIcon className="w-4 h-4" />,
+          label: "Library",
+          href: `/sites/${activeSiteId}/content`,
+          icon: <FolderIcon className="w-4 h-4" />,
         },
         {
           label: "Results",
           href: `/sites/${activeSiteId}/performance`,
           icon: <ChartBarIcon className="w-4 h-4" />,
+        },
+        {
+          label: "Strategy Calendar",
+          href: `/sites/${activeSiteId}/social`,
+          icon: <SparklesIcon className="w-4 h-4" />,
         },
         {
           label: "Connections",
@@ -87,7 +97,6 @@ export function Sidebar({ sites, pendingCountBySite = {} }: SidebarProps) {
 
   return (
     <aside className="w-60 flex-shrink-0 h-screen sticky top-0 bg-white dark:bg-gray-800 border-r border-gray-100 dark:border-gray-700 flex flex-col">
-      {/* Logo */}
       <div className="h-16 flex items-center px-5 border-b border-gray-100 dark:border-gray-700">
         <Link href="/dashboard" className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-lg bg-brand-500 flex items-center justify-center">
@@ -97,29 +106,20 @@ export function Sidebar({ sites, pendingCountBySite = {} }: SidebarProps) {
         </Link>
       </div>
 
-      {/* Nav */}
       <nav className="flex-1 overflow-y-auto p-3 space-y-1">
-        {/* Sites list */}
         <div>
           <button
             onClick={() => setSitesOpen(!sitesOpen)}
             className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
           >
             <span>Sites</span>
-            <ChevronDownIcon
-              className={cn(
-                "w-3.5 h-3.5 transition-transform duration-200",
-                sitesOpen && "rotate-180"
-              )}
-            />
+            <ChevronDownIcon className={cn("w-3.5 h-3.5 transition-transform duration-200", sitesOpen && "rotate-180")} />
           </button>
 
           {sitesOpen && (
             <div className="mt-1 space-y-0.5">
               {sites.length === 0 ? (
-                <div className="px-3 py-2 text-sm text-gray-400 dark:text-gray-500">
-                  No sites yet.
-                </div>
+                <div className="px-3 py-2 text-sm text-gray-400 dark:text-gray-500">No sites yet.</div>
               ) : (
                 sites.map((site) => {
                   const sitePending = pendingCountBySite[site.id] || 0;
@@ -143,9 +143,7 @@ export function Sidebar({ sites, pendingCountBySite = {} }: SidebarProps) {
                           site.status === "paused" && "bg-gray-300"
                         )}
                       />
-                      <span className="truncate flex-1">
-                        {site.name && site.name !== "" ? site.name : getSiteHostname(site)}
-                      </span>
+                      <span className="truncate flex-1">{site.name && site.name !== "" ? site.name : getSiteHostname(site)}</span>
                       {sitePending > 0 && (
                         <span className="ml-auto min-w-[1.25rem] h-5 px-1 flex items-center justify-center rounded-full bg-amber-400 text-white text-xs font-bold leading-none flex-shrink-0">
                           {sitePending > 99 ? "99+" : sitePending}
@@ -172,16 +170,14 @@ export function Sidebar({ sites, pendingCountBySite = {} }: SidebarProps) {
           )}
         </div>
 
-        {/* Site-specific nav */}
         {currentSite && siteNav.length > 0 && (
           <div className="mt-4">
             <p className="px-3 py-2 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide truncate">
               {currentSite.name || getSiteHostname(currentSite)}
             </p>
-            <div className="mt-1 space-y-0.5">
+            <div className="space-y-0.5">
               {siteNav.map((item) => {
-                const isQueue = item.href.endsWith("/queue");
-                const pendingCount = isQueue && activeSiteId ? (pendingCountBySite[activeSiteId] || 0) : 0;
+                const pendingCount = item.href.endsWith("/queue") && activeSiteId ? pendingCountBySite[activeSiteId] || 0 : 0;
                 return (
                   <Link
                     key={item.href}
@@ -189,14 +185,14 @@ export function Sidebar({ sites, pendingCountBySite = {} }: SidebarProps) {
                     className={cn(
                       "flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors",
                       isActive(item.href, item.exact)
-                        ? "bg-brand-50 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300 font-medium"
+                        ? "bg-gray-900 text-white"
                         : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white"
                     )}
                   >
                     {item.icon}
-                    <span className="flex-1">{item.label}</span>
+                    <span className="truncate flex-1">{item.label}</span>
                     {pendingCount > 0 && (
-                      <span className="ml-auto min-w-[1.25rem] h-5 px-1 flex items-center justify-center rounded-full bg-amber-400 text-white text-xs font-bold leading-none">
+                      <span className="min-w-[1.25rem] h-5 px-1 flex items-center justify-center rounded-full bg-amber-400 text-white text-xs font-bold leading-none flex-shrink-0">
                         {pendingCount > 99 ? "99+" : pendingCount}
                       </span>
                     )}
@@ -207,22 +203,6 @@ export function Sidebar({ sites, pendingCountBySite = {} }: SidebarProps) {
           </div>
         )}
       </nav>
-
-      {/* Bottom */}
-      <div className="p-3 border-t border-gray-100 dark:border-gray-700">
-        <Link
-          href="/settings"
-          className={cn(
-            "flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors",
-            pathname.startsWith("/settings")
-              ? "bg-brand-50 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300"
-              : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700"
-          )}
-        >
-          <Cog6ToothIcon className="w-4 h-4" />
-          Settings & Billing
-        </Link>
-      </div>
     </aside>
   );
 }
